@@ -2,6 +2,7 @@
 # Automatically generated file; DO NOT EDIT.
 # PTXdist 2015.05.0
 #
+PTXCONF_STXMCWS=y
 
 #
 # ------------------------------------
@@ -81,7 +82,7 @@ PTXCONF_HOST_AUTOTOOLS_LIBTOOL=y
 # PTXCONF_HOST_CHECKPOLICY is not set
 # PTXCONF_HOST_CHRPATH is not set
 PTXCONF_HOST_CKERMIT=y
-# PTXCONF_HOST_CMAKE is not set
+PTXCONF_HOST_CMAKE=y
 # PTXCONF_HOST_COREUTILS is not set
 # PTXCONF_HOST_CRAMFS is not set
 # PTXCONF_HOST_CXXTOOLS is not set

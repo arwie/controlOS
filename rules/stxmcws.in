@@ -1,0 +1,8 @@
+## SECTION=project_specific
+
+config STXMCWS
+	bool
+	prompt "stxmcws"
+	select HOST_CMAKE
+	help
+	  FIXME
