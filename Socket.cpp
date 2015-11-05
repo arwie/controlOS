@@ -1,10 +1,3 @@
-/*
- * Socket.cpp
- *
- *  Created on: 01.11.2015
- *      Author: client
- */
-
 #include "Socket.h"
 
 #include <string>
@@ -28,9 +21,17 @@ Socket::Socket(int domain, int type, int protocol)
 }
 
 
+void Socket::close() noexcept
+{
+	::close(fd);
+	fd = undefined;
+}
+
+
 Socket::~Socket()
 {
-	close(fd);
+	if (fd != undefined)
+		close();
 }
 
 

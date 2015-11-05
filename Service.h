@@ -5,9 +5,12 @@
 #include "Message.h"
 #include "Socket.h"
 
+#include <thread>
 #include <map>
+#include <mutex>
 
-class Service {
+
+class Service final {
 public:
 	Service(int port);
 	Service(Service&& rhs) noexcept = default;
@@ -15,7 +18,7 @@ public:
 
 	int connected() const;
 
-	int receive();
+	void receive();
 	void send();
 
 
@@ -25,11 +28,13 @@ public:
 
 private:
 	Socket socket;
+	std::thread acceptor;
 
 	Message msgIn;
 	Message msgOut;
 
 	static std::map<int, Service> services;
+	static std::mutex servicesMtx;
 };
 
 #endif /* SERVICE_H_ */

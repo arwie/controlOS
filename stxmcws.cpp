@@ -27,16 +27,29 @@ static int stxmcws_connected(int service) noexcept
 	}
 }
 
+static int stxmcws_connected_wait(int service) noexcept
+{
+	try {
+		return 0;
+	} catch (exception& e) {
+		return -1;
+	}
+}
 static int stxmcws_close(int service) noexcept
 {
-	Service::close(service);
-	return 0;
+	try {
+		Service::close(service);
+		return 0;
+	} catch (exception& e) {
+		return -1;
+	}
 }
 
 static int stxmcws_receive(int service) noexcept
 {
 	try {
-		return Service::instance(service).receive();
+		Service::instance(service).receive();
+		return 0;
 	} catch (exception& e) {
 		return -1;
 	}
@@ -84,8 +97,13 @@ extern "C" {
 int STXMCWS_OPEN(int service) {
 	return stxmcws_open(service);
 }
+
 int STXMCWS_CONNECTED(int service) {
 	return stxmcws_connected(service);
+}
+
+int STXMCWS_CONNECTED_WAIT(int service) {
+	return stxmcws_connected_wait(service);
 }
 
 int STXMCWS_CLOSE(int service) {
