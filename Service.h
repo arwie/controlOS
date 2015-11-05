@@ -5,15 +5,15 @@
 #include "Message.h"
 #include "Socket.h"
 
-#include <thread>
-#include <map>
-#include <mutex>
+#include <memory>
 
 
-class Service final {
+class Service;
+using ServicePtr = std::shared_ptr<Service>;
+
+class Service {
 public:
 	Service(int port);
-	Service(Service&& rhs) noexcept = default;
 	~Service();
 
 	int connected() const;
@@ -21,20 +21,18 @@ public:
 	void receive();
 	void send();
 
+	void accept();
+	void close();
 
 	static void open(int port);
 	static void close(int port);
-	static Service& instance(int port);
+	static ServicePtr instance(int port);
 
 private:
 	Socket socket;
-	std::thread acceptor;
 
 	Message msgIn;
 	Message msgOut;
-
-	static std::map<int, Service> services;
-	static std::mutex servicesMtx;
 };
 
 #endif /* SERVICE_H_ */

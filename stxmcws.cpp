@@ -21,7 +21,7 @@ static int stxmcws_open(int service) noexcept
 static int stxmcws_connected(int service) noexcept
 {
 	try {
-		return Service::instance(service).connected();
+		return Service::instance(service)->connected();
 	} catch (exception& e) {
 		return -1;
 	}
@@ -48,7 +48,7 @@ static int stxmcws_close(int service) noexcept
 static int stxmcws_receive(int service) noexcept
 {
 	try {
-		Service::instance(service).receive();
+		Service::instance(service)->receive();
 		return 0;
 	} catch (exception& e) {
 		return -1;
@@ -58,7 +58,7 @@ static int stxmcws_receive(int service) noexcept
 static int stxmcws_send(int service) noexcept
 {
 	try {
-		Service::instance(service).send();
+		Service::instance(service)->send();
 		return 0;
 	} catch (exception& e) {
 		return -1;

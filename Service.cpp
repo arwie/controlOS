@@ -1,29 +1,36 @@
-
 #include "Service.h"
+#include "Connection.h"
 
+#include <thread>
+#include <memory>
+#include <map>
+#include <mutex>
 
 using namespace std;
 
 
-map<int, Service> Service::services;
-mutex servicesMtx;
+static map<int, ServicePtr> services;
+static mutex servicesMtx;
 
 
 
-static void acceptorThread(int port)
+static void acceptorThread(ServicePtr service)
 {
 	try {
-		for(;;) {
-			//Service::instance(port).socket.accept();
-		}
+		service->accept();
 	}
-	catch(exception& e) {}
+	catch (exception& e) {}
+
+	// wait for all users of service to finish and clean up
+	while (!service.unique()) {
+		this_thread::sleep_for(chrono::milliseconds(100));
+	}
 }
 
 
 
 Service::Service(int port)
-	:socket(Socket::createListeningSocket(port)), acceptor(acceptorThread, port)
+	:socket(Socket::createListeningSocket(port))
 {
 
 }
@@ -31,12 +38,7 @@ Service::Service(int port)
 
 Service::~Service()
 {
-	if (acceptor.joinable()) {
-		try {
-			socket.close();
-			acceptor.join();
-		} catch(exception& e) {}
-	}
+
 }
 
 
@@ -53,23 +55,49 @@ void Service::send() {
 }
 
 
+void Service::accept()
+{
+	for(;;) {
+		auto connection = make_shared<Connection>(socket.accept());
+	}
+}
+
+
+void Service::close()
+{
+	socket.close();
+}
+
+
 
 void Service::open(int port)
 {
-	lock_guard<mutex> g {servicesMtx};
-	services.emplace(port, port);
+	auto service = make_shared<Service>(port);
+
+	thread acceptor(acceptorThread, service);
+	acceptor.detach();
+
+	{ lock_guard<mutex> g(servicesMtx);
+		services.emplace(port, move(service));
+	}
 }
 
 
 void Service::close(int port)
 {
-	lock_guard<mutex> g {servicesMtx};
-	services.erase(port);
+	auto service = instance(port);
+
+	{ lock_guard<mutex> g(servicesMtx);
+		services.erase(port);
+	}
+
+	service->close();
 }
 
 
-Service& Service::instance(int port)
+ServicePtr Service::instance(int port)
 {
+	// map: Concurrently accessing other elements is safe.
 	return services.at(port);
 }
 
