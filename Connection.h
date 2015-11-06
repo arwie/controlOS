@@ -9,17 +9,17 @@
 #define CONNECTION_H_
 
 #include "Socket.h"
+#include "Message.h"
 
-#include <memory>
-
-
-class Connection;
-using ConnectionPtr = std::shared_ptr<Connection>;
 
 class Connection {
 public:
 	Connection(Socket&& socket);
-	~Connection();
+
+	Message receive();
+	void send(const Message& message);
+
+	void close();
 
 private:
 	Socket socket;

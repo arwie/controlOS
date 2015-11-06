@@ -14,10 +14,49 @@ static mutex servicesMtx;
 
 
 
-static void acceptorThread(ServicePtr service)
+void Service::open(int port)
 {
 	try {
-		service->accept();
+		close(port);
+	} catch (exception& e) {}
+
+	auto service = make_shared<Service>(port);
+
+	thread(acceptThread, service).detach();
+
+	{ lock_guard<mutex> g(servicesMtx);
+		services.emplace(port, move(service));
+	}
+}
+
+
+void Service::close(int port)
+{
+	auto service = instance(port);
+
+	{ lock_guard<mutex> g(servicesMtx);
+		services.erase(port);
+	}
+
+	service->close();
+}
+
+
+ServicePtr Service::instance(int port)
+{
+	{ lock_guard<mutex> g(servicesMtx);
+		return services.at(port);
+	}
+}
+
+
+
+void Service::acceptThread(ServicePtr service) noexcept
+{
+	try {
+		for(;;) {
+			thread(receiveThread, service, service->socket.accept()).detach();
+		}
 	}
 	catch (exception& e) {}
 
@@ -26,6 +65,25 @@ static void acceptorThread(ServicePtr service)
 		this_thread::sleep_for(chrono::milliseconds(100));
 	}
 }
+
+
+void Service::receiveThread(ServicePtr service, Socket&& socket) noexcept
+{
+	try {
+		Connection connection(move(socket));
+		service->addConnection(connection);
+
+		try {
+			for(;;) {
+				connection.receive();
+			}
+		} catch (exception& e) {}
+
+		service->removeConnection(connection);
+	}
+	catch (exception& e) {}
+}
+
 
 
 
@@ -51,14 +109,10 @@ void Service::receive() {
 }
 
 
-void Service::send() {
-}
-
-
-void Service::accept()
+void Service::send()
 {
-	for(;;) {
-		auto connection = make_shared<Connection>(socket.accept());
+	{ lock_guard<mutex> g(connectionsMtx);
+		//iterate over connections
 	}
 }
 
@@ -66,38 +120,24 @@ void Service::accept()
 void Service::close()
 {
 	socket.close();
-}
 
-
-
-void Service::open(int port)
-{
-	auto service = make_shared<Service>(port);
-
-	thread acceptor(acceptorThread, service);
-	acceptor.detach();
-
-	{ lock_guard<mutex> g(servicesMtx);
-		services.emplace(port, move(service));
+	{ lock_guard<mutex> g(connectionsMtx);
+		//iterate over connections
 	}
 }
 
 
-void Service::close(int port)
+void Service::addConnection(Connection& connection)
 {
-	auto service = instance(port);
-
-	{ lock_guard<mutex> g(servicesMtx);
-		services.erase(port);
+	{ lock_guard<mutex> g(connectionsMtx);
+		connections.insert(&connection);
 	}
-
-	service->close();
 }
 
 
-ServicePtr Service::instance(int port)
+void Service::removeConnection(Connection& connection)
 {
-	// map: Concurrently accessing other elements is safe.
-	return services.at(port);
+	{ lock_guard<mutex> g(connectionsMtx);
+		connections.erase(&connection);
+	}
 }
-

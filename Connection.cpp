@@ -5,14 +5,26 @@
 using namespace std;
 
 
+
 Connection::Connection(Socket&& socket)
 	:socket(move(socket))
 {
-	// TODO Auto-generated constructor stub
+	// TODO Handshake
 
 }
 
-Connection::~Connection() {
-	// TODO Auto-generated destructor stub
+
+Message Connection::receive()
+{
+	return Message();
 }
 
+
+void Connection::send(const Message& message) {
+}
+
+
+void Connection::close()
+{
+	socket.close();
+}

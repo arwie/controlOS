@@ -4,8 +4,11 @@
 
 #include "Message.h"
 #include "Socket.h"
+#include "Connection.h"
 
 #include <memory>
+#include <set>
+#include <mutex>
 
 
 class Service;
@@ -21,8 +24,10 @@ public:
 	void receive();
 	void send();
 
-	void accept();
 	void close();
+
+	void addConnection(Connection& connection);
+	void removeConnection(Connection& connection);
 
 	static void open(int port);
 	static void close(int port);
@@ -30,9 +35,14 @@ public:
 
 private:
 	Socket socket;
+	std::set<Connection*> connections;
+	std::mutex connectionsMtx;
 
 	Message msgIn;
 	Message msgOut;
+
+	static void acceptThread(ServicePtr service) noexcept;
+	static void receiveThread(ServicePtr service, Socket&& socket) noexcept;
 };
 
 #endif /* SERVICE_H_ */
