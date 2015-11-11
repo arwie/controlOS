@@ -74,6 +74,25 @@ Socket Socket::accept() const
 }
 
 
+int Socket::receive(void* buffer, size_t length)
+{
+	for (;;) {
+		auto ret = recv(fd, buffer, length, 0);
+		if (ret == -1) {
+			if (errno == EINTR)
+				continue;
+
+			perror("listen");
+			throw exception();
+		}
+		if (ret == 0) {
+			throw exception();
+		}
+		return ret;
+	}
+}
+
+
 
 
 class AddrInfo {
@@ -123,4 +142,3 @@ Socket Socket::createListeningSocket(int port)
 
 	throw exception();
 }
-

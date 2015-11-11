@@ -18,7 +18,7 @@ public:
 	void listen(int n);
 	Socket accept() const;
 
-
+	int receive(void* buffer, size_t length);
 
 	operator int() const { return fd; }
 

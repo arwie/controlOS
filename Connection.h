@@ -11,6 +11,8 @@
 #include "Socket.h"
 #include "Message.h"
 
+#include <string>
+
 
 class Connection {
 public:
@@ -23,6 +25,7 @@ public:
 
 private:
 	Socket socket;
+	std::string inBuffer;
 };
 
 #endif /* CONNECTION_H_ */
