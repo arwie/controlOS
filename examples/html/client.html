@@ -1,0 +1,25 @@
+<html>
+	<head>
+		<title>WebSocket client</title>
+	</head>
+	<body>
+<script>
+
+var tweet = {};
+tweet.long = 10;
+tweet.double = 3.14;
+tweet.string = "Hallo Welt!";
+
+var ws = new WebSocket('ws://192.168.56.101:5566');
+
+ws.onopen = function() {
+  ws.send(JSON.stringify(tweet));
+};
+
+ws.onmessage = function (e) {
+    console.log('msg: ' + e.data);
+}
+
+</script>
+	</body>
+</html>

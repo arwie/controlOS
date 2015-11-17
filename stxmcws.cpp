@@ -1,92 +1,156 @@
-#include "Service.h"
-
 #include <iostream>
+#include <string>
+#include <sstream>
+#include <thread>
+#include <map>
+#include <set>
+#include <queue>
+#include <mutex>
+#include <condition_variable>
+#include <memory>
+#include <functional>
+#include <exception>
 
 using namespace std;
 
+#include "Message.hpp"
+#include "Channel.hpp"
+#include "ChannelMessageQueue.hpp"
+#include "ChannelServerWebsocket.hpp"
+#include "ChannelManager.hpp"
+
+#include "amcs.h"
 
 
+static ChannelManager manager;
 
 
-static int stxmcws_open(int service) noexcept
+static int stxmccom_open_fifo(int *error) noexcept
 {
 	try {
-		Service::open(service);
+		return manager.openChannel(make_shared<ChannelMessageQueue>());
+	} catch (exception& e) {
+		return -1;
+	}
+}
+
+static int stxmccom_open_server_sebsocket(int port, int *error) noexcept
+{
+	*error = 0;
+	try {
+		return manager.openChannel(make_shared<ChannelServerWebsocket>(port));
+	} catch (exception& e) {
+		*error = 1;
+	}
+	return -1;
+}
+
+static int stxmccom_connected(int channelId, int *error) noexcept
+{
+	try {
+		return manager.getChannel(channelId)->connected();
+	} catch (exception& e) {
+	}
 		return 0;
-	} catch (exception& e) {
-		return -1;
-	}
 }
 
-static int stxmcws_connected(int service) noexcept
+static void stxmccom_connected_wait(int channelId, int *error) noexcept
 {
 	try {
-		return Service::instance(service)->connected();
 	} catch (exception& e) {
-		return -1;
 	}
 }
 
-static int stxmcws_connected_wait(int service) noexcept
+static int stxmccom_receive(int channelId, int *error) noexcept
 {
+	*error = 0;
 	try {
-		return 0;
+		return manager.getChannel(channelId)->receive();
 	} catch (exception& e) {
-		return -1;
+		*error = 1;
 	}
+	return false;
 }
-static int stxmcws_close(int service) noexcept
+
+static void stxmccom_send(int channelId, int *error) noexcept
 {
+	*error = 0;
 	try {
-		Service::close(service);
-		return 0;
+		manager.getChannel(channelId)->send();
 	} catch (exception& e) {
-		return -1;
+		*error = 1;
 	}
 }
 
-static int stxmcws_receive(int service) noexcept
+static int stxmccom_get_long(int channelId, SYS_STRING* path, int *error) noexcept
 {
+	*error = 0;
 	try {
-		Service::instance(service)->receive();
-		return 0;
+		return manager.getChannel(channelId)->get<int>(amcsGetString(path));
 	} catch (exception& e) {
-		return -1;
+		*error = 1;
 	}
-}
-
-static int stxmcws_send(int service) noexcept
-{
-	try {
-		Service::instance(service)->send();
-		return 0;
-	} catch (exception& e) {
-		return -1;
-	}
-}
-
-static int stxmcws_read_long(int service, long *value) noexcept
-{
-
 	return 0;
 }
 
-static int stxmcws_read_double(int service, double *value) noexcept
+static double stxmccom_get_double(int channelId, SYS_STRING* path, int *error) noexcept
 {
-
-	return 0;
+	*error = 0;
+	try {
+		return manager.getChannel(channelId)->get<double>(amcsGetString(path));
+	} catch (exception& e) {
+		*error = 1;
+	}
+	return 0.0;
 }
 
-static int stxmcws_write_long(int service, long value) noexcept
+static SYS_STRING* stxmccom_get_string(int channelId, SYS_STRING* path, int *error) noexcept
 {
-
-	return 0;
+	*error = 0;
+	try {
+		return amcsNewMcString(manager.getChannel(channelId)->get<string>(amcsGetString(path)));
+	} catch (exception& e) {
+		*error = 1;
+	}
+	return amcsNewMcString(string());
 }
 
-static int stxmcws_write_double(int service, double value) noexcept
+static void stxmccom_put_long(int channelId, SYS_STRING* path, int value, int *error) noexcept
 {
+	*error = 0;
+	try {
+		manager.getChannel(channelId)->put(amcsGetString(path), value);
+	} catch (exception& e) {
+		*error = 1;
+	}
+}
 
-	return 0;
+static void stxmccom_put_double(int channelId, SYS_STRING* path, double value, int *error) noexcept
+{
+	*error = 0;
+	try {
+		manager.getChannel(channelId)->put(amcsGetString(path), value);
+	} catch (exception& e) {
+		*error = 1;
+	}
+}
+
+static void stxmccom_put_string(int channelId, SYS_STRING* path, SYS_STRING* value, int *error) noexcept
+{
+	*error = 0;
+	try {
+		manager.getChannel(channelId)->put(amcsGetString(path), amcsGetString(value));
+	} catch (exception& e) {
+		*error = 1;
+	}
+}
+
+static void stxmccom_close(int channelId) noexcept
+{
+	try {
+		manager.closeChannel(channelId);
+	} catch (exception& e) {
+	}
 }
 
 
@@ -94,44 +158,56 @@ static int stxmcws_write_double(int service, double value) noexcept
  
 extern "C" {
 
-int STXMCWS_OPEN(int service) {
-	return stxmcws_open(service);
-}
+	int STXMCCOM_OPEN_FIFO(int *error) {
+		return stxmccom_open_fifo(error);
+	}
 
-int STXMCWS_CONNECTED(int service) {
-	return stxmcws_connected(service);
-}
+	int STXMCCOM_OPEN_SERVER_WEBSOCKET(int port, int *error) {
+		return stxmccom_open_server_sebsocket(port, error);
+	}
 
-int STXMCWS_CONNECTED_WAIT(int service) {
-	return stxmcws_connected_wait(service);
-}
+	int STXMCCOM_CONNECTED(int channelId, int *error) {
+		return stxmccom_connected(channelId, error);
+	}
 
-int STXMCWS_CLOSE(int service) {
-	return stxmcws_close(service);
-}
+	void STXMCCOM_CONNECTED_WAIT(int channelId, int *error) {
+		stxmccom_connected_wait(channelId, error);
+	}
 
-int STXMCWS_RECEIVE(int service) {
-	return stxmcws_receive(service);
-}
+	int STXMCCOM_RECEIVE(int channelId, int *error) {
+		return stxmccom_receive(channelId, error);
+	}
 
-int STXMCWS_SEND(int service) {
-	return stxmcws_send(service);
-}
+	void STXMCCOM_SEND(int channelId, int *error) {
+		stxmccom_send(channelId, error);
+	}
 
-int STXMCWS_READ_LONG(int service, long *value) {
-	return stxmcws_read_long(service, value);
-}
+	int STXMCCOM_GET_LONG(int channelId, SYS_STRING* path, int *error) {
+		return stxmccom_get_long(channelId, path, error);
+	}
 
-int STXMCWS_READ_DOUBLE(int service, double *value) {
-	return stxmcws_read_double(service, value);
-}
+	double STXMCCOM_GET_DOUBLE(int channelId, SYS_STRING* path, int *error) {
+		return stxmccom_get_double(channelId, path, error);
+	}
 
-int STXMCWS_WRITE_LONG(int service, long value) {
-	return stxmcws_write_long(service, value);
-}
+	SYS_STRING* STXMCCOM_GET_STRING(int channelId, SYS_STRING* path, int *error) {
+		return stxmccom_get_string(channelId, path, error);
+	}
 
-int STXMCWS_WRITE_DOUBLE(int service, double value) {
-	return stxmcws_write_double(service, value);
-}
+	void STXMCCOM_PUT_LONG(int channelId, SYS_STRING* path, int value, int *error) {
+		stxmccom_put_long(channelId, path, value, error);
+	}
+
+	void STXMCCOM_PUT_DOUBLE(int channelId, SYS_STRING* path, double value, int *error) {
+		stxmccom_put_double(channelId, path, value, error);
+	}
+
+	void STXMCCOM_PUT_STRING(int channelId, SYS_STRING* path, SYS_STRING* value, int *error) {
+		stxmccom_put_string(channelId, path, value, error);
+	}
+
+	void STXMCCOM_CLOSE(int channelId) {
+		stxmccom_close(channelId);
+	}
 
 }
