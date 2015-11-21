@@ -13,6 +13,12 @@
 
 using namespace std;
 
+template<class Type>
+static inline Type& deref(const unique_ptr<Type>& ptr) {
+	if (!ptr) throw exception();
+	return *ptr;
+}
+
 #include "Message.hpp"
 #include "Channel.hpp"
 #include "ChannelMessageQueue.hpp"
@@ -23,9 +29,7 @@ using namespace std;
 
 
 static ChannelManager manager;
-
-thread_local MessagePtr rxMsg;
-thread_local MessagePtr txMsg;
+thread_local MessagePtr message;
 
 
 
@@ -69,8 +73,8 @@ static int stxmccom_receive(int channelId, int *error) noexcept
 {
 	*error = 0;
 	try {
-		rxMsg.reset();
-		return manager.getChannel(channelId)->receive(rxMsg);
+		message.reset();
+		return manager.getChannel(channelId)->receive(message);
 	} catch (exception& e) {
 		*error = 1;
 	}
@@ -81,24 +85,22 @@ static void stxmccom_send(int channelId, int *error) noexcept
 {
 	*error = 0;
 	try {
-		if (!txMsg) throw exception();
-		manager.getChannel(channelId)->send(txMsg);
-		txMsg.reset();
+		manager.getChannel(channelId)->send(message);
 	} catch (exception& e) {
 		*error = 1;
 	}
+	message.reset();
 }
 
 static void stxmccom_send_self(int channelId, int *error) noexcept
 {
 	*error = 0;
 	try {
-		if (!txMsg) throw exception();
-		manager.getChannel(channelId)->sendSelf(txMsg);
-		txMsg.reset();
+		manager.getChannel(channelId)->sendSelf(message);
 	} catch (exception& e) {
 		*error = 1;
 	}
+	message.reset();
 }
 
 static void stxmccom_close(int channelId) noexcept
@@ -114,19 +116,43 @@ static void stxmccom_new_message(int *error) noexcept
 {
 	*error = 0;
 	try {
-		txMsg = MessagePtr(new Message());
+		message.reset();
+		message = MessagePtr(new Message());
 	} catch (exception& e) {
 		*error = 1;
 	}
 }
+
+static void stxmccom_receive_string(SYS_STRING* str, int *error) noexcept
+{
+	*error = 0;
+	try {
+		message.reset();
+		message = MessagePtr(new Message(amcsGetString(str)));
+	} catch (exception& e) {
+		*error = 1;
+	}
+}
+
+static string stxmccom_send_string(int *error) noexcept
+{
+	*error = 0;
+	try {
+		return deref(message).toString();
+	} catch (exception& e) {
+		*error = 1;
+	}
+	message.reset();
+	return string();
+}
+
 
 template<class Type>
 static Type stxmccom_get(SYS_STRING* path, int *error) noexcept
 {
 	*error = 0;
 	try {
-		if (!rxMsg) throw exception();
-	 	return rxMsg->get<Type>(amcsGetString(path));
+	 	return deref(message).get<Type>(amcsGetString(path));
 	} catch (exception& e) {
 		*error = 1;
 	}
@@ -139,8 +165,7 @@ static void stxmccom_put(SYS_STRING* path, Type value, int *error) noexcept
 {
 	*error = 0;
 	try {
-		if (!txMsg) throw exception();
-		txMsg->put(amcsGetString(path), value);
+		deref(message).put(amcsGetString(path), value);
 	} catch (exception& e) {
 		*error = 1;
 	}
@@ -195,7 +220,16 @@ extern "C" {
 
 
 	void STXMCCOM_NEW_MESSAGE(int *error) {
-		return stxmccom_new_message(error);
+		stxmccom_new_message(error);
+	}
+
+	void STXMCCOM_RECEIVE_STRING(SYS_STRING* str, int *error) {
+		stxmccom_receive_string(str, error);
+	}
+
+	SYS_STRING* STXMCCOM_SEND_STRING(int *error) {
+		auto str = stxmccom_send_string(error);
+		return str_GetString((unsigned char*)str.c_str(), str.length(), ASCII8_STRING_TYPE);
 	}
 
 	int STXMCCOM_GET_LONG(SYS_STRING* path, int *error) {

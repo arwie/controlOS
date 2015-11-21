@@ -6,6 +6,8 @@ import_c STXMCCOM_SEND(byval as long, as long)
 import_c STXMCCOM_SEND_SELF(byval as long, as long)
 import_c STXMCCOM_CLOSE(byval as long)
 import_c STXMCCOM_NEW_MESSAGE(as long)
+import_c STXMCCOM_RECEIVE_STRING(byval as string, as long)
+import_c STXMCCOM_SEND_STRING(as long) as string
 import_c STXMCCOM_GET_LONG(byval as string, as long) as long
 import_c STXMCCOM_GET_DOUBLE(byval as string, as long) as double
 import_c STXMCCOM_GET_STRING(byval as string, as long) as string
@@ -15,7 +17,7 @@ import_c STXMCCOM_PUT_STRING(byval as string, byval as string, as long)
 
 
 
-public function com_open_fifo() as long
+public function com_open_fifo as long
   dim err as long
   com_open_fifo = STXMCCOM_OPEN_FIFO(err)
   if err then
@@ -74,6 +76,24 @@ public sub com_new_message
 end sub
 
 
+public sub com_receive_string(byval str as string)
+  dim err as long
+  STXMCCOM_RECEIVE_STRING(str, err)
+  if err then
+    print "ERROR: STXMCCOM_RECEIVE_STRING"
+  end if
+end sub
+
+
+public function com_send_string as string
+  dim err as long
+  com_send_string = STXMCCOM_SEND_STRING(err)
+  if err then
+    print "ERROR: STXMCCOM_SEND_STRING"
+  end if
+end function
+
+
 public function com_get_long(byval path as string) as long
   dim err as long
   com_get_long = STXMCCOM_GET_LONG(path, err)
@@ -101,27 +121,27 @@ public function com_get_string(byval path as string) as string
 end function
 
 
-public sub com_put_long(byval path as string, byval value as long)
+public sub com_put_long(byval path as string, byval longValue as long)
   dim err as long
-  com_get_long = STXMCCOM_PUT_LONG(path, value, err)
+  STXMCCOM_PUT_LONG(path, longValue, err)
   if err then
     print "ERROR: STXMCCOM_PUT_LONG"
   end if
 end sub
 
 
-public sub com_put_double(byval path as string, byval value as double)
+public sub com_put_double(byval path as string, byval doubleValue as double)
   dim err as long
-  com_get_long = STXMCCOM_PUT_DOUBLE(path, value, err)
+  STXMCCOM_PUT_DOUBLE(path, doubleValue, err)
   if err then
     print "ERROR: STXMCCOM_PUT_DOUBLE"
   end if
 end sub
 
 
-public sub com_put_string(byval path as string, byval value as string)
+public sub com_put_string(byval path as string, byval stringValue as string)
   dim err as long
-  com_get_long = STXMCCOM_PUT_STRING(path, value, err)
+  STXMCCOM_PUT_STRING(path, stringValue, err)
   if err then
     print "ERROR: STXMCCOM_PUT_STRING"
   end if

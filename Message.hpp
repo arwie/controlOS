@@ -17,7 +17,7 @@ public:
 	}
 
 
-	string toJson() const
+	string toString() const
 	{
 		stringstream ss;
 		boost::property_tree::write_json(ss, *static_cast<const boost::property_tree::ptree*>(this), false);

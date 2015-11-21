@@ -33,6 +33,9 @@ public:
 
 	void sendSelf(MessagePtr& message) override
 	{
+		if (!message)
+			throw exception();
+
 		pushMessage(move(message));
 	}
 

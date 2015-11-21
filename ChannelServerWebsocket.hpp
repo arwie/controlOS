@@ -31,10 +31,11 @@ public:
 
 	void send(MessagePtr& message) override
 	{
+    	auto msgString = deref(message).toString();
+
     	lock_guard<mutex> lock(connectionsMtx);
-    	auto json = message->toJson();
 		for(auto& con : connections) {
-			wsServer.send(con, json, websocketpp::frame::opcode::text);
+			wsServer.send(con, msgString, websocketpp::frame::opcode::text);
 		}
 	}
 
