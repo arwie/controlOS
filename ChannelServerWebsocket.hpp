@@ -7,9 +7,8 @@
 
 class ChannelServerWebsocket : public ChannelMessageQueue
 {
-	using WsServer = websocketpp::server<websocketpp::config::asio>;
-
 public:
+
 	ChannelServerWebsocket(int port)
 	{
 		wsServer.init_asio();
@@ -22,21 +21,21 @@ public:
      	wsServer.start_accept();
 	}
 
+
 	bool needsRunner() override { return true; }
 	void run() override
     {
         wsServer.run();
     }
 
-	int connected() const
+
+	void send(MessagePtr& message) override
 	{
-
-	}
-
-
-	void send()
-	{
-
+    	lock_guard<mutex> lock(connectionsMtx);
+    	auto json = message->toJson();
+		for(auto& con : connections) {
+			wsServer.send(con, json, websocketpp::frame::opcode::text);
+		}
 	}
 
 	void close()
@@ -44,27 +43,33 @@ public:
 
 	}
 
+
 private:
+
+	using WsServer = websocketpp::server<websocketpp::config::asio>;
+
+
     void on_open(websocketpp::connection_hdl hdl)
     {
-    	cerr << "connected" << endl;
+    	lock_guard<mutex> lock(connectionsMtx);
     	connections.insert(hdl);
     }
 
     void on_close(websocketpp::connection_hdl hdl)
     {
-    	cerr << "disconnected" << endl;
+    	lock_guard<mutex> lock(connectionsMtx);
     	connections.erase(hdl);
     }
 
     void on_message(websocketpp::connection_hdl hdl, WsServer::message_ptr msg)
     {
-    	cerr << "message: " << msg->get_payload() << endl;
-
 		pushMessage(MessagePtr(new Message(msg->get_payload())));
     }
 
+
     WsServer wsServer;
     set<websocketpp::connection_hdl, std::owner_less<websocketpp::connection_hdl>> connections;
+    mutex connectionsMtx;
 };
+
 #endif /* CHANNELSERVERWEBSOCKET_HPP_ */

@@ -7,6 +7,7 @@ class ChannelManager
 	using ChannelPtr = shared_ptr<Channel>;
 
 public:
+
 	int openChannel(ChannelPtr&& channel)
 	{
 		if (channel->needsRunner())
@@ -19,6 +20,7 @@ public:
 		return channelId;
 	}
 
+
 	void closeChannel(int channelId)
 	{
 		unique_lock<mutex> lock(channelsMtx);
@@ -29,6 +31,7 @@ public:
 		channel->close();
 	}
 
+
 	ChannelPtr getChannel(int port)
 	{
 		lock_guard<mutex> lock(channelsMtx);
@@ -37,6 +40,7 @@ public:
 
 
 private:
+
 	static void channelRunner(ChannelPtr channel) noexcept
 	{
 		try {
@@ -47,8 +51,10 @@ private:
 		}
 	}
 
+
 	map<int, ChannelPtr> channels;
 	mutex channelsMtx;
 	unsigned int nextChannelId = 1;
 };
+
 #endif /* CHANNELMANAGER_HPP_ */

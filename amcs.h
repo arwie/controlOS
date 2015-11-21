@@ -25,14 +25,14 @@ static inline string amcsGetString(SYS_STRING* mcString)
 }
 
 
-static inline SYS_STRING* amcsNewMcString(const string& str)
-{
-	auto mcString = str_GetString((unsigned char*)str.c_str(), str.length(), ASCII8_STRING_TYPE);
-
-	if (mcString == NULL)
-		throw exception();
-
-	return mcString;
-}
+//static inline SYS_STRING* amcsNewMcString(const string& str)
+//{
+//	auto mcString = str_GetString((unsigned char*)str.c_str(), str.length(), ASCII8_STRING_TYPE);
+//
+//	if (mcString == NULL)
+//		throw exception();
+//
+//	return mcString;
+//}
 
 #endif /* AMCS_H_ */

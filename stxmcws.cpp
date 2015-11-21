@@ -24,6 +24,10 @@ using namespace std;
 
 static ChannelManager manager;
 
+thread_local MessagePtr rxMsg;
+thread_local MessagePtr txMsg;
+
+
 
 static int stxmccom_open_fifo(int *error) noexcept
 {
@@ -65,7 +69,8 @@ static int stxmccom_receive(int channelId, int *error) noexcept
 {
 	*error = 0;
 	try {
-		return manager.getChannel(channelId)->receive();
+		rxMsg.reset();
+		return manager.getChannel(channelId)->receive(rxMsg);
 	} catch (exception& e) {
 		*error = 1;
 	}
@@ -76,70 +81,21 @@ static void stxmccom_send(int channelId, int *error) noexcept
 {
 	*error = 0;
 	try {
-		manager.getChannel(channelId)->send();
+		if (!txMsg) throw exception();
+		manager.getChannel(channelId)->send(txMsg);
+		txMsg.reset();
 	} catch (exception& e) {
 		*error = 1;
 	}
 }
 
-static int stxmccom_get_long(int channelId, SYS_STRING* path, int *error) noexcept
+static void stxmccom_send_self(int channelId, int *error) noexcept
 {
 	*error = 0;
 	try {
-		return manager.getChannel(channelId)->get<int>(amcsGetString(path));
-	} catch (exception& e) {
-		*error = 1;
-	}
-	return 0;
-}
-
-static double stxmccom_get_double(int channelId, SYS_STRING* path, int *error) noexcept
-{
-	*error = 0;
-	try {
-		return manager.getChannel(channelId)->get<double>(amcsGetString(path));
-	} catch (exception& e) {
-		*error = 1;
-	}
-	return 0.0;
-}
-
-static SYS_STRING* stxmccom_get_string(int channelId, SYS_STRING* path, int *error) noexcept
-{
-	*error = 0;
-	try {
-		return amcsNewMcString(manager.getChannel(channelId)->get<string>(amcsGetString(path)));
-	} catch (exception& e) {
-		*error = 1;
-	}
-	return amcsNewMcString(string());
-}
-
-static void stxmccom_put_long(int channelId, SYS_STRING* path, int value, int *error) noexcept
-{
-	*error = 0;
-	try {
-		manager.getChannel(channelId)->put(amcsGetString(path), value);
-	} catch (exception& e) {
-		*error = 1;
-	}
-}
-
-static void stxmccom_put_double(int channelId, SYS_STRING* path, double value, int *error) noexcept
-{
-	*error = 0;
-	try {
-		manager.getChannel(channelId)->put(amcsGetString(path), value);
-	} catch (exception& e) {
-		*error = 1;
-	}
-}
-
-static void stxmccom_put_string(int channelId, SYS_STRING* path, SYS_STRING* value, int *error) noexcept
-{
-	*error = 0;
-	try {
-		manager.getChannel(channelId)->put(amcsGetString(path), amcsGetString(value));
+		if (!txMsg) throw exception();
+		manager.getChannel(channelId)->sendSelf(txMsg);
+		txMsg.reset();
 	} catch (exception& e) {
 		*error = 1;
 	}
@@ -152,6 +108,53 @@ static void stxmccom_close(int channelId) noexcept
 	} catch (exception& e) {
 	}
 }
+
+
+static void stxmccom_new_message(int *error) noexcept
+{
+	*error = 0;
+	try {
+		txMsg = MessagePtr(new Message());
+	} catch (exception& e) {
+		*error = 1;
+	}
+}
+
+template<class Type>
+static Type stxmccom_get(SYS_STRING* path, int *error) noexcept
+{
+	*error = 0;
+	try {
+		if (!rxMsg) throw exception();
+	 	return rxMsg->get<Type>(amcsGetString(path));
+	} catch (exception& e) {
+		*error = 1;
+	}
+	return Type();
+}
+
+
+template<class Type>
+static void stxmccom_put(SYS_STRING* path, Type value, int *error) noexcept
+{
+	*error = 0;
+	try {
+		if (!txMsg) throw exception();
+		txMsg->put(amcsGetString(path), value);
+	} catch (exception& e) {
+		*error = 1;
+	}
+}
+
+static void stxmccom_put_string(SYS_STRING* path, SYS_STRING* value, int *error) noexcept
+{
+	try {
+		stxmccom_put(path, amcsGetString(value), error);
+	} catch (exception& e) {
+		*error = 1;
+	}
+}
+
 
 
  
@@ -182,32 +185,43 @@ extern "C" {
 		stxmccom_send(channelId, error);
 	}
 
-	int STXMCCOM_GET_LONG(int channelId, SYS_STRING* path, int *error) {
-		return stxmccom_get_long(channelId, path, error);
-	}
-
-	double STXMCCOM_GET_DOUBLE(int channelId, SYS_STRING* path, int *error) {
-		return stxmccom_get_double(channelId, path, error);
-	}
-
-	SYS_STRING* STXMCCOM_GET_STRING(int channelId, SYS_STRING* path, int *error) {
-		return stxmccom_get_string(channelId, path, error);
-	}
-
-	void STXMCCOM_PUT_LONG(int channelId, SYS_STRING* path, int value, int *error) {
-		stxmccom_put_long(channelId, path, value, error);
-	}
-
-	void STXMCCOM_PUT_DOUBLE(int channelId, SYS_STRING* path, double value, int *error) {
-		stxmccom_put_double(channelId, path, value, error);
-	}
-
-	void STXMCCOM_PUT_STRING(int channelId, SYS_STRING* path, SYS_STRING* value, int *error) {
-		stxmccom_put_string(channelId, path, value, error);
+	void STXMCCOM_SEND_SELF(int channelId, int *error) {
+		stxmccom_send_self(channelId, error);
 	}
 
 	void STXMCCOM_CLOSE(int channelId) {
 		stxmccom_close(channelId);
+	}
+
+
+	void STXMCCOM_NEW_MESSAGE(int *error) {
+		return stxmccom_new_message(error);
+	}
+
+	int STXMCCOM_GET_LONG(SYS_STRING* path, int *error) {
+		return stxmccom_get<int>(path, error);
+	}
+
+	double STXMCCOM_GET_DOUBLE(SYS_STRING* path, int *error) {
+		return stxmccom_get<double>(path, error);
+	}
+
+	SYS_STRING* STXMCCOM_GET_STRING(SYS_STRING* path, int *error)
+	{
+		auto str = stxmccom_get<string>(path, error);
+		return str_GetString((unsigned char*)str.c_str(), str.length(), ASCII8_STRING_TYPE);
+	}
+
+	void STXMCCOM_PUT_LONG(SYS_STRING* path, int value, int *error) {
+		stxmccom_put(path, value, error);
+	}
+
+	void STXMCCOM_PUT_DOUBLE(SYS_STRING* path, double value, int *error) {
+		stxmccom_put(path, value, error);
+	}
+
+	void STXMCCOM_PUT_STRING(SYS_STRING* path, SYS_STRING* value, int *error) {
+		stxmccom_put_string(path, value, error);
 	}
 
 }

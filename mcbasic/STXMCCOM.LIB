@@ -1,15 +1,27 @@
 
+import_c STXMCCOM_OPEN_FIFO(as long) as long
 import_c STXMCCOM_OPEN_SERVER_WEBSOCKET(byval as long, as long) as long
 import_c STXMCCOM_RECEIVE(byval as long, as long) as long
 import_c STXMCCOM_SEND(byval as long, as long)
-import_c STXMCCOM_GET_LONG(byval as long, byval as string, as long) as long
-import_c STXMCCOM_GET_DOUBLE(byval as long, byval as string, as long) as double
-import_c STXMCCOM_GET_STRING(byval as long, byval as string, as long) as string
-import_c STXMCCOM_PUT_LONG(byval as long, byval as string, byval as long, as long)
-import_c STXMCCOM_PUT_DOUBLE(byval as long, byval as string, byval as double, as long)
-import_c STXMCCOM_PUT_STRING(byval as long, byval as string, byval as string, as long)
+import_c STXMCCOM_SEND_SELF(byval as long, as long)
 import_c STXMCCOM_CLOSE(byval as long)
+import_c STXMCCOM_NEW_MESSAGE(as long)
+import_c STXMCCOM_GET_LONG(byval as string, as long) as long
+import_c STXMCCOM_GET_DOUBLE(byval as string, as long) as double
+import_c STXMCCOM_GET_STRING(byval as string, as long) as string
+import_c STXMCCOM_PUT_LONG(byval as string, byval as long, as long)
+import_c STXMCCOM_PUT_DOUBLE(byval as string, byval as double, as long)
+import_c STXMCCOM_PUT_STRING(byval as string, byval as string, as long)
 
+
+
+public function com_open_fifo() as long
+  dim err as long
+  com_open_fifo = STXMCCOM_OPEN_FIFO(err)
+  if err then
+    print "ERROR: STXMCCOM_OPEN_FIFO"
+  end if
+end function
 
 
 public function com_open_server_websocket(byval port as long) as long
@@ -29,6 +41,7 @@ public function com_receive(byval channelId as long) as long
   end if
 end function
 
+
 public sub com_send(byval channelId as long)
   dim err as long
   STXMCCOM_SEND(channelId, err)
@@ -38,58 +51,78 @@ public sub com_send(byval channelId as long)
 end sub
 
 
-public function com_get_long(byval channelId as long, byval path as string) as long
+public sub com_send_self(byval channelId as long)
   dim err as long
-  com_get_long = STXMCCOM_GET_LONG(channelId, path, err)
+  STXMCCOM_SEND_SELF(channelId, err)
+  if err then
+    print "ERROR: STXMCCOM_SEND_SELF"
+  end if
+end sub
+
+
+public sub com_close(byval channelId as long)
+  STXMCCOM_CLOSE(channelId)
+end sub
+
+
+public sub com_new_message
+  dim err as long
+  STXMCCOM_NEW_MESSAGE(err)
+  if err then
+    print "ERROR: STXMCCOM_NEW_MESSAGE"
+  end if
+end sub
+
+
+public function com_get_long(byval path as string) as long
+  dim err as long
+  com_get_long = STXMCCOM_GET_LONG(path, err)
   if err then
     print "ERROR: STXMCCOM_GET_LONG"
   end if
 end function
 
 
-public function com_get_double(byval channelId as long, byval path as string) as double
+public function com_get_double(byval path as string) as double
   dim err as long
-  com_get_double = STXMCCOM_GET_DOUBLE(channelId, path, err)
+  com_get_double = STXMCCOM_GET_DOUBLE(path, err)
   if err then
     print "ERROR: STXMCCOM_GET_DOUBLE"
   end if
 end function
 
 
-public function com_get_string(byval channelId as long, byval path as string) as string
+public function com_get_string(byval path as string) as string
   dim err as long
-  com_get_string = STXMCCOM_GET_STRING(channelId, path, err)
+  com_get_string = STXMCCOM_GET_STRING(path, err)
   if err then
     print "ERROR: STXMCCOM_GET_STRING"
   end if
 end function
 
 
-public sub com_put_long(byval channelId as long, byval path as string, byval value as long)
+public sub com_put_long(byval path as string, byval value as long)
   dim err as long
-  com_get_long = STXMCCOM_PUT_LONG(channelId, path, value, err)
+  com_get_long = STXMCCOM_PUT_LONG(path, value, err)
   if err then
     print "ERROR: STXMCCOM_PUT_LONG"
   end if
 end sub
 
 
-public sub com_put_double(byval channelId as long, byval path as string, byval value as double)
+public sub com_put_double(byval path as string, byval value as double)
   dim err as long
-  com_get_long = STXMCCOM_PUT_DOUBLE(channelId, path, value, err)
+  com_get_long = STXMCCOM_PUT_DOUBLE(path, value, err)
   if err then
     print "ERROR: STXMCCOM_PUT_DOUBLE"
   end if
 end sub
 
-public sub com_put_string(byval channelId as long, byval path as string, byval value as string)
+
+public sub com_put_string(byval path as string, byval value as string)
   dim err as long
-  com_get_long = STXMCCOM_PUT_STRING(channelId, path, value, err)
+  com_get_long = STXMCCOM_PUT_STRING(path, value, err)
   if err then
     print "ERROR: STXMCCOM_PUT_STRING"
   end if
-end sub
-
-public sub com_close(byval channelId as long)
-  STXMCCOM_CLOSE(channelId)
 end sub

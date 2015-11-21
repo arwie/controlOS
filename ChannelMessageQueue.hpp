@@ -5,6 +5,7 @@
 class ChannelMessageQueue : public Channel
 {
 public:
+
 	void pushMessage(MessagePtr&& message)
 	{
 		{ lock_guard<mutex> lock(receiveMtx);
@@ -14,7 +15,8 @@ public:
 		receiveCond.notify_all();
 	}
 
-	bool receive() override
+
+	bool receive(MessagePtr& message) override
 	{
 		unique_lock<mutex> lock(receiveMtx);
 
@@ -22,21 +24,30 @@ public:
 			receiveCond.wait(lock);
 		}
 
-		messageRcv = move(receiveQueue.front());
+		message = move(receiveQueue.front());
 		receiveQueue.pop();
 
 		return true;
 	}
 
-	void sendSelf() override
+
+	void sendSelf(MessagePtr& message) override
 	{
-		pushMessage(move(messageSnd));
+		pushMessage(move(message));
 	}
 
+
+	void send(MessagePtr& message) override
+	{
+		sendSelf(message);
+	}
+
+
 protected:
+
 	queue<MessagePtr> receiveQueue;
     mutex receiveMtx;
     condition_variable receiveCond;
-
 };
+
 #endif /* CHANNELMESSAGEQUEUE_HPP_ */

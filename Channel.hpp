@@ -6,53 +6,22 @@ class Channel
 {
 public:
 
-	virtual bool receive() { return false; }
+	virtual int connected() const { return 0; }
 
-	virtual void send()
-	{
+	virtual bool receive(MessagePtr& message) { return false; }
 
-	}
+	virtual void send(MessagePtr& message) {}
+	virtual void sendSelf(MessagePtr& message) { throw exception(); }
 
-	virtual void sendSelf() { throw exception(); }
-
-	virtual void close()
-	{
-
-	}
-
-	virtual int connected() const {
-		return 0;
-	}
+	virtual void close() {}
 
 	virtual void run() {}
     virtual bool needsRunner() { return false; }
 
-    template<class Type>
-    Type get(const string& path) const
-    {
-    	if (!messageRcv)
-    		throw exception();
-
-     	return messageRcv->get<Type>(path);
-   }
-
-    template<class Type>
-    void put(const string& path, const Type& value)
-    {
-    	if (!messageSnd)
-    		throw exception();
-
-    	messageSnd->put(path, value);
-    }
-
-	virtual ~Channel() { }
+	virtual ~Channel() {}
 
 protected:
-	Channel() { }
-
-	using MessagePtr = unique_ptr<Message>;
-    MessagePtr messageRcv;
-    MessagePtr messageSnd;
+	Channel() {}
 
 };
 #endif /* CHANNEL_HPP_ */
