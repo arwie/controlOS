@@ -19,6 +19,8 @@ public:
 
     	wsServer.listen(websocketpp::lib::asio::ip::tcp::v4(), port);
      	wsServer.start_accept();
+
+     	setConnected(false);
 	}
 
 
@@ -52,19 +54,23 @@ private:
 
     void on_open(websocketpp::connection_hdl hdl)
     {
-    	lock_guard<mutex> lock(connectionsMtx);
-    	connections.insert(hdl);
+    	{ lock_guard<mutex> lock(connectionsMtx);
+    		connections.insert(hdl);
+    	}
+    	setConnected(connections.size());
     }
 
     void on_close(websocketpp::connection_hdl hdl)
     {
-    	lock_guard<mutex> lock(connectionsMtx);
-    	connections.erase(hdl);
+    	{ lock_guard<mutex> lock(connectionsMtx);
+    		connections.erase(hdl);
+    	}
+    	setConnected(connections.size());
     }
 
     void on_message(websocketpp::connection_hdl hdl, WsServer::message_ptr msg)
     {
-		pushMessage(MessagePtr(new Message(msg->get_payload())));
+		pushMessage(make_unique<Message>(msg->get_payload()));
     }
 
 

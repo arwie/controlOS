@@ -3,6 +3,8 @@ import_c STXMCCOM_OPEN_FIFO(as long) as long
 import_c STXMCCOM_OPEN_FILE_READ(byval as string, as long) as long
 import_c STXMCCOM_OPEN_FILE_WRITE(byval as string, as long) as long
 import_c STXMCCOM_OPEN_SERVER_WEBSOCKET(byval as long, as long) as long
+import_c STXMCCOM_CONNECTED(byval as long, as long) as long
+import_c STXMCCOM_CONNECTED_WAIT(byval as long, as long) as long
 import_c STXMCCOM_RECEIVE(byval as long, as long) as long
 import_c STXMCCOM_SEND(byval as long, as long)
 import_c STXMCCOM_SEND_SELF(byval as long, as long)
@@ -51,6 +53,24 @@ public function com_open_server_websocket(byval port as long) as long
   com_open_server_websocket = STXMCCOM_OPEN_SERVER_WEBSOCKET(port, err)
   if err then
     print "ERROR: STXMCCOM_OPEN_SERVER_WEBSOCKET"
+  end if
+end function
+
+
+public function com_connected(byval channelId as long) as long
+  dim err as long
+  com_connected = STXMCCOM_CONNECTED(channelId, err)
+  if err then
+    print "ERROR: STXMCCOM_CONNECTED"
+  end if
+end function
+
+
+public function com_connected_wait(byval channelId as long) as long
+  dim err as long
+  com_connected_wait = STXMCCOM_CONNECTED_WAIT(channelId, err)
+  if err then
+    print "ERROR: STXMCCOM_CONNECTED_WAIT"
   end if
 end function
 

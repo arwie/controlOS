@@ -81,18 +81,24 @@ static int stxmccom_open_server_sebsocket(int port, int *error) noexcept
 
 static int stxmccom_connected(int channelId, int *error) noexcept
 {
+	*error = 0;
 	try {
 		return manager.getChannel(channelId)->connected();
 	} catch (exception& e) {
+		*error = 1;
 	}
-		return 0;
+	return 0;
 }
 
-static void stxmccom_connected_wait(int channelId, int *error) noexcept
+static int stxmccom_connected_wait(int channelId, int *error) noexcept
 {
+	*error = 0;
 	try {
+		return manager.getChannel(channelId)->connectedWait();
 	} catch (exception& e) {
+		*error = 1;
 	}
+	return 0;
 }
 
 static int stxmccom_receive(int channelId, int *error) noexcept
@@ -143,7 +149,7 @@ static void stxmccom_new_message(int *error) noexcept
 	*error = 0;
 	try {
 		message.reset();
-		message = MessagePtr(new Message());
+		message = make_unique<Message>();
 	} catch (exception& e) {
 		*error = 1;
 	}
@@ -154,7 +160,7 @@ static void stxmccom_receive_string(SYS_STRING* str, int *error) noexcept
 	*error = 0;
 	try {
 		message.reset();
-		message = MessagePtr(new Message(amcsGetString(str)));
+		message = make_unique<Message>(amcsGetString(str));
 	} catch (exception& e) {
 		*error = 1;
 	}
@@ -232,8 +238,8 @@ extern "C" {
 		return stxmccom_connected(channelId, error);
 	}
 
-	void STXMCCOM_CONNECTED_WAIT(int channelId, int *error) {
-		stxmccom_connected_wait(channelId, error);
+	int STXMCCOM_CONNECTED_WAIT(int channelId, int *error) {
+		return stxmccom_connected_wait(channelId, error);
 	}
 
 	int STXMCCOM_RECEIVE(int channelId, int *error) {
