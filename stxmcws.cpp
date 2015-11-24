@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <fstream>
 #include <thread>
 #include <map>
 #include <set>
@@ -21,6 +22,7 @@ static inline Type& deref(const unique_ptr<Type>& ptr) {
 
 #include "Message.hpp"
 #include "Channel.hpp"
+#include "ChannelFile.hpp"
 #include "ChannelMessageQueue.hpp"
 #include "ChannelServerWebsocket.hpp"
 #include "ChannelManager.hpp"
@@ -35,11 +37,35 @@ thread_local MessagePtr message;
 
 static int stxmccom_open_fifo(int *error) noexcept
 {
+	*error = 0;
 	try {
 		return manager.openChannel(make_shared<ChannelMessageQueue>());
 	} catch (exception& e) {
-		return -1;
+		*error = 1;
 	}
+	return -1;
+}
+
+static int stxmccom_open_file_read(SYS_STRING* name, int *error) noexcept
+{
+	*error = 0;
+	try {
+		return manager.openChannel(make_shared<ChannelFileRead>(amcsGetString(name)));
+	} catch (exception& e) {
+		*error = 1;
+	}
+	return -1;
+}
+
+static int stxmccom_open_file_write(SYS_STRING* name, int *error) noexcept
+{
+	*error = 0;
+	try {
+		return manager.openChannel(make_shared<ChannelFileWrite>(amcsGetString(name)));
+	} catch (exception& e) {
+		*error = 1;
+	}
+	return -1;
 }
 
 static int stxmccom_open_server_sebsocket(int port, int *error) noexcept
@@ -188,6 +214,14 @@ extern "C" {
 
 	int STXMCCOM_OPEN_FIFO(int *error) {
 		return stxmccom_open_fifo(error);
+	}
+
+	int STXMCCOM_OPEN_FILE_READ(SYS_STRING* name, int *error) {
+		return stxmccom_open_file_read(name, error);
+	}
+
+	int STXMCCOM_OPEN_FILE_WRITE(SYS_STRING* name, int *error) {
+		return stxmccom_open_file_write(name, error);
 	}
 
 	int STXMCCOM_OPEN_SERVER_WEBSOCKET(int port, int *error) {

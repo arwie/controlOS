@@ -21,7 +21,11 @@ public:
 	{
 		stringstream ss;
 		boost::property_tree::write_json(ss, *static_cast<const boost::property_tree::ptree*>(this), false);
-		return ss.str();
+
+		string str;
+		getline(ss, str);
+
+		return str;
 	}
 };
 

@@ -1,5 +1,7 @@
 
 import_c STXMCCOM_OPEN_FIFO(as long) as long
+import_c STXMCCOM_OPEN_FILE_READ(byval as string, as long) as long
+import_c STXMCCOM_OPEN_FILE_WRITE(byval as string, as long) as long
 import_c STXMCCOM_OPEN_SERVER_WEBSOCKET(byval as long, as long) as long
 import_c STXMCCOM_RECEIVE(byval as long, as long) as long
 import_c STXMCCOM_SEND(byval as long, as long)
@@ -22,6 +24,24 @@ public function com_open_fifo as long
   com_open_fifo = STXMCCOM_OPEN_FIFO(err)
   if err then
     print "ERROR: STXMCCOM_OPEN_FIFO"
+  end if
+end function
+
+
+public function com_open_file_read(byval fname as string) as long
+  dim err as long
+  com_open_file_read = STXMCCOM_OPEN_FILE_READ(fname, err)
+  if err then
+    print "ERROR: STXMCCOM_OPEN_FILE_READ"
+  end if
+end function
+
+
+public function com_open_file_write(byval fname as string) as long
+  dim err as long
+  com_open_file_write = STXMCCOM_OPEN_FILE_WRITE(fname, err)
+  if err then
+    print "ERROR: STXMCCOM_OPEN_FILE_WRITE"
   end if
 end function
 
