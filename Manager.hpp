@@ -58,6 +58,7 @@ private:
 		catch (exception& e) {
 			// TODO: close channel
 		}
+		DEBUG("channelRunner exited");
 	}
 
 

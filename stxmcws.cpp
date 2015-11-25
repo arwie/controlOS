@@ -14,11 +14,15 @@
 
 using namespace std;
 
+#define DEBUG(x)	if (true) { cerr << x << endl; }
+
+
 template<class Type>
 static inline Type& deref(const unique_ptr<Type>& ptr) {
 	if (!ptr) throw exception();
 	return *ptr;
 }
+
 
 #include "Message.hpp"
 #include "Channel.hpp"

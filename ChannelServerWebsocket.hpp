@@ -49,6 +49,8 @@ public:
 	}
 
 
+	//~ChannelServerWebsocket() { DEBUG("~ChannelServerWebsocket"); }
+
 private:
 
 	using WsServer = websocketpp::server<websocketpp::config::asio>;
