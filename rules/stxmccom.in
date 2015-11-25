@@ -1,8 +1,9 @@
 ## SECTION=project_specific
 
-config STXMCWS
+config STXMCCOM
 	bool
-	prompt "stxmcws"
+	prompt "stxmccom"
 	select HOST_CMAKE
+	select BOOST
 	help
 	  FIXME
