@@ -5,7 +5,7 @@
 #include <websocketpp/server.hpp>
 
 
-class ChannelServerWebsocket : public ChannelMessageQueue
+class ChannelServerWebsocket : public ChannelFifo
 {
 public:
 
@@ -41,9 +41,11 @@ public:
 		}
 	}
 
-	void close()
-	{
 
+	void close() override
+	{
+		wsServer.stop();
+		ChannelFifo::close();
 	}
 
 

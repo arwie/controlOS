@@ -1,8 +1,8 @@
-#ifndef CHANNELMANAGER_HPP_
-#define CHANNELMANAGER_HPP_
+#ifndef MANAGER_HPP_
+#define MANAGER_HPP_
 
 
-class ChannelManager
+class Manager
 {
 	using ChannelPtr = shared_ptr<Channel>;
 
@@ -21,6 +21,13 @@ public:
 	}
 
 
+	ChannelPtr getChannel(int port)
+	{
+		lock_guard<mutex> lock(channelsMtx);
+		return channels.at(port);
+	}
+
+
 	void closeChannel(int channelId)
 	{
 		unique_lock<mutex> lock(channelsMtx);
@@ -31,13 +38,15 @@ public:
 		channel->close();
 	}
 
-
-	ChannelPtr getChannel(int port)
+	void closeAllChannels()
 	{
 		lock_guard<mutex> lock(channelsMtx);
-		return channels.at(port);
-	}
 
+		for(auto& kv : channels)
+			kv.second->close();
+
+		channels.clear();
+	}
 
 private:
 
@@ -57,4 +66,4 @@ private:
 	unsigned int nextChannelId = 1;
 };
 
-#endif /* CHANNELMANAGER_HPP_ */
+#endif /* MANAGER_HPP_ */

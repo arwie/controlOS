@@ -23,14 +23,14 @@ static inline Type& deref(const unique_ptr<Type>& ptr) {
 #include "Message.hpp"
 #include "Channel.hpp"
 #include "ChannelFile.hpp"
-#include "ChannelMessageQueue.hpp"
+#include "ChannelFifo.hpp"
 #include "ChannelServerWebsocket.hpp"
-#include "ChannelManager.hpp"
+#include "Manager.hpp"
 
 #include "amcs.h"
 
 
-static ChannelManager manager;
+static Manager manager;
 thread_local MessagePtr message;
 
 
@@ -39,7 +39,7 @@ static int stxmccom_open_fifo(int *error) noexcept
 {
 	*error = 0;
 	try {
-		return manager.openChannel(make_shared<ChannelMessageQueue>());
+		return manager.openChannel(make_shared<ChannelFifo>());
 	} catch (exception& e) {
 		*error = 1;
 	}
@@ -139,8 +139,14 @@ static void stxmccom_close(int channelId) noexcept
 {
 	try {
 		manager.closeChannel(channelId);
-	} catch (exception& e) {
-	}
+	} catch (exception& e) {}
+}
+
+static void stxmccom_close_all() noexcept
+{
+	try {
+		manager.closeAllChannels();
+	} catch (exception& e) {}
 }
 
 
@@ -149,7 +155,7 @@ static void stxmccom_new_message(int *error) noexcept
 	*error = 0;
 	try {
 		message.reset();
-		message = make_unique<Message>();
+		message.reset(new Message());
 	} catch (exception& e) {
 		*error = 1;
 	}
@@ -160,7 +166,7 @@ static void stxmccom_receive_string(SYS_STRING* str, int *error) noexcept
 	*error = 0;
 	try {
 		message.reset();
-		message = make_unique<Message>(amcsGetString(str));
+		message.reset(new Message(amcsGetString(str)));
 	} catch (exception& e) {
 		*error = 1;
 	}
@@ -169,13 +175,14 @@ static void stxmccom_receive_string(SYS_STRING* str, int *error) noexcept
 static string stxmccom_send_string(int *error) noexcept
 {
 	*error = 0;
+	string str;
 	try {
-		return deref(message).toString();
+		str = deref(message).toString();
 	} catch (exception& e) {
 		*error = 1;
 	}
 	message.reset();
-	return string();
+	return str;
 }
 
 
@@ -256,6 +263,10 @@ extern "C" {
 
 	void STXMCCOM_CLOSE(int channelId) {
 		stxmccom_close(channelId);
+	}
+
+	void STXMCCOM_CLOSE_ALL(void) {
+		stxmccom_close_all();
 	}
 
 

@@ -6,19 +6,12 @@ class Channel
 {
 public:
 
-	virtual int connected()		{ return conn; }
-	virtual int connectedWait()
-	{
-		unique_lock<mutex> lock(connMtx);
-		while(!connected()) {	// TODO: exit on close
-			connCond.wait(lock);
-		}
-		return connected();
-	}
+	virtual int connected()		{ return true; }
+	virtual int connectedWait()	{ return true; }
 
 	virtual bool receive(MessagePtr& message)	{ return false; }
 
-	virtual void send(MessagePtr& message)		{}
+	virtual void send(MessagePtr& message)		{ throw exception(); }
 	virtual void sendSelf(MessagePtr& message)	{ throw exception(); }
 
 	virtual void run()			{}
@@ -29,19 +22,81 @@ public:
 
 protected:
 	Channel()	{}
+};
 
-	void setConnected(int connected)
+
+
+class BlockingChannel : public Channel
+{
+public:
+
+	int connected() override
 	{
-		{ lock_guard<mutex> lock(connMtx);
-			conn = connected;
-		}
-		connCond.notify_all();
+		return connections;
 	}
 
+	int connectedWait() override
+	{
+		unique_lock<mutex> lock(blockMtx);
+		while(!connections && !closed) {
+			blockCond.wait(lock);
+		}
+		return connections;
+	}
+
+
+	bool receive(MessagePtr& message) override
+	{
+		unique_lock<mutex> lock(blockMtx);
+
+		while(receiveQueue.empty() && !closed) {
+			blockCond.wait(lock);
+		}
+
+		if (closed)
+			return false;
+
+		message = move(receiveQueue.front());
+		receiveQueue.pop();
+
+		return true;
+	}
+
+
+	void close() override
+	{
+		{ lock_guard<mutex> lock(blockMtx);
+			closed = true;
+		}
+		blockCond.notify_all();
+	}
+
+
+protected:
+
+	void setConnected(int conn)
+	{
+		{ lock_guard<mutex> lock(blockMtx);
+			connections = conn;
+		}
+		blockCond.notify_all();
+	}
+
+	void pushMessage(MessagePtr&& message)
+	{
+		{ lock_guard<mutex> lock(blockMtx);
+			receiveQueue.emplace(move(message));
+		}
+		blockCond.notify_all();
+	}
+
+
 private:
-	int conn = true;
-    mutex connMtx;
-    condition_variable connCond;
+	bool closed = false;
+	int connections = 0;
+	queue<MessagePtr> receiveQueue;
+    mutex blockMtx;
+    condition_variable blockCond;
 };
 
 #endif /* CHANNEL_HPP_ */
