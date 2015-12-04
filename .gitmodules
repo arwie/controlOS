@@ -1,0 +1,3 @@
+[submodule "local_src/stxmccom"]
+	path = local_src/stxmccom
+	url = /media/privat/MECHATRONIK/Servotronix/stxmccom.git/
