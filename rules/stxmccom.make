@@ -17,7 +17,7 @@ PACKAGES-$(PTXCONF_STXMCCOM) += stxmccom
 # Paths and names
 #
 STXMCCOM_VERSION	:= 1
-STXMCCOM			:= STXMCCOM-$(STXMCCOM_VERSION)
+STXMCCOM			:= stxmccom-$(STXMCCOM_VERSION)
 STXMCCOM_URL		:= file://$(PTXDIST_WORKSPACE)/local_src/stxmccom
 STXMCCOM_DIR		:= $(BUILDDIR)/$(STXMCCOM)
 STXMCCOM_LICENSE	:= unknown
@@ -40,7 +40,9 @@ STXMCCOM_LICENSE	:= unknown
 # cmake
 #
 STXMCCOM_CONF_TOOL	:= cmake
-#STXMCCOM_CONF_OPT	:= $(CROSS_CMAKE_USR)
+
+STXMCCOM_CONF_OPT	:= $(CROSS_CMAKE_USR) -DCMAKE_BUILD_TYPE=Release
+#STXMCCOM_CONF_OPT	:= $(CROSS_CMAKE_USR) -DCMAKE_BUILD_TYPE=Debug
 
 # ----------------------------------------------------------------------------
 # Target-Install
@@ -55,17 +57,8 @@ $(STATEDIR)/stxmccom.targetinstall:
 	@$(call install_fixup, stxmccom, AUTHOR, "Artur Wiebe")
 	@$(call install_fixup, stxmccom, DESCRIPTION, missing)
 
-#	#
-#	# example code:; copy all binaries
-#	#
-
-	@for i in $(shell cd $(STXMCCOM_PKGDIR) && find bin sbin usr/bin usr/sbin -type f); do \
-		$(call install_copy, stxmccom, 0, 0, 0755, -, /$$i); \
-	done
-
-#	#
-#	# FIXME: add all necessary things here
-#	#
+	$(call install_copy, stxmccom, 0, 0, 0644, $(STXMCCOM_PKGDIR)/usr/lib/libstxmccom.so,   /FFS0/SSMC/STXMCCOM.O)
+	$(call install_copy, stxmccom, 0, 0, 0644, $(STXMCCOM_PKGDIR)/usr/mcbasic/STXMCCOM.LIB, /FFS0/SSMC/STXMCCOM.LIB)
 
 	@$(call install_finish, stxmccom)
 

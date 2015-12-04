@@ -3,6 +3,7 @@
 # PTXdist 2015.05.0
 #
 PTXCONF_STXMCCOM=y
+PTXCONF_WEBSOCKETPP=y
 
 #
 # ------------------------------------
