@@ -5,11 +5,12 @@
 class Channel
 {
 public:
+	enum { notimeout = -1 };
 
 	virtual int connected()		{ return true; }
 	virtual int connectedWait()	{ return true; }
 
-	virtual bool receive(MessagePtr& message)	{ return false; }
+	virtual bool receive(MessagePtr& message, chrono::milliseconds timeout)	{ return false; }
 
 	virtual void send(MessagePtr& message)		{ throw exception(); }
 	virtual void sendSelf(MessagePtr& message)	{ throw exception(); }
@@ -45,15 +46,19 @@ public:
 	}
 
 
-	bool receive(MessagePtr& message) override
+	bool receive(MessagePtr& message, chrono::milliseconds timeout) override
 	{
+		auto condition = [this]() { return !receiveQueue.empty() || closed; };
+
 		unique_lock<mutex> lock(blockMtx);
 
-		while(receiveQueue.empty() && !closed) {
-			blockCond.wait(lock);
+		if (timeout.count() == notimeout) {
+			blockCond.wait(lock, move(condition));
+		} else if (timeout.count() > 0) {
+			blockCond.wait_for(lock, timeout, move(condition));
 		}
 
-		if (closed)
+		if (receiveQueue.empty() || closed)
 			return false;
 
 		message = move(receiveQueue.front());

@@ -13,7 +13,7 @@ class ChannelFileRead : public Channel
 public:
 	ChannelFileRead(const string& name) : stream(formatFileNameDat(name)) {}
 
-	bool receive(MessagePtr& message) override
+	bool receive(MessagePtr& message, chrono::milliseconds timeout) override
 	{
 		string str;
 
