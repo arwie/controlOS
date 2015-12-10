@@ -12,7 +12,7 @@ import_c STXMCCOM_SEND(byval as long, as long)
 import_c STXMCCOM_SEND_SELF(byval as long, as long)
 import_c STXMCCOM_CLOSE(byval as long)
 import_c STXMCCOM_CLOSE_ALL()
-import_c STXMCCOM_NEW_MESSAGE(as long)
+import_c STXMCCOM_NEW(as long)
 import_c STXMCCOM_RECEIVE_STRING(byval as string, as long)
 import_c STXMCCOM_SEND_STRING(as long) as string
 import_c STXMCCOM_GET_LONG(byval as string, as long) as long
@@ -133,11 +133,11 @@ public sub com_close_all
 end sub
 
 
-public sub com_new_message
+public sub com_new
   dim err as long
-  STXMCCOM_NEW_MESSAGE(err)
+  STXMCCOM_NEW(err)
   if err then
-    print "ERROR: STXMCCOM_NEW_MESSAGE"
+    print "ERROR: STXMCCOM_NEW"
   end if
 end sub
 

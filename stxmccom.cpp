@@ -166,7 +166,7 @@ static void stxmccom_close_all() noexcept
 }
 
 
-static void stxmccom_new_message(int *error) noexcept
+static void stxmccom_new(int *error) noexcept
 {
 	*error = 0;
 	try {
@@ -294,8 +294,8 @@ extern "C" {
 	}
 
 
-	void STXMCCOM_NEW_MESSAGE(int *error) {
-		stxmccom_new_message(error);
+	void STXMCCOM_NEW(int *error) {
+		stxmccom_new(error);
 	}
 
 	void STXMCCOM_RECEIVE_STRING(SYS_STRING* str, int *error) {
