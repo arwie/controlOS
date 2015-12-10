@@ -6,14 +6,14 @@ class Channel
 {
 public:
 
-	virtual int connected()		{ return true; }
-	virtual int connectedWait()	{ return true; }
+	virtual void send(MessagePtr& message)		{ throw exception(); }
+	virtual void sendSelf(MessagePtr& message)	{ throw exception(); }
 
 	virtual bool receive(MessagePtr& message)								{ throw exception(); }
 	virtual bool receive(MessagePtr& message, chrono::milliseconds timeout)	{ throw exception(); }
 
-	virtual void send(MessagePtr& message)		{ throw exception(); }
-	virtual void sendSelf(MessagePtr& message)	{ throw exception(); }
+	virtual bool connected()								{ throw exception(); }
+	virtual bool connected(chrono::milliseconds timeout)	{ throw exception(); }
 
 	virtual void run()			{}
     virtual bool needsRunner()	{ return false; }
@@ -30,21 +30,6 @@ protected:
 class BlockingChannel : public Channel
 {
 public:
-
-	int connected() override
-	{
-		return connections;
-	}
-
-	int connectedWait() override
-	{
-		unique_lock<mutex> lock(blockMtx);
-		while(!connections && !closed) {
-			blockCond.wait(lock);
-		}
-		return connections;
-	}
-
 
 	bool receive(MessagePtr& message) override { return receive(message, chrono::milliseconds(poll)); }
 
@@ -66,6 +51,15 @@ public:
 	}
 
 
+	void sendSelf(MessagePtr& message) override
+	{
+		if (!message)
+			throw exception();
+
+		pushMessage(move(message));
+	}
+
+
 	void close() override
 	{
 		{ lock_guard<mutex> lock(blockMtx);
@@ -77,13 +71,7 @@ public:
 
 protected:
 
-	void setConnected(int conn)
-	{
-		{ lock_guard<mutex> lock(blockMtx);
-			connections = conn;
-		}
-		blockCond.notify_all();
-	}
+	enum { poll = 0 };
 
 	void pushMessage(MessagePtr&& message)
 	{
@@ -93,15 +81,48 @@ protected:
 		blockCond.notify_all();
 	}
 
-
-private:
-	enum { poll = 0 };
-
 	bool closed = false;
-	int connections = 0;
-	queue<MessagePtr> receiveQueue;
     mutex blockMtx;
     condition_variable blockCond;
+
+
+private:
+	queue<MessagePtr> receiveQueue;
+};
+
+
+
+class ConnectingChannel : public BlockingChannel
+{
+public:
+
+	bool connected() override { return connected(chrono::milliseconds(poll)); }
+
+	bool connected(chrono::milliseconds timeout) override
+	{
+		unique_lock<mutex> lock(blockMtx);
+
+		if (timeout.count() != poll) {
+			blockCond.wait_for(lock, timeout, [this]() { return isConnected || closed; });
+		}
+
+		return isConnected;
+	}
+
+
+protected:
+
+	void setConnected(bool connected)
+	{
+		{ lock_guard<mutex> lock(blockMtx);
+			isConnected = connected;
+		}
+		blockCond.notify_all();
+	}
+
+
+private:
+	bool isConnected = false;
 };
 
 #endif /* CHANNEL_HPP_ */

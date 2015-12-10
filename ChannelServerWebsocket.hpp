@@ -5,7 +5,7 @@
 #include <websocketpp/server.hpp>
 
 
-class ChannelServerWebsocket : public ChannelFifo
+class ChannelServerWebsocket : public ConnectingChannel
 {
 public:
 
@@ -18,7 +18,7 @@ public:
 			{ lock_guard<mutex> lock(connectionsMtx);
 				connections.insert(hdl);
 			}
-			setConnected(connections.size());
+			setConnected(!connections.empty());
 		});
 
         wsServer.set_close_handler([this](websocketpp::connection_hdl hdl)
@@ -26,7 +26,7 @@ public:
 			{ lock_guard<mutex> lock(connectionsMtx);
 				connections.erase(hdl);
 			}
-			setConnected(connections.size());
+			setConnected(!connections.empty());
 		});
 
         wsServer.set_message_handler([this](websocketpp::connection_hdl hdl, WsServer::message_ptr msg)
@@ -62,7 +62,7 @@ public:
 	void close() override
 	{
 		wsServer.stop();
-		ChannelFifo::close();
+		BlockingChannel::close();
 	}
 
 

@@ -6,15 +6,6 @@ class ChannelFifo : public BlockingChannel
 {
 public:
 
-	void sendSelf(MessagePtr& message) override
-	{
-		if (!message)
-			throw exception();
-
-		pushMessage(move(message));
-	}
-
-
 	void send(MessagePtr& message) override
 	{
 		sendSelf(message);

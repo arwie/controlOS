@@ -5,7 +5,7 @@ import_c STXMCCOM_OPEN_FILE_READ(byval as string, as long) as long
 import_c STXMCCOM_OPEN_FILE_WRITE(byval as string, as long) as long
 import_c STXMCCOM_OPEN_SERVER_WEBSOCKET(byval as long, as long) as long
 import_c STXMCCOM_CONNECTED(byval as long, as long) as long
-import_c STXMCCOM_CONNECTED_WAIT(byval as long, as long) as long
+import_c STXMCCOM_CONNECTED_TIMED(byval as long, byval as long, as long) as long
 import_c STXMCCOM_RECEIVE(byval as long, as long) as long
 import_c STXMCCOM_RECEIVE_TIMED(byval as long, byval as long, as long) as long
 import_c STXMCCOM_SEND(byval as long, as long)
@@ -81,13 +81,19 @@ public function com_connected(byval channelId as long) as long
 end function
 
 
-public function com_connected_wait(byval channelId as long) as long
+public function com_connected_wait_timed(byval channelId as long, byval tout as long) as long
   dim err as long
-  com_connected_wait = STXMCCOM_CONNECTED_WAIT(channelId, err)
+  com_connected_wait_timed = STXMCCOM_CONNECTED_TIMED(channelId, tout, err)
   if err then
-    print "ERROR: STXMCCOM_CONNECTED_WAIT"
+    print "ERROR: STXMCCOM_CONNECTED_TIMED"
   end if
 end function
+
+
+public sub com_connected_wait(byval channelId as long)
+  while not com_connected_wait_timed(channelId, waitLoopTimeoutMs)
+  end while
+end sub
 
 
 public function com_receive(byval channelId as long) as long
@@ -109,10 +115,8 @@ end function
 
 
 public sub com_receive_wait(byval channelId as long)
-  dim received as long
-  do
-  	received = com_receive_wait_timed(channelId, waitLoopTimeoutMs)
-  loop until received
+  while not com_receive_wait_timed(channelId, waitLoopTimeoutMs)
+  end while
 end sub
 
 
