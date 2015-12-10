@@ -23,6 +23,9 @@ import_c STXMCCOM_PUT_DOUBLE(byval as string, byval as double, as long)
 import_c STXMCCOM_PUT_STRING(byval as string, byval as string, as long)
 
 
+dim shared waitLoopTimeoutMs as const long		= 1000
+
+
 
 public function com_open_fifo as long
   dim err as long
@@ -96,13 +99,21 @@ public function com_receive(byval channelId as long) as long
 end function
 
 
-public function com_receive_timed(byval channelId as long, byval tout as long) as long
+public function com_receive_wait_timed(byval channelId as long, byval tout as long) as long
   dim err as long
-  com_receive_timed = STXMCCOM_RECEIVE_TIMED(channelId, tout, err)
+  com_receive_wait_timed = STXMCCOM_RECEIVE_TIMED(channelId, tout, err)
   if err then
     print "ERROR: STXMCCOM_RECEIVE_TIMED"
   end if
 end function
+
+
+public sub com_receive_wait(byval channelId as long)
+  dim received as long
+  do
+  	received = com_receive_wait_timed(channelId, waitLoopTimeoutMs)
+  loop until received
+end sub
 
 
 public sub com_send(byval channelId as long)

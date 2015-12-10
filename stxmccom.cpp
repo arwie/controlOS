@@ -117,7 +117,19 @@ static int stxmccom_connected_wait(int channelId, int *error) noexcept
 	return 0;
 }
 
-static int stxmccom_receive(int channelId, chrono::milliseconds timeout, int *error) noexcept
+static int stxmccom_receive(int channelId, int *error) noexcept
+{
+	*error = 0;
+	try {
+		message.reset();
+		return manager.getChannel(channelId)->receive(message);
+	} catch (exception& e) {
+		*error = 1;
+	}
+	return false;
+}
+
+static int stxmccom_receive_timed(int channelId, chrono::milliseconds timeout, int *error) noexcept
 {
 	*error = 0;
 	try {
@@ -270,11 +282,11 @@ extern "C" {
 	}
 
 	int STXMCCOM_RECEIVE(int channelId, int *error) {
-		return stxmccom_receive(channelId, chrono::milliseconds(Channel::notimeout), error);
+		return stxmccom_receive(channelId, error);
 	}
 
 	int STXMCCOM_RECEIVE_TIMED(int channelId, int timeout, int *error) {
-		return stxmccom_receive(channelId, chrono::milliseconds(timeout), error);
+		return stxmccom_receive_timed(channelId, chrono::milliseconds(timeout), error);
 	}
 
 	void STXMCCOM_SEND(int channelId, int *error) {
