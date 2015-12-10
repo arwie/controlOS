@@ -28,6 +28,7 @@ static inline Type& deref(const unique_ptr<Type>& ptr) {
 #include "Channel.hpp"
 #include "ChannelFile.hpp"
 #include "ChannelFifo.hpp"
+#include "ChannelChangenotify.hpp"
 #include "ChannelServerWebsocket.hpp"
 #include "Manager.hpp"
 
@@ -44,6 +45,17 @@ static int stxmccom_open_fifo(int *error) noexcept
 	*error = 0;
 	try {
 		return manager.openChannel(make_shared<ChannelFifo>());
+	} catch (exception& e) {
+		*error = 1;
+	}
+	return -1;
+}
+
+static int stxmccom_open_changenotify(int *error) noexcept
+{
+	*error = 0;
+	try {
+		return manager.openChannel(make_shared<ChannelChangenotify>());
 	} catch (exception& e) {
 		*error = 1;
 	}
@@ -231,6 +243,10 @@ extern "C" {
 
 	int STXMCCOM_OPEN_FIFO(int *error) {
 		return stxmccom_open_fifo(error);
+	}
+
+	int STXMCCOM_OPEN_CHANGENOTIFY(int *error) {
+		return stxmccom_open_changenotify(error);
 	}
 
 	int STXMCCOM_OPEN_FILE_READ(SYS_STRING* name, int *error) {

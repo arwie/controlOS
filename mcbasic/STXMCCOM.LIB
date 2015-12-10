@@ -1,5 +1,6 @@
 
 import_c STXMCCOM_OPEN_FIFO(as long) as long
+import_c STXMCCOM_OPEN_CHANGENOTIFY(as long) as long
 import_c STXMCCOM_OPEN_FILE_READ(byval as string, as long) as long
 import_c STXMCCOM_OPEN_FILE_WRITE(byval as string, as long) as long
 import_c STXMCCOM_OPEN_SERVER_WEBSOCKET(byval as long, as long) as long
@@ -28,6 +29,15 @@ public function com_open_fifo as long
   com_open_fifo = STXMCCOM_OPEN_FIFO(err)
   if err then
     print "ERROR: STXMCCOM_OPEN_FIFO"
+  end if
+end function
+
+
+public function com_open_changenotify as long
+  dim err as long
+  com_open_changenotify = STXMCCOM_OPEN_CHANGENOTIFY(err)
+  if err then
+    print "ERROR: STXMCCOM_OPEN_CHANGENOTIFY"
   end if
 end function
 
