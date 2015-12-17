@@ -1,3 +1,9 @@
+common shared com_error as error "general com error"	  20800
+
+
+dim shared waitLoopTimeoutMs as const long				= 1000
+
+
 
 import_c STXMCCOM_OPEN_FIFO(as long) as long
 import_c STXMCCOM_OPEN_CHANGENOTIFY(as long) as long
@@ -23,51 +29,53 @@ import_c STXMCCOM_PUT_DOUBLE(byval as string, byval as double, as long)
 import_c STXMCCOM_PUT_STRING(byval as string, byval as string, as long)
 
 
-dim shared waitLoopTimeoutMs as const long		= 1000
 
-
-
-public function com_open_fifo as long
+public function com_openFifo as long
   dim err as long
-  com_open_fifo = STXMCCOM_OPEN_FIFO(err)
+  com_openFifo = STXMCCOM_OPEN_FIFO(err)
   if err then
     print "ERROR: STXMCCOM_OPEN_FIFO"
+    throw com_error
   end if
 end function
 
 
-public function com_open_changenotify as long
+public function com_openChangenotify as long
   dim err as long
-  com_open_changenotify = STXMCCOM_OPEN_CHANGENOTIFY(err)
+  com_openChangenotify = STXMCCOM_OPEN_CHANGENOTIFY(err)
   if err then
     print "ERROR: STXMCCOM_OPEN_CHANGENOTIFY"
+    throw com_error
   end if
 end function
 
 
-public function com_open_file_read(byval fname as string) as long
+public function com_openFileRead(byval fname as string) as long
   dim err as long
-  com_open_file_read = STXMCCOM_OPEN_FILE_READ(fname, err)
+  com_openFileRead = STXMCCOM_OPEN_FILE_READ(fname, err)
   if err then
     print "ERROR: STXMCCOM_OPEN_FILE_READ"
+    throw com_error
   end if
 end function
 
 
-public function com_open_file_write(byval fname as string) as long
+public function com_openFileWrite(byval fname as string) as long
   dim err as long
-  com_open_file_write = STXMCCOM_OPEN_FILE_WRITE(fname, err)
+  com_openFileWrite = STXMCCOM_OPEN_FILE_WRITE(fname, err)
   if err then
     print "ERROR: STXMCCOM_OPEN_FILE_WRITE"
+    throw com_error
   end if
 end function
 
 
-public function com_open_server_websocket(byval port as long) as long
+public function com_openServerWebsocket(byval port as long) as long
   dim err as long
-  com_open_server_websocket = STXMCCOM_OPEN_SERVER_WEBSOCKET(port, err)
+  com_openServerWebsocket = STXMCCOM_OPEN_SERVER_WEBSOCKET(port, err)
   if err then
     print "ERROR: STXMCCOM_OPEN_SERVER_WEBSOCKET"
+    throw com_error
   end if
 end function
 
@@ -77,21 +85,23 @@ public function com_connected(byval channelId as long) as long
   com_connected = STXMCCOM_CONNECTED(channelId, err)
   if err then
     print "ERROR: STXMCCOM_CONNECTED"
+    throw com_error
   end if
 end function
 
 
-public function com_connected_wait_timed(byval channelId as long, byval tout as long) as long
+public function com_connectedWaitTimed(byval channelId as long, byval tout as long) as long
   dim err as long
-  com_connected_wait_timed = STXMCCOM_CONNECTED_TIMED(channelId, tout, err)
+  com_connectedWaitTimed = STXMCCOM_CONNECTED_TIMED(channelId, tout, err)
   if err then
     print "ERROR: STXMCCOM_CONNECTED_TIMED"
+    throw com_error
   end if
 end function
 
 
-public sub com_connected_wait(byval channelId as long)
-  while not com_connected_wait_timed(channelId, waitLoopTimeoutMs)
+public sub com_connectedWait(byval channelId as long)
+  while not com_connectedWaitTimed(channelId, waitLoopTimeoutMs)
   end while
 end sub
 
@@ -101,21 +111,23 @@ public function com_receive(byval channelId as long) as long
   com_receive = STXMCCOM_RECEIVE(channelId, err)
   if err then
     print "ERROR: STXMCCOM_RECEIVE"
+    throw com_error
   end if
 end function
 
 
-public function com_receive_wait_timed(byval channelId as long, byval tout as long) as long
+public function com_receiveWaitTimed(byval channelId as long, byval tout as long) as long
   dim err as long
-  com_receive_wait_timed = STXMCCOM_RECEIVE_TIMED(channelId, tout, err)
+  com_receiveWaitTimed = STXMCCOM_RECEIVE_TIMED(channelId, tout, err)
   if err then
     print "ERROR: STXMCCOM_RECEIVE_TIMED"
+    throw com_error
   end if
 end function
 
 
-public sub com_receive_wait(byval channelId as long)
-  while not com_receive_wait_timed(channelId, waitLoopTimeoutMs)
+public sub com_receiveWait(byval channelId as long)
+  while not com_receiveWaitTimed(channelId, waitLoopTimeoutMs)
   end while
 end sub
 
@@ -125,15 +137,17 @@ public sub com_send(byval channelId as long)
   STXMCCOM_SEND(channelId, err)
   if err then
     print "ERROR: STXMCCOM_SEND"
+    throw com_error
   end if
 end sub
 
 
-public sub com_send_self(byval channelId as long)
+public sub com_sendSelf(byval channelId as long)
   dim err as long
   STXMCCOM_SEND_SELF(channelId, err)
   if err then
     print "ERROR: STXMCCOM_SEND_SELF"
+    throw com_error
   end if
 end sub
 
@@ -143,7 +157,7 @@ public sub com_close(byval channelId as long)
 end sub
 
 
-public sub com_close_all
+public sub com_closeAll
   STXMCCOM_CLOSE_ALL()
 end sub
 
@@ -153,77 +167,86 @@ public sub com_new
   STXMCCOM_NEW(err)
   if err then
     print "ERROR: STXMCCOM_NEW"
+    throw com_error
   end if
 end sub
 
 
-public sub com_receive_string(byval str as string)
+public sub com_receiveString(byval str as string)
   dim err as long
   STXMCCOM_RECEIVE_STRING(str, err)
   if err then
     print "ERROR: STXMCCOM_RECEIVE_STRING"
+    throw com_error
   end if
 end sub
 
 
-public function com_send_string as string
+public function com_sendString as string
   dim err as long
-  com_send_string = STXMCCOM_SEND_STRING(err)
+  com_sendString = STXMCCOM_SEND_STRING(err)
   if err then
     print "ERROR: STXMCCOM_SEND_STRING"
+    throw com_error
   end if
 end function
 
 
-public function com_get_long(byval path as string) as long
+public function com_getLong(byval path as string) as long
   dim err as long
-  com_get_long = STXMCCOM_GET_LONG(path, err)
+  com_getLong = STXMCCOM_GET_LONG(path, err)
   if err then
     print "ERROR: STXMCCOM_GET_LONG"
+    throw com_error
   end if
 end function
 
 
-public function com_get_double(byval path as string) as double
+public function com_getDouble(byval path as string) as double
   dim err as long
-  com_get_double = STXMCCOM_GET_DOUBLE(path, err)
+  com_getDouble = STXMCCOM_GET_DOUBLE(path, err)
   if err then
     print "ERROR: STXMCCOM_GET_DOUBLE"
+    throw com_error
   end if
 end function
 
 
-public function com_get_string(byval path as string) as string
+public function com_getString(byval path as string) as string
   dim err as long
-  com_get_string = STXMCCOM_GET_STRING(path, err)
+  com_getString = STXMCCOM_GET_STRING(path, err)
   if err then
     print "ERROR: STXMCCOM_GET_STRING"
+    throw com_error
   end if
 end function
 
 
-public sub com_put_long(byval path as string, byval longValue as long)
+public sub com_putLong(byval path as string, byval longValue as long)
   dim err as long
   STXMCCOM_PUT_LONG(path, longValue, err)
   if err then
     print "ERROR: STXMCCOM_PUT_LONG"
+    throw com_error
   end if
 end sub
 
 
-public sub com_put_double(byval path as string, byval doubleValue as double)
+public sub com_putDouble(byval path as string, byval doubleValue as double)
   dim err as long
   STXMCCOM_PUT_DOUBLE(path, doubleValue, err)
   if err then
     print "ERROR: STXMCCOM_PUT_DOUBLE"
+    throw com_error
   end if
 end sub
 
 
-public sub com_put_string(byval path as string, byval stringValue as string)
+public sub com_putString(byval path as string, byval stringValue as string)
   dim err as long
   STXMCCOM_PUT_STRING(path, stringValue, err)
   if err then
     print "ERROR: STXMCCOM_PUT_STRING"
+    throw com_error
   end if
 end sub
