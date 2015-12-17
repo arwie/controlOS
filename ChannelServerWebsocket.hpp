@@ -72,9 +72,9 @@ private:
 
 	using WsServer = websocketpp::server<websocketpp::config::asio>;
 
-    WsServer wsServer;
-    set<websocketpp::connection_hdl, std::owner_less<websocketpp::connection_hdl>> connections;
-    mutex connectionsMtx;
+	WsServer wsServer;
+	set<websocketpp::connection_hdl, std::owner_less<websocketpp::connection_hdl>> connections;
+	mutex connectionsMtx;
 };
 
 #endif /* CHANNELSERVERWEBSOCKET_HPP_ */

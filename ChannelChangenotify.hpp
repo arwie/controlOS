@@ -2,20 +2,22 @@
 #define CHANNELCHANGENOTIFY_HPP_
 
 
-class ChannelChangenotify : public BlockingChannel
+class ChannelChangenotify : public BlockingChannel, private StatefulChannel
 {
 public:
 
 	void send(MessagePtr& update) override
 	{
+		lock_guard<mutex> lock(stateMtx);
+
 		for (auto& kv : deref(update))
 		{
 			auto& key = kv.first;
 			auto& newValue = kv.second;
 
-			const auto oldValueIt = current.find(key);
+			const auto oldValueIt = state.find(key);
 
-			if (oldValueIt != current.not_found())
+			if (oldValueIt != state.not_found())
 			{
 				auto& oldValue = oldValueIt->second;
 
@@ -27,7 +29,7 @@ public:
 			else
 			{
 				sendChange(key, newValue, newValue);
-				current.put_child(key, newValue);
+				state.put_child(key, newValue);
 			}
 		}
  	}
@@ -42,8 +44,6 @@ private:
 		change->put_child("oldvalue", oldValue);
 		pushMessage(move(change));
 	}
-
-	Message current;
 };
 
 #endif /* CHANNELCHANGENOTIFY_HPP_ */

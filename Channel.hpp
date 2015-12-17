@@ -27,7 +27,16 @@ protected:
 
 
 
-class BlockingChannel : public Channel
+class StatefulChannel : public virtual Channel
+{
+protected:
+	Message state;
+	mutex stateMtx;
+};
+
+
+
+class BlockingChannel : public virtual Channel
 {
 public:
 
@@ -82,8 +91,8 @@ protected:
 	}
 
 	bool closed = false;
-    mutex blockMtx;
-    condition_variable blockCond;
+	mutex blockMtx;
+	condition_variable blockCond;
 
 
 private:

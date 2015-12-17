@@ -26,6 +26,7 @@ static inline Type& deref(const unique_ptr<Type>& ptr) {
 
 #include "Message.hpp"
 #include "Channel.hpp"
+#include "ChannelState.hpp"
 #include "ChannelFile.hpp"
 #include "ChannelFifo.hpp"
 #include "ChannelChangenotify.hpp"
@@ -39,6 +40,17 @@ static Manager manager;
 thread_local MessagePtr message;
 
 
+
+static int stxmccom_open_state(int *error) noexcept
+{
+	*error = 0;
+	try {
+		return manager.openChannel(make_shared<ChannelState>());
+	} catch (exception& e) {
+		*error = 1;
+	}
+	return -1;
+}
 
 static int stxmccom_open_fifo(int *error) noexcept
 {
@@ -252,6 +264,10 @@ static void stxmccom_put_string(SYS_STRING* path, SYS_STRING* value, int *error)
  
  
 extern "C" {
+
+	int STXMCCOM_OPEN_STATE(int *error) {
+		return stxmccom_open_state(error);
+	}
 
 	int STXMCCOM_OPEN_FIFO(int *error) {
 		return stxmccom_open_fifo(error);
