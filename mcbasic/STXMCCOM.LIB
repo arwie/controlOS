@@ -5,6 +5,7 @@ dim shared waitLoopTimeoutMs as const long				= 1000
 
 
 
+import_c STXMCCOM_OPEN_SHELL(as long) as long
 import_c STXMCCOM_OPEN_STATE(as long) as long
 import_c STXMCCOM_OPEN_FIFO(as long) as long
 import_c STXMCCOM_OPEN_CHANGENOTIFY(as long) as long
@@ -29,6 +30,16 @@ import_c STXMCCOM_PUT_LONG(byval as string, byval as long, as long)
 import_c STXMCCOM_PUT_DOUBLE(byval as string, byval as double, as long)
 import_c STXMCCOM_PUT_STRING(byval as string, byval as string, as long)
 
+
+
+public function com_openShell as long
+  dim err as long
+  com_openShell = STXMCCOM_OPEN_SHELL(err)
+  if err then
+    print "ERROR: STXMCCOM_OPEN_SHELL"
+    throw com_error
+  end if
+end function
 
 
 public function com_openState as long
