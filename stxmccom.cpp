@@ -293,12 +293,12 @@ extern "C" {
 		return stxmccom_open_changenotify(error);
 	}
 
-	int STXMCCOM_OPEN_FILE_READ(SYS_STRING* name, int *error) {
-		return stxmccom_open_file_read(name, error);
+	int STXMCCOM_OPEN_FILE_READ(SYS_STRING** name, int *error) {
+		return stxmccom_open_file_read(*name, error);
 	}
 
-	int STXMCCOM_OPEN_FILE_WRITE(SYS_STRING* name, int *error) {
-		return stxmccom_open_file_write(name, error);
+	int STXMCCOM_OPEN_FILE_WRITE(SYS_STRING** name, int *error) {
+		return stxmccom_open_file_write(*name, error);
 	}
 
 	int STXMCCOM_OPEN_SERVER_WEBSOCKET(int port, int *error) {
@@ -342,8 +342,8 @@ extern "C" {
 		stxmccom_new(error);
 	}
 
-	void STXMCCOM_RECEIVE_STRING(SYS_STRING* str, int *error) {
-		stxmccom_receive_string(str, error);
+	void STXMCCOM_RECEIVE_STRING(SYS_STRING** str, int *error) {
+		stxmccom_receive_string(*str, error);
 	}
 
 	SYS_STRING* STXMCCOM_SEND_STRING(int *error) {
@@ -351,30 +351,30 @@ extern "C" {
 		return str_GetString((unsigned char*)str.c_str(), str.length(), ASCII8_STRING_TYPE);
 	}
 
-	int STXMCCOM_GET_LONG(SYS_STRING* path, int *error) {
-		return stxmccom_get<int>(path, error);
+	int STXMCCOM_GET_LONG(SYS_STRING** path, int *error) {
+		return stxmccom_get<int>(*path, error);
 	}
 
-	double STXMCCOM_GET_DOUBLE(SYS_STRING* path, int *error) {
-		return stxmccom_get<double>(path, error);
+	double STXMCCOM_GET_DOUBLE(SYS_STRING** path, int *error) {
+		return stxmccom_get<double>(*path, error);
 	}
 
-	SYS_STRING* STXMCCOM_GET_STRING(SYS_STRING* path, int *error)
+	SYS_STRING* STXMCCOM_GET_STRING(SYS_STRING** path, int *error)
 	{
-		auto str = stxmccom_get<string>(path, error);
+		auto str = stxmccom_get<string>(*path, error);
 		return str_GetString((unsigned char*)str.c_str(), str.length(), ASCII8_STRING_TYPE);
 	}
 
-	void STXMCCOM_PUT_LONG(SYS_STRING* path, int value, int *error) {
-		stxmccom_put(path, value, error);
+	void STXMCCOM_PUT_LONG(SYS_STRING** path, int value, int *error) {
+		stxmccom_put(*path, value, error);
 	}
 
-	void STXMCCOM_PUT_DOUBLE(SYS_STRING* path, double value, int *error) {
-		stxmccom_put(path, value, error);
+	void STXMCCOM_PUT_DOUBLE(SYS_STRING** path, double value, int *error) {
+		stxmccom_put(*path, value, error);
 	}
 
-	void STXMCCOM_PUT_STRING(SYS_STRING* path, SYS_STRING* value, int *error) {
-		stxmccom_put_string(path, value, error);
+	void STXMCCOM_PUT_STRING(SYS_STRING** path, SYS_STRING** value, int *error) {
+		stxmccom_put_string(*path, *value, error);
 	}
 
 }

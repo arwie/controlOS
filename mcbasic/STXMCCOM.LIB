@@ -9,8 +9,8 @@ import_c STXMCCOM_OPEN_SHELL(as long) as long
 import_c STXMCCOM_OPEN_STATE(as long) as long
 import_c STXMCCOM_OPEN_FIFO(as long) as long
 import_c STXMCCOM_OPEN_CHANGENOTIFY(as long) as long
-import_c STXMCCOM_OPEN_FILE_READ(byval as string, as long) as long
-import_c STXMCCOM_OPEN_FILE_WRITE(byval as string, as long) as long
+import_c STXMCCOM_OPEN_FILE_READ(as string, as long) as long
+import_c STXMCCOM_OPEN_FILE_WRITE(as string, as long) as long
 import_c STXMCCOM_OPEN_SERVER_WEBSOCKET(byval as long, as long) as long
 import_c STXMCCOM_CONNECTED(byval as long, as long) as long
 import_c STXMCCOM_CONNECTED_TIMED(byval as long, byval as long, as long) as long
@@ -21,14 +21,14 @@ import_c STXMCCOM_SEND_SELF(byval as long, as long)
 import_c STXMCCOM_CLOSE(byval as long)
 import_c STXMCCOM_CLOSE_ALL()
 import_c STXMCCOM_NEW(as long)
-import_c STXMCCOM_RECEIVE_STRING(byval as string, as long)
+import_c STXMCCOM_RECEIVE_STRING(as string, as long)
 import_c STXMCCOM_SEND_STRING(as long) as string
-import_c STXMCCOM_GET_LONG(byval as string, as long) as long
-import_c STXMCCOM_GET_DOUBLE(byval as string, as long) as double
-import_c STXMCCOM_GET_STRING(byval as string, as long) as string
-import_c STXMCCOM_PUT_LONG(byval as string, byval as long, as long)
-import_c STXMCCOM_PUT_DOUBLE(byval as string, byval as double, as long)
-import_c STXMCCOM_PUT_STRING(byval as string, byval as string, as long)
+import_c STXMCCOM_GET_LONG(as string, as long) as long
+import_c STXMCCOM_GET_DOUBLE(as string, as long) as double
+import_c STXMCCOM_GET_STRING(as string, as long) as string
+import_c STXMCCOM_PUT_LONG(as string, byval as long, as long)
+import_c STXMCCOM_PUT_DOUBLE(as string, byval as double, as long)
+import_c STXMCCOM_PUT_STRING(as string, as string, as long)
 
 
 
