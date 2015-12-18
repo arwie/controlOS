@@ -6,11 +6,11 @@ class ChannelChangenotify : public BlockingChannel, private StatefulChannel
 {
 public:
 
-	void send(MessagePtr& update) override
+	void send(const Message& update) override
 	{
 		lock_guard<mutex> lock(stateMtx);
 
-		for (auto& kv : deref(update))
+		for (auto& kv : update)
 		{
 			auto& key = kv.first;
 			auto& newValue = kv.second;

@@ -35,9 +35,9 @@ class ChannelFileWrite : public Channel
 public:
 	ChannelFileWrite(const string& name) : stream(formatFileNameDat(name)) {}
 
-	void send(MessagePtr& message) override
+	void send(const Message& message) override
 	{
-		stream << deref(message).toString() << endl;
+		stream << message.toString() << endl;
 	}
 
 private:

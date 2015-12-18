@@ -169,22 +169,20 @@ static void stxmccom_send(int channelId, int *error) noexcept
 {
 	*error = 0;
 	try {
-		manager.getChannel(channelId)->send(message);
+		manager.getChannel(channelId)->send(deref(message));
 	} catch (exception& e) {
 		*error = 1;
 	}
-	message.reset();
 }
 
 static void stxmccom_send_self(int channelId, int *error) noexcept
 {
 	*error = 0;
 	try {
-		manager.getChannel(channelId)->sendSelf(message);
+		manager.getChannel(channelId)->sendSelf(deref(message));
 	} catch (exception& e) {
 		*error = 1;
 	}
-	message.reset();
 }
 
 static void stxmccom_close(int channelId) noexcept
@@ -244,7 +242,6 @@ static string stxmccom_send_string(int *error) noexcept
 	} catch (exception& e) {
 		*error = 1;
 	}
-	message.reset();
 	return str;
 }
 

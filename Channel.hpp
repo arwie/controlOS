@@ -6,8 +6,8 @@ class Channel
 {
 public:
 
-	virtual void send(MessagePtr& message)		{ throw exception(); }
-	virtual void sendSelf(MessagePtr& message)	{ throw exception(); }
+	virtual void send(const Message& message)		{ throw exception(); }
+	virtual void sendSelf(const Message& message)	{ throw exception(); }
 
 	virtual bool receive(MessagePtr& message)								{ throw exception(); }
 	virtual bool receive(MessagePtr& message, chrono::milliseconds timeout)	{ throw exception(); }
@@ -60,12 +60,9 @@ public:
 	}
 
 
-	void sendSelf(MessagePtr& message) override
+	void sendSelf(const Message& message) override
 	{
-		if (!message)
-			throw exception();
-
-		pushMessage(move(message));
+		pushMessage(make_unique<Message>(message));
 	}
 
 

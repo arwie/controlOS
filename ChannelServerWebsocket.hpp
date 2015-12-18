@@ -48,9 +48,9 @@ public:
     }
 
 
-	void send(MessagePtr& message) override
+	void send(const Message& message) override
 	{
-    	auto msgString = deref(message).toString();
+    	auto msgString = message.toString();
 
     	lock_guard<mutex> lock(connectionsMtx);
 		for(auto& con : connections) {

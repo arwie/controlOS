@@ -6,7 +6,7 @@ class ChannelFifo : public BlockingChannel
 {
 public:
 
-	void send(MessagePtr& message) override
+	void send(const Message& message) override
 	{
 		sendSelf(message);
 	}

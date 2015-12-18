@@ -13,9 +13,9 @@ class ChannelShell : public Channel
 {
 public:
 
-	void send(MessagePtr& message) override
+	void send(const Message& message) override
 	{
-		if (system(deref(message).get<string>("cmd").c_str()) != 0) {
+		if (system(message.get<string>("cmd").c_str()) != 0) {
 			throw exception();
 		}
 	}
