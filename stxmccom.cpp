@@ -213,6 +213,17 @@ static void stxmccom_new(int *error) noexcept
 	}
 }
 
+static int stxmccom_empty(int *error) noexcept
+{
+	*error = 0;
+	try {
+	 	return deref(message).empty();
+	} catch (exception& e) {
+		*error = 1;
+	}
+	return true;
+}
+
 static void stxmccom_receive_string(SYS_STRING* str, int *error) noexcept
 {
 	*error = 0;
@@ -337,9 +348,12 @@ extern "C" {
 		stxmccom_close_all();
 	}
 
-
 	void STXMCCOM_NEW(int *error) {
 		stxmccom_new(error);
+	}
+
+	int STXMCCOM_EMPTY(int *error) {
+		return stxmccom_empty(error);
 	}
 
 	void STXMCCOM_RECEIVE_STRING(SYS_STRING** str, int *error) {
