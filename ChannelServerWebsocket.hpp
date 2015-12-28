@@ -21,7 +21,7 @@ public:
 			setConnected(!connections.empty());
 		});
 
-        wsServer.set_close_handler([this](websocketpp::connection_hdl hdl)
+		wsServer.set_close_handler([this](websocketpp::connection_hdl hdl)
 		{
 			{ lock_guard<mutex> lock(connectionsMtx);
 				connections.erase(hdl);
@@ -29,15 +29,18 @@ public:
 			setConnected(!connections.empty());
 		});
 
-        wsServer.set_message_handler([this](websocketpp::connection_hdl hdl, WsServer::message_ptr msg)
+		wsServer.set_message_handler([this](websocketpp::connection_hdl hdl, WsServer::message_ptr msg)
 		{
 			pushMessage(make_unique<Message>(msg->get_payload()));
 		});
 
-    	wsServer.listen(websocketpp::lib::asio::ip::tcp::v4(), port);
-     	wsServer.start_accept();
+		wsServer.set_reuse_addr(true);
+		wsServer.listen(websocketpp::lib::asio::ip::tcp::v4(), port);
+		wsServer.start_accept();
 
-     	setConnected(false);
+		wsServer.clear_access_channels(websocketpp::log::alevel::frame_header | websocketpp::log::alevel::frame_payload);
+
+		setConnected(false);
 	}
 
 
