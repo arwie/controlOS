@@ -255,6 +255,21 @@ public function com_getString(byval path as string) as string
 end function
 
 
+public function com_getLocationXy(byval path as string) as location of xy
+  com_getLocationXy = #{com_getDouble(path+".x"), com_getDouble(path+".y")} 
+end function
+
+
+public function com_getLocationXyzr(byval path as string) as location of xyzr
+  com_getLocationXyzr = #{com_getDouble(path+".x"), com_getDouble(path+".y"), com_getDouble(path+".z"), com_getDouble(path+".r")} 
+end function
+
+
+public function com_getJointXyzr(byval path as string) as joint of xyzr
+  com_getJointXyzr = {com_getDouble(path+".1"), com_getDouble(path+".2"), com_getDouble(path+".3"), com_getDouble(path+".4")} 
+end function
+
+
 public sub com_putLong(byval path as string, byval longValue as long)
   dim err as long
   STXMCCOM_PUT_LONG(path, longValue, err)
@@ -282,4 +297,26 @@ public sub com_putString(byval path as string, byval stringValue as string)
     print "ERROR: STXMCCOM_PUT_STRING"
     throw com_error
   end if
+end sub
+
+
+public sub com_putLocationXy(byval path as string, byval pos as location of xy)
+  call com_putDouble(path+".x", pos{1})
+  call com_putDouble(path+".y", pos{2})
+end sub
+
+
+public sub com_putLocationXyzr(byval path as string, byval pos as location of xyzr)
+  call com_putDouble(path+".x", pos{1})
+  call com_putDouble(path+".y", pos{2})
+  call com_putDouble(path+".z", pos{3})
+  call com_putDouble(path+".r", pos{4})
+end sub
+
+
+public sub com_putJointXyzr(byval path as string, byval jnt as joint of xyzr)
+  call com_putDouble(path+".1", jnt{1})
+  call com_putDouble(path+".2", jnt{2})
+  call com_putDouble(path+".3", jnt{3})
+  call com_putDouble(path+".4", jnt{4})
 end sub
