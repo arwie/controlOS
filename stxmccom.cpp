@@ -222,6 +222,21 @@ static int stxmccom_empty(int *error) noexcept
 	return true;
 }
 
+
+static void stxmccom_delete(SYS_STRING* path) noexcept
+{
+	try {
+		auto pathStr = amcsGetString(path);
+		auto lastDot = pathStr.rfind(".");
+		if (lastDot != string::npos)
+			deref(message).get_child(pathStr.substr(0, lastDot)).erase(pathStr.substr(lastDot+1));
+		else
+			deref(message).erase(pathStr);
+	}
+	catch (exception& e) {}
+}
+
+
 static void stxmccom_receive_string(SYS_STRING* str, int *error) noexcept
 {
 	*error = 0;
@@ -351,6 +366,10 @@ extern "C" {
 
 	int STXMCCOM_EMPTY(int *error) {
 		return stxmccom_empty(error);
+	}
+
+	void STXMCCOM_DELETE(SYS_STRING** path) {
+		stxmccom_delete(*path);
 	}
 
 	void STXMCCOM_RECEIVE_STRING(SYS_STRING** str, int *error) {

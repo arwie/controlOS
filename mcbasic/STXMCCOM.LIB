@@ -22,6 +22,7 @@ import_c STXMCCOM_CLOSE(byval as long)
 import_c STXMCCOM_CLOSE_ALL()
 import_c STXMCCOM_NEW(as long)
 import_c STXMCCOM_EMPTY(as long) as long
+import_c STXMCCOM_DELETE(as string)
 import_c STXMCCOM_RECEIVE_STRING(as string, as long)
 import_c STXMCCOM_SEND_STRING(as long) as string
 import_c STXMCCOM_GET_LONG(as string, as long) as long
@@ -188,6 +189,11 @@ public function com_empty as long
     throw com_error
   end if
 end function
+
+
+public sub com_delete(byval path as string)
+  STXMCCOM_DELETE(path)
+end sub
 
 
 public sub com_receiveString(byval str as string)
