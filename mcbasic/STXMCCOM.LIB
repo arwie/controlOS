@@ -1,7 +1,7 @@
 common shared com_error as error "general com error"	  20800
 
 
-dim shared waitLoopTimeoutMs as const long				= 1000
+dim shared waitLoopTimeoutMs as const long				= 100
 
 
 
@@ -139,10 +139,12 @@ public function com_receiveWaitTimed(byval channelId as long, byval tout as long
 end function
 
 
-public sub com_receiveWait(byval channelId as long)
-  while not com_receiveWaitTimed(channelId, waitLoopTimeoutMs)
+public function com_receiveWait(byval channelId as long, receiveWhile as long) as long
+  com_receiveWait = false
+  while not com_receiveWait and receiveWhile
+    com_receiveWait = com_receiveWaitTimed(channelId, waitLoopTimeoutMs)
   end while
-end sub
+end function
 
 
 public sub com_send(byval channelId as long)
