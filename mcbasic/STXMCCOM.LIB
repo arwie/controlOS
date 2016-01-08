@@ -115,10 +115,12 @@ public function com_connectedWaitTimed(byval channelId as long, byval tout as lo
 end function
 
 
-public sub com_connectedWait(byval channelId as long)
-  while not com_connectedWaitTimed(channelId, waitLoopTimeoutMs)
+public function com_connectedWait(byval channelId as long, waitWhile as long) as long
+  com_connectedWait = false
+  while not com_connectedWait and waitWhile
+    com_connectedWait = com_connectedWaitTimed(channelId, waitLoopTimeoutMs)
   end while
-end sub
+end function
 
 
 public function com_receive(byval channelId as long) as long
@@ -139,9 +141,9 @@ public function com_receiveWaitTimed(byval channelId as long, byval tout as long
 end function
 
 
-public function com_receiveWait(byval channelId as long, receiveWhile as long) as long
+public function com_receiveWait(byval channelId as long, waitWhile as long) as long
   com_receiveWait = false
-  while not com_receiveWait and receiveWhile
+  while not com_receiveWait and waitWhile
     com_receiveWait = com_receiveWaitTimed(channelId, waitLoopTimeoutMs)
   end while
 end function
