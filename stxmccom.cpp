@@ -6,6 +6,7 @@
 #include <map>
 #include <set>
 #include <queue>
+#include <stack>
 #include <mutex>
 #include <condition_variable>
 #include <memory>
@@ -32,6 +33,7 @@ using namespace std;
 
 static Manager manager;
 thread_local MessagePtr messagePtr(new Message());
+thread_local stack<MessagePtr> messageStack;
 
 
 
@@ -213,6 +215,33 @@ static int stxmccom_empty(int *error) noexcept
 }
 
 
+static void stxmccom_store(int *error) noexcept
+{
+	*error = 0;
+	try {
+		if (messageStack.size() >= 5)
+			throw exception();
+
+		MessagePtr newMessagePtr(new Message());
+	 	messageStack.emplace(move(messagePtr));
+	 	messagePtr = move(newMessagePtr);
+	} catch (exception& e) {
+		*error = 1;
+	}
+}
+
+static void stxmccom_restore(int *error) noexcept
+{
+	*error = 0;
+	try {
+		messagePtr = move(messageStack.top());
+		messageStack.pop();
+	} catch (exception& e) {
+		*error = 1;
+	}
+}
+
+
 static void stxmccom_delete(SYS_STRING* path) noexcept
 {
 	try {
@@ -355,6 +384,14 @@ extern "C" {
 
 	int STXMCCOM_EMPTY(int *error) {
 		return stxmccom_empty(error);
+	}
+
+	void STXMCCOM_STORE(int *error) {
+		stxmccom_store(error);
+	}
+
+	void STXMCCOM_RESTORE(int *error) {
+		stxmccom_restore(error);
 	}
 
 	void STXMCCOM_DELETE(SYS_STRING** path) {
