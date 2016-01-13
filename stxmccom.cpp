@@ -17,13 +17,6 @@ using namespace std;
 #define DEBUG(x)	if (true) { cerr << x << endl; }
 
 
-template<class Type>
-static inline Type& deref(const unique_ptr<Type>& ptr) {
-	if (!ptr) throw exception();
-	return *ptr;
-}
-
-
 #include "Message.hpp"
 #include "Channel.hpp"
 #include "ChannelShell.hpp"
@@ -38,7 +31,7 @@ static inline Type& deref(const unique_ptr<Type>& ptr) {
 
 
 static Manager manager;
-thread_local MessagePtr message;
+thread_local MessagePtr messagePtr(new Message());
 
 
 
@@ -145,8 +138,7 @@ static int stxmccom_receive(int channelId, int *error) noexcept
 {
 	*error = 0;
 	try {
-		message.reset();
-		return manager.getChannel(channelId)->receive(message);
+		return manager.getChannel(channelId)->receive(messagePtr);
 	} catch (exception& e) {
 		*error = 1;
 	}
@@ -157,8 +149,7 @@ static int stxmccom_receive_timed(int channelId, chrono::milliseconds timeout, i
 {
 	*error = 0;
 	try {
-		message.reset();
-		return manager.getChannel(channelId)->receive(message, timeout);
+		return manager.getChannel(channelId)->receive(messagePtr, timeout);
 	} catch (exception& e) {
 		*error = 1;
 	}
@@ -169,7 +160,7 @@ static void stxmccom_send(int channelId, int *error) noexcept
 {
 	*error = 0;
 	try {
-		manager.getChannel(channelId)->send(deref(message));
+		manager.getChannel(channelId)->send(*messagePtr);
 	} catch (exception& e) {
 		*error = 1;
 	}
@@ -179,7 +170,7 @@ static void stxmccom_send_self(int channelId, int *error) noexcept
 {
 	*error = 0;
 	try {
-		manager.getChannel(channelId)->sendSelf(deref(message));
+		manager.getChannel(channelId)->sendSelf(*messagePtr);
 	} catch (exception& e) {
 		*error = 1;
 	}
@@ -200,12 +191,11 @@ static void stxmccom_close_all() noexcept
 }
 
 
-static void stxmccom_new(int *error) noexcept
+static void stxmccom_clear(int *error) noexcept
 {
 	*error = 0;
 	try {
-		message.reset();
-		message.reset(new Message());
+		messagePtr->clear();
 	} catch (exception& e) {
 		*error = 1;
 	}
@@ -215,7 +205,7 @@ static int stxmccom_empty(int *error) noexcept
 {
 	*error = 0;
 	try {
-	 	return deref(message).empty();
+	 	return messagePtr->empty();
 	} catch (exception& e) {
 		*error = 1;
 	}
@@ -229,9 +219,9 @@ static void stxmccom_delete(SYS_STRING* path) noexcept
 		auto pathStr = amcsGetString(path);
 		auto lastDot = pathStr.rfind(".");
 		if (lastDot != string::npos)
-			deref(message).get_child(pathStr.substr(0, lastDot)).erase(pathStr.substr(lastDot+1));
+			messagePtr->get_child(pathStr.substr(0, lastDot)).erase(pathStr.substr(lastDot+1));
 		else
-			deref(message).erase(pathStr);
+			messagePtr->erase(pathStr);
 	}
 	catch (exception& e) {}
 }
@@ -241,8 +231,7 @@ static void stxmccom_receive_string(SYS_STRING* str, int *error) noexcept
 {
 	*error = 0;
 	try {
-		message.reset();
-		message.reset(new Message(amcsGetString(str)));
+		messagePtr.reset(new Message(amcsGetString(str)));
 	} catch (exception& e) {
 		*error = 1;
 	}
@@ -253,7 +242,7 @@ static string stxmccom_send_string(int *error) noexcept
 	*error = 0;
 	string str;
 	try {
-		str = deref(message).toString();
+		str = messagePtr->toString();
 	} catch (exception& e) {
 		*error = 1;
 	}
@@ -266,7 +255,7 @@ static Type stxmccom_get(SYS_STRING* path, int *error) noexcept
 {
 	*error = 0;
 	try {
-	 	return deref(message).get<Type>(amcsGetString(path));
+	 	return messagePtr->get<Type>(amcsGetString(path));
 	} catch (exception& e) {
 		*error = 1;
 	}
@@ -279,7 +268,7 @@ static void stxmccom_put(SYS_STRING* path, Type value, int *error) noexcept
 {
 	*error = 0;
 	try {
-		deref(message).put(amcsGetString(path), value);
+		messagePtr->put(amcsGetString(path), value);
 	} catch (exception& e) {
 		*error = 1;
 	}
@@ -360,8 +349,8 @@ extern "C" {
 		stxmccom_close_all();
 	}
 
-	void STXMCCOM_NEW(int *error) {
-		stxmccom_new(error);
+	void STXMCCOM_CLEAR(int *error) {
+		stxmccom_clear(error);
 	}
 
 	int STXMCCOM_EMPTY(int *error) {
