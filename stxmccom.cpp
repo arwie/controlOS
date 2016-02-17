@@ -245,12 +245,16 @@ static void stxmccom_restore(int *error) noexcept
 static void stxmccom_delete(SYS_STRING* path) noexcept
 {
 	try {
-		auto pathStr = amcsGetString(path);
-		auto lastDot = pathStr.rfind(".");
-		if (lastDot != string::npos)
-			messagePtr->get_child(pathStr.substr(0, lastDot)).erase(pathStr.substr(lastDot+1));
-		else
-			messagePtr->erase(pathStr);
+		messagePtr->erase_with(amcsGetString(path));
+	}
+	catch (exception& e) {}
+}
+
+
+static void stxmccom_with(SYS_STRING* path) noexcept
+{
+	try {
+		messagePtr->with(amcsGetString(path));
 	}
 	catch (exception& e) {}
 }
@@ -284,7 +288,7 @@ static Type stxmccom_get(SYS_STRING* path, int *error) noexcept
 {
 	*error = 0;
 	try {
-	 	return messagePtr->get<Type>(amcsGetString(path));
+	 	return messagePtr->get_with<Type>(amcsGetString(path));
 	} catch (exception& e) {
 		*error = 1;
 	}
@@ -297,7 +301,7 @@ static void stxmccom_put(SYS_STRING* path, Type value, int *error) noexcept
 {
 	*error = 0;
 	try {
-		messagePtr->put(amcsGetString(path), value);
+		messagePtr->put_with(amcsGetString(path), value);
 	} catch (exception& e) {
 		*error = 1;
 	}
@@ -396,6 +400,10 @@ extern "C" {
 
 	void STXMCCOM_DELETE(SYS_STRING** path) {
 		stxmccom_delete(*path);
+	}
+
+	void STXMCCOM_WITH(SYS_STRING** path) {
+		stxmccom_with(*path);
 	}
 
 	void STXMCCOM_RECEIVE_STRING(SYS_STRING** str, int *error) {

@@ -25,6 +25,7 @@ import_c STXMCCOM_EMPTY(as long) as long
 import_c STXMCCOM_STORE(as long)
 import_c STXMCCOM_RESTORE(as long)
 import_c STXMCCOM_DELETE(as string)
+import_c STXMCCOM_WITH(as string)
 import_c STXMCCOM_RECEIVE_STRING(as string, as long)
 import_c STXMCCOM_SEND_STRING(as long) as string
 import_c STXMCCOM_GET_LONG(as string, as long) as long
@@ -217,6 +218,11 @@ end sub
 
 public sub com_delete(byval path as string)
   STXMCCOM_DELETE(path)
+end sub
+
+
+public sub com_with(byval path as string)
+  STXMCCOM_WITH(path)
 end sub
 
 
