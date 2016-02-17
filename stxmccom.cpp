@@ -215,14 +215,14 @@ static int stxmccom_empty(int *error) noexcept
 }
 
 
-static void stxmccom_store(int *error) noexcept
+static void stxmccom_store(bool copy, int *error) noexcept
 {
 	*error = 0;
 	try {
 		if (messageStack.size() >= 5)
 			throw exception();
 
-		MessagePtr newMessagePtr(new Message());
+		MessagePtr newMessagePtr(copy ? new Message(*messagePtr) : new Message());
 	 	messageStack.emplace(move(messagePtr));
 	 	messagePtr = move(newMessagePtr);
 	} catch (exception& e) {
@@ -257,6 +257,17 @@ static void stxmccom_with(SYS_STRING* path) noexcept
 		messagePtr->with(amcsGetString(path));
 	}
 	catch (exception& e) {}
+}
+
+
+static void stxmccom_extract(SYS_STRING* path, int *error) noexcept
+{
+	*error = 0;
+	try {
+		messagePtr.reset(new Message(messagePtr->get_child_with(amcsGetString(path))));
+	} catch (exception& e) {
+		*error = 1;
+	}
 }
 
 
@@ -390,8 +401,8 @@ extern "C" {
 		return stxmccom_empty(error);
 	}
 
-	void STXMCCOM_STORE(int *error) {
-		stxmccom_store(error);
+	void STXMCCOM_STORE(int copy, int *error) {
+		stxmccom_store(copy, error);
 	}
 
 	void STXMCCOM_RESTORE(int *error) {
@@ -404,6 +415,10 @@ extern "C" {
 
 	void STXMCCOM_WITH(SYS_STRING** path) {
 		stxmccom_with(*path);
+	}
+
+	void STXMCCOM_EXTRACT(SYS_STRING** path, int *error) {
+		stxmccom_extract(*path, error);
 	}
 
 	void STXMCCOM_RECEIVE_STRING(SYS_STRING** str, int *error) {

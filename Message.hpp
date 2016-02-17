@@ -8,7 +8,8 @@
 class Message : public boost::property_tree::ptree
 {
 public:
-	Message() {}
+	Message() : boost::property_tree::ptree() {}
+	Message(const boost::property_tree::ptree& rhs) : boost::property_tree::ptree(rhs) {}
 
 	Message(const string& json)
 	{
@@ -38,13 +39,13 @@ public:
 	template<class Type>
 	void put_with(const string& path, const Type& value)
 	{
-		boost::property_tree::ptree::put(prefix+path, value);
+		put(prefix+path, value);
 	}
 
 	template<class Type>
 	Type get_with(const string& path) const
 	{
-		return boost::property_tree::ptree::get<Type>(prefix+path);
+		return get<Type>(prefix+path);
 	}
 
 	void erase_with(string path)
@@ -53,9 +54,14 @@ public:
 		auto lastDot = path.rfind(".");
 
 		if (lastDot != string::npos)
-			boost::property_tree::ptree::get_child(path.substr(0, lastDot)).erase(path.substr(lastDot+1));
+			get_child(path.substr(0, lastDot)).erase(path.substr(lastDot+1));
 		else
-			boost::property_tree::ptree::erase(path);
+			erase(path);
+	}
+
+	const boost::property_tree::ptree& get_child_with(const string& path) const
+	{
+		return get_child(prefix+path);
 	}
 
 private:

@@ -22,10 +22,11 @@ import_c STXMCCOM_CLOSE(byval as long)
 import_c STXMCCOM_CLOSE_ALL()
 import_c STXMCCOM_CLEAR(as long)
 import_c STXMCCOM_EMPTY(as long) as long
-import_c STXMCCOM_STORE(as long)
+import_c STXMCCOM_STORE(byval as long, as long)
 import_c STXMCCOM_RESTORE(as long)
 import_c STXMCCOM_DELETE(as string)
 import_c STXMCCOM_WITH(as string)
+import_c STXMCCOM_EXTRACT(as string, as long)
 import_c STXMCCOM_RECEIVE_STRING(as string, as long)
 import_c STXMCCOM_SEND_STRING(as long) as string
 import_c STXMCCOM_GET_LONG(as string, as long) as long
@@ -200,7 +201,16 @@ end function
 
 public sub com_store
   dim err as long
-  STXMCCOM_STORE(err)
+  STXMCCOM_STORE(false, err)
+  if err then
+    throw com_error
+  end if
+end sub
+
+
+public sub com_storeCopy
+  dim err as long
+  STXMCCOM_STORE(true, err)
   if err then
     throw com_error
   end if
@@ -223,6 +233,15 @@ end sub
 
 public sub com_with(byval path as string)
   STXMCCOM_WITH(path)
+end sub
+
+
+public sub com_extract(byval path as string)
+  dim err as long
+  STXMCCOM_EXTRACT(path, err)
+  if err then
+    throw com_error
+  end if
 end sub
 
 
