@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6.0)
 
-set(OSELASTC /opt/OSELAS.Toolchain-2014.12.1/i586-unknown-linux-gnu/gcc-4.9.2-glibc-2.20-binutils-2.24-kernel-3.16-sanitized/sysroot-i586-unknown-linux-gnu)
+set(OSELASTC /opt/OSELAS.Toolchain-2014.12.2/i586-unknown-linux-gnu/gcc-4.9.2-glibc-2.20-binutils-2.24-kernel-3.16-sanitized/sysroot-i586-unknown-linux-gnu)
 
 set(CMAKE_CXX_STANDARD 14)
 
