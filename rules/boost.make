@@ -17,8 +17,8 @@ PACKAGES-$(PTXCONF_BOOST) += boost
 #
 # Paths and names
 #
-BOOST_VERSION	:= 1_59_0
-BOOST_MD5		:= 6aa9a5c6a4ca1016edd0ed1178e3cb87
+BOOST_VERSION	:= 1_60_0
+BOOST_MD5		:= 65a840e1a0b13a558ff19eeb2c4f0cbe
 BOOST			:= boost_$(BOOST_VERSION)
 BOOST_SUFFIX	:= tar.bz2
 BOOST_URL		:= $(call ptx/mirror, SF, boost/$(BOOST).$(BOOST_SUFFIX))
