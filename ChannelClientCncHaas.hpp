@@ -53,6 +53,7 @@ private:
 
 		Connection(ChannelClientCncHaas& channel, const string& path)
 			: channel(channel), resolver(channel.asioService), socket(channel.asioService),
+			  deadline(channel.asioService, boost::posix_time::milliseconds(3000)),
 			  dataItemRegex("^Data item (\\d+) \\(length = (\\d+)\\) = \"(.*)\".*$")
 		{
 			ostream requestStream(&request);
@@ -65,6 +66,11 @@ private:
 
 		void execute()
 		{
+			auto thisPtr = shared_from_this();
+			deadline.async_wait([thisPtr](const boost::system::error_code& err) {
+				thisPtr->cancel();
+			});
+
 			resolve();
 		}
 
@@ -74,6 +80,8 @@ private:
 
 		void resolve()
 		{
+			if (cancelled) return;
+
 			DEBUG("resolving");
 			auto thisPtr = shared_from_this();
 			resolver.async_resolve(boost::asio::ip::tcp::resolver::query(channel.host, channel.port),
@@ -85,6 +93,8 @@ private:
 
 		void connect(boost::asio::ip::tcp::resolver::iterator endpoint_iterator)
 		{
+			if (cancelled) return;
+
 			DEBUG("connecting");
 			auto thisPtr = shared_from_this();
 			boost::asio::async_connect(socket, endpoint_iterator,
@@ -96,6 +106,8 @@ private:
 
 		void write()
 		{
+			if (cancelled) return;
+
 			DEBUG("writing");
 			auto thisPtr = shared_from_this();
 			boost::asio::async_write(socket, request,
@@ -107,6 +119,8 @@ private:
 
 		void read()
 		{
+			if (cancelled) return;
+
 			DEBUG("reading");
 			auto thisPtr = shared_from_this();
 			boost::asio::async_read(socket, response, boost::asio::transfer_at_least(1),
@@ -123,6 +137,8 @@ private:
 
 		void parse()
 		{
+			if (cancelled) return;
+
 			DEBUG("parsing");
 			auto messagePtr = make_unique<Message>();
 
@@ -137,15 +153,26 @@ private:
 			}
 
 			channel.pushMessage(move(messagePtr));
+			deadline.cancel();
+		}
+
+		void cancel()
+		{
+			DEBUG("canceled");
+			cancelled = true;
+			boost::system::error_code dummyErr;
+			socket.close(dummyErr);
 		}
 
 
 		ChannelClientCncHaas& channel;
 		boost::asio::ip::tcp::resolver resolver;
 		boost::asio::ip::tcp::socket socket;
+		boost::asio::deadline_timer deadline;
 		boost::asio::streambuf request;
 		boost::asio::streambuf response;
 		boost::regex dataItemRegex;
+		bool cancelled = false;
 	};
 };
 
