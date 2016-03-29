@@ -56,6 +56,7 @@ private:
 			channel->run();
 		}
 		catch (exception& e) {
+			DEBUG("channelRunner exception: " << e.what());
 			// TODO: close channel
 		}
 		//DEBUG("channelRunner exited");

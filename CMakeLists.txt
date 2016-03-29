@@ -13,6 +13,12 @@ set_target_properties(libboost_system PROPERTIES
 	IMPORTED_LOCATION ${BOOST_SYSTEM_PATH}
 )
 
+find_library(BOOST_REGEX_PATH libboost_regex-mt.a)
+add_library(libboost_regex STATIC IMPORTED)
+set_target_properties(libboost_regex PROPERTIES
+	IMPORTED_LOCATION ${BOOST_REGEX_PATH}
+)
+
 add_library(libstdcpp STATIC IMPORTED)
 set_target_properties(libstdcpp PROPERTIES
 	IMPORTED_LOCATION ${OSELASTC}/../i586-unknown-linux-gnu/lib/libstdc++.a
@@ -30,6 +36,7 @@ add_library(stxmccom SHARED
 
 target_link_libraries(stxmccom
 	libboost_system
+	libboost_regex
 	libstdcpp
 	libc
 )

@@ -12,6 +12,7 @@ import_c STXMCCOM_OPEN_CHANGENOTIFY(as long) as long
 import_c STXMCCOM_OPEN_FILE_READ(as string, as long) as long
 import_c STXMCCOM_OPEN_FILE_WRITE(as string, as long) as long
 import_c STXMCCOM_OPEN_SERVER_WEBSOCKET(byval as long, as long) as long
+import_c STXMCCOM_OPEN_CLIENT_CNCHAAS(as string, byval as long, as long) as long
 import_c STXMCCOM_CONNECTED(byval as long, as long) as long
 import_c STXMCCOM_CONNECTED_TIMED(byval as long, byval as long, as long) as long
 import_c STXMCCOM_RECEIVE(byval as long, as long) as long
@@ -95,6 +96,15 @@ end function
 public function com_openServerWebsocket(byval port as long) as long
   dim err as long
   com_openServerWebsocket = STXMCCOM_OPEN_SERVER_WEBSOCKET(port, err)
+  if err then
+    throw com_error
+  end if
+end function
+
+
+public function com_openClientCncHaas(byval host as string, byval port as long) as long
+  dim err as long
+  com_openClientCncHaas = STXMCCOM_OPEN_CLIENT_CNCHAAS(host, port, err)
   if err then
     throw com_error
   end if

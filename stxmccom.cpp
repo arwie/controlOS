@@ -12,6 +12,7 @@
 #include <memory>
 #include <functional>
 #include <exception>
+#include <boost/regex.hpp>
 
 using namespace std;
 
@@ -26,6 +27,7 @@ using namespace std;
 #include "ChannelFifo.hpp"
 #include "ChannelChangenotify.hpp"
 #include "ChannelServerWebsocket.hpp"
+#include "ChannelClientCncHaas.hpp"
 #include "Manager.hpp"
 
 #include "amcs.h"
@@ -114,6 +116,17 @@ static int stxmccom_open_server_sebsocket(int port, int *error) noexcept
 	return -1;
 }
 
+static int stxmccom_open_client_cnchaas(SYS_STRING* host, int port, int *error) noexcept
+{
+	*error = 0;
+	try {
+		return manager.openChannel(make_shared<ChannelClientCncHaas>(amcsGetString(host), port));
+	} catch (exception& e) {
+		*error = 1;
+	}
+	return -1;
+}
+
 static int stxmccom_connected(int channelId, int *error) noexcept
 {
 	*error = 0;
@@ -165,6 +178,7 @@ static void stxmccom_send(int channelId, int *error) noexcept
 		manager.getChannel(channelId)->send(*messagePtr);
 	} catch (exception& e) {
 		*error = 1;
+		DEBUG("stxmccom_send: " << e.what());
 	}
 }
 
@@ -359,6 +373,10 @@ extern "C" {
 
 	int STXMCCOM_OPEN_SERVER_WEBSOCKET(int port, int *error) {
 		return stxmccom_open_server_sebsocket(port, error);
+	}
+
+	int STXMCCOM_OPEN_CLIENT_CNCHAAS(SYS_STRING** host, int port, int *error) {
+		return stxmccom_open_client_cnchaas(*host, port, error);
 	}
 
 	int STXMCCOM_CONNECTED(int channelId, int *error) {
