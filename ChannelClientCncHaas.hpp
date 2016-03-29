@@ -74,19 +74,16 @@ private:
 			resolve();
 		}
 
-		~Connection() { DEBUG("connection deleted"); }
-
 	private:
 
 		void resolve()
 		{
 			if (cancelled) return;
 
-			DEBUG("resolving");
 			auto thisPtr = shared_from_this();
 			resolver.async_resolve(boost::asio::ip::tcp::resolver::query(channel.host, channel.port),
 					[thisPtr](const boost::system::error_code& err, boost::asio::ip::tcp::resolver::iterator endpoint_iterator) {
-						if (!err) thisPtr->connect(endpoint_iterator); else DEBUG(err);
+						if (!err) thisPtr->connect(endpoint_iterator); else DEBUG("cncHaas: " << err);
 					}
 			);
 		}
@@ -95,11 +92,10 @@ private:
 		{
 			if (cancelled) return;
 
-			DEBUG("connecting");
 			auto thisPtr = shared_from_this();
 			boost::asio::async_connect(socket, endpoint_iterator,
 					[thisPtr](const boost::system::error_code& err, boost::asio::ip::tcp::resolver::iterator endpoint_iterator) {
-						if (!err) thisPtr->write(); else DEBUG(err);
+						if (!err) thisPtr->write(); else DEBUG("cncHaas: " << err);
 					}
 			);
 		}
@@ -108,11 +104,10 @@ private:
 		{
 			if (cancelled) return;
 
-			DEBUG("writing");
 			auto thisPtr = shared_from_this();
 			boost::asio::async_write(socket, request,
 					[thisPtr](const boost::system::error_code& err, std::size_t bytes_transferred) {
-						if (!err) thisPtr->read(); else DEBUG(err);
+						if (!err) thisPtr->read(); else DEBUG("cncHaas: " << err);
 					}
 			);
 		}
@@ -121,7 +116,6 @@ private:
 		{
 			if (cancelled) return;
 
-			DEBUG("reading");
 			auto thisPtr = shared_from_this();
 			boost::asio::async_read(socket, response, boost::asio::transfer_at_least(1),
 					[thisPtr](const boost::system::error_code& err, std::size_t bytes_transferred) {
@@ -130,7 +124,7 @@ private:
 						else if (err == boost::asio::error::eof)
 							thisPtr->parse();
 						else
-							DEBUG(err);
+							DEBUG("cncHaas: " << err);
 					}
 			);
 		}
@@ -139,26 +133,28 @@ private:
 		{
 			if (cancelled) return;
 
-			DEBUG("parsing");
-			auto messagePtr = make_unique<Message>();
+			try {
+				auto messagePtr = make_unique<Message>();
 
-			istream responseStream(&response);
-			string line;
-			while (getline(responseStream, line)) {
-				boost::smatch match;
-				if (boost::regex_match(line, match, dataItemRegex))	{
-					//for (unsigned int i=0; i<match.size(); ++i) { DEBUG("[" << match[i] << "] "); };
-					messagePtr->put<string>(to_string(stoi(match[1])), match[3]);
+				istream responseStream(&response);
+				string line;
+				while (getline(responseStream, line))
+				{
+					boost::smatch match;
+					if (boost::regex_match(line, match, dataItemRegex))	{
+						//for (unsigned int i=0; i<match.size(); ++i) { DEBUG("[" << match[i] << "] "); };
+						messagePtr->put<string>(to_string(stoi(match[1])), match[3]);
+					}
 				}
-			}
 
-			channel.pushMessage(move(messagePtr));
-			deadline.cancel();
+				channel.pushMessage(move(messagePtr));
+				deadline.cancel();
+			}
+			catch (exception& e) { DEBUG("cncHaas: " << e.what()); }
 		}
 
 		void cancel()
 		{
-			DEBUG("canceled");
 			cancelled = true;
 			boost::system::error_code dummyErr;
 			socket.close(dummyErr);
