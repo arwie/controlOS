@@ -13,16 +13,7 @@ public:
 
 	void send(const Message& message) override
 	{
-		stringstream pathStream;
-	    pathStream << "/m-net?mds,1,S";
-		for (auto& kv : message) {
-			pathStream << "," << kv.first;
-			string value = kv.second.get_value<string>();
-			if (!value.empty())
-				pathStream << "=" << value;
-		}
-
-	    make_shared<Connection>(*this, pathStream.str())->execute();
+	    make_shared<Connection>(*this, message)->execute();
 	}
 
 
@@ -51,13 +42,26 @@ private:
 	{
 	public:
 
-		Connection(ChannelClientCncHaas& channel, const string& path)
+		Connection(ChannelClientCncHaas& channel, const Message& message)
 			: channel(channel), resolver(channel.asioService), socket(channel.asioService),
 			  deadline(channel.asioService, boost::posix_time::milliseconds(3000)),
 			  dataItemRegex("^Data item (\\d+) \\(length = (\\d+)\\) = \"(.*)\".*$")
 		{
 			ostream requestStream(&request);
-			requestStream << "GET " << path << " HTTP/1.0"	<< "\r\n";
+			requestStream << "GET " << "/m-net?mds,1,S";
+
+			for (const auto& top : message) {
+				for (const auto& sub : top.second) {
+					queryQueue.emplace(top.first, sub.first);
+
+					requestStream << "," << sub.first;
+					string value = sub.second.get_value<string>();
+					if (value != "?")
+						requestStream << "=" << value;
+				}
+			}
+
+			requestStream << " HTTP/1.0"					<< "\r\n";
 			requestStream << "Host: " << channel.host		<< "\r\n";
 			requestStream << "Accept: */*"					<< "\r\n";
 			requestStream << "Connection: close"			<< "\r\n";
@@ -138,12 +142,17 @@ private:
 
 				istream responseStream(&response);
 				string line;
-				while (getline(responseStream, line))
-				{
+				while (getline(responseStream, line)) {
 					boost::smatch match;
-					if (boost::regex_match(line, match, dataItemRegex))	{
-						//for (unsigned int i=0; i<match.size(); ++i) { DEBUG("[" << match[i] << "] "); };
-						messagePtr->put<string>(to_string(stoi(match[1])), match[3]);
+					if (boost::regex_match(line, match, dataItemRegex))
+					{
+						const auto& query = queryQueue.front();
+
+						if (stoi(match[1]) != stoi(query.second))
+							throw runtime_error("wrong query order");
+
+						messagePtr->put<string>(query.first+"."+query.second, match[3]);
+						queryQueue.pop();
 					}
 				}
 
@@ -169,6 +178,7 @@ private:
 		boost::asio::streambuf response;
 		boost::regex dataItemRegex;
 		bool cancelled = false;
+		queue<pair<string, string>> queryQueue;
 	};
 };
 
