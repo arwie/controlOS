@@ -116,11 +116,11 @@ static int stxmccom_open_server_sebsocket(int port, int *error) noexcept
 	return -1;
 }
 
-static int stxmccom_open_client_cnchaas(SYS_STRING* host, int port, int *error) noexcept
+static int stxmccom_open_client_cnchaas(SYS_STRING* address, int *error) noexcept
 {
 	*error = 0;
 	try {
-		return manager.openChannel(make_shared<ChannelClientCncHaas>(amcsGetString(host), port));
+		return manager.openChannel(make_shared<ChannelClientCncHaas>(amcsGetString(address)));
 	} catch (exception& e) {
 		*error = 1;
 	}
@@ -375,8 +375,8 @@ extern "C" {
 		return stxmccom_open_server_sebsocket(port, error);
 	}
 
-	int STXMCCOM_OPEN_CLIENT_CNCHAAS(SYS_STRING** host, int port, int *error) {
-		return stxmccom_open_client_cnchaas(*host, port, error);
+	int STXMCCOM_OPEN_CLIENT_CNCHAAS(SYS_STRING** address, int *error) {
+		return stxmccom_open_client_cnchaas(*address, error);
 	}
 
 	int STXMCCOM_CONNECTED(int channelId, int *error) {

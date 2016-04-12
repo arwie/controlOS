@@ -6,9 +6,23 @@ class ChannelClientCncHaas : public BlockingChannel
 {
 public:
 
-	ChannelClientCncHaas(const string& host, int port)
-		: host(host), port(to_string(port))
-	{}
+	ChannelClientCncHaas(const string& address)
+		: host(address), port("80")
+	{
+		boost::smatch match;
+
+		// IPv4 syntax
+		if (boost::regex_match(address, match, boost::regex("^(.*):(\\d+)$"))) {
+			host = match[1];
+			port = match[2];
+		}
+
+		// UPv6 syntax
+		if (boost::regex_match(address, match, boost::regex("^\\[(.*)\\]:(\\d+)$"))) {
+			host = match[1];
+			port = match[2];
+		}
+	}
 
 
 	void send(const Message& message) override
