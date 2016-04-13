@@ -34,6 +34,12 @@ public:
 		}
  	}
 
+
+	void reset() override
+	{
+		BlockingChannel::reset();
+	}
+
 private:
 
 	void sendChange(const auto& key, const auto& newValue, const auto& oldValue)

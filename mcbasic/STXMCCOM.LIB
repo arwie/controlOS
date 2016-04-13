@@ -19,6 +19,7 @@ import_c STXMCCOM_RECEIVE(byval as long, as long) as long
 import_c STXMCCOM_RECEIVE_TIMED(byval as long, byval as long, as long) as long
 import_c STXMCCOM_SEND(byval as long, as long)
 import_c STXMCCOM_SEND_SELF(byval as long, as long)
+import_c STXMCCOM_RESET(byval as long)
 import_c STXMCCOM_CLOSE(byval as long)
 import_c STXMCCOM_CLOSE_ALL()
 import_c STXMCCOM_CLEAR(as long)
@@ -178,6 +179,11 @@ public sub com_sendSelf(byval channelId as long)
   if err then
     throw com_error
   end if
+end sub
+
+
+public sub com_reset(byval channelId as long)
+  STXMCCOM_RESET(channelId)
 end sub
 
 

@@ -18,6 +18,7 @@ public:
 	virtual void run()			{}
     virtual bool needsRunner()	{ return false; }
 
+	virtual void reset()	{}
 	virtual void close()	{}
 	virtual ~Channel()		{}
 
@@ -29,6 +30,14 @@ protected:
 
 class StatefulChannel : public virtual Channel
 {
+public:
+
+	void reset() override
+	{
+		lock_guard<mutex> lock(stateMtx);
+		state.clear();
+	}
+
 protected:
 	Message state;
 	mutex stateMtx;
@@ -65,6 +74,14 @@ public:
 		pushMessage(make_unique<Message>(message));
 	}
 
+
+	void reset() override
+	{
+		queue<MessagePtr> emptyQueue;
+
+		lock_guard<mutex> lock(blockMtx);
+		swap(receiveQueue, emptyQueue);
+	}
 
 	void close() override
 	{

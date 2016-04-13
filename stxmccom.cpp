@@ -192,6 +192,13 @@ static void stxmccom_send_self(int channelId, int *error) noexcept
 	}
 }
 
+static void stxmccom_reset(int channelId) noexcept
+{
+	try {
+		manager.getChannel(channelId)->reset();
+	} catch (exception& e) {}
+}
+
 static void stxmccom_close(int channelId) noexcept
 {
 	try {
@@ -401,6 +408,10 @@ extern "C" {
 
 	void STXMCCOM_SEND_SELF(int channelId, int *error) {
 		stxmccom_send_self(channelId, error);
+	}
+
+	void STXMCCOM_RESET(int channelId) {
+		stxmccom_reset(channelId);
 	}
 
 	void STXMCCOM_CLOSE(int channelId) {
