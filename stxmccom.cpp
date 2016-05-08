@@ -19,8 +19,15 @@ using namespace std;
 #define DEBUG(x)	if (true) { cerr << x << endl; }
 
 
+class Message; using MessagePtr = unique_ptr<Message>;
+class Channel; using ChannelPtr = shared_ptr<Channel>;
+
+static void logMessage(Message& message);
+
+
 #include "Message.hpp"
 #include "Channel.hpp"
+#include "ChannelLog.hpp"
 #include "ChannelShell.hpp"
 #include "ChannelState.hpp"
 #include "ChannelFile.hpp"
@@ -38,89 +45,22 @@ thread_local MessagePtr messagePtr(new Message());
 thread_local stack<MessagePtr> messageStack;
 
 
-
-static int stxmccom_open_shell(int *error) noexcept
+static int stxmccom_open(int channelType, int *error) noexcept
 {
 	*error = 0;
 	try {
-		return manager.openChannel(make_shared<ChannelShell>());
-	} catch (exception& e) {
-		*error = 1;
-	}
-	return -1;
-}
-
-static int stxmccom_open_state(int *error) noexcept
-{
-	*error = 0;
-	try {
-		return manager.openChannel(make_shared<ChannelState>());
-	} catch (exception& e) {
-		*error = 1;
-	}
-	return -1;
-}
-
-static int stxmccom_open_fifo(int *error) noexcept
-{
-	*error = 0;
-	try {
-		return manager.openChannel(make_shared<ChannelFifo>());
-	} catch (exception& e) {
-		*error = 1;
-	}
-	return -1;
-}
-
-static int stxmccom_open_changenotify(int *error) noexcept
-{
-	*error = 0;
-	try {
-		return manager.openChannel(make_shared<ChannelChangenotify>());
-	} catch (exception& e) {
-		*error = 1;
-	}
-	return -1;
-}
-
-static int stxmccom_open_file_read(SYS_STRING* name, int *error) noexcept
-{
-	*error = 0;
-	try {
-		return manager.openChannel(make_shared<ChannelFileRead>(amcsGetString(name)));
-	} catch (exception& e) {
-		*error = 1;
-	}
-	return -1;
-}
-
-static int stxmccom_open_file_write(SYS_STRING* name, int *error) noexcept
-{
-	*error = 0;
-	try {
-		return manager.openChannel(make_shared<ChannelFileWrite>(amcsGetString(name)));
-	} catch (exception& e) {
-		*error = 1;
-	}
-	return -1;
-}
-
-static int stxmccom_open_server_sebsocket(int port, int *error) noexcept
-{
-	*error = 0;
-	try {
-		return manager.openChannel(make_shared<ChannelServerWebsocket>(port));
-	} catch (exception& e) {
-		*error = 1;
-	}
-	return -1;
-}
-
-static int stxmccom_open_client_cnchaas(SYS_STRING* address, int *error) noexcept
-{
-	*error = 0;
-	try {
-		return manager.openChannel(make_shared<ChannelClientCncHaas>(amcsGetString(address)));
+		switch(channelType) {
+			case  1: return manager.openChannel(make_shared<ChannelLog>				());
+			case  2: return manager.openChannel(make_shared<ChannelShell>			());
+			case  3: return manager.openChannel(make_shared<ChannelState>			());
+			case  4: return manager.openChannel(make_shared<ChannelFifo>			());
+			case  5: return manager.openChannel(make_shared<ChannelChangenotify>	());
+			case  6: return manager.openChannel(make_shared<ChannelFileRead>		(*messagePtr));
+			case  7: return manager.openChannel(make_shared<ChannelFileWrite>		(*messagePtr));
+			case  8: return manager.openChannel(make_shared<ChannelServerWebsocket>	(*messagePtr));
+			case  9: return manager.openChannel(make_shared<ChannelClientCncHaas>	(*messagePtr));
+			default: throw exception();
+		}
 	} catch (exception& e) {
 		*error = 1;
 	}
@@ -354,36 +294,8 @@ static void stxmccom_put_string(SYS_STRING* path, SYS_STRING* value, int *error)
  
 extern "C" {
 
-	int STXMCCOM_OPEN_SHELL(int *error) {
-		return stxmccom_open_shell(error);
-	}
-
-	int STXMCCOM_OPEN_STATE(int *error) {
-		return stxmccom_open_state(error);
-	}
-
-	int STXMCCOM_OPEN_FIFO(int *error) {
-		return stxmccom_open_fifo(error);
-	}
-
-	int STXMCCOM_OPEN_CHANGENOTIFY(int *error) {
-		return stxmccom_open_changenotify(error);
-	}
-
-	int STXMCCOM_OPEN_FILE_READ(SYS_STRING** name, int *error) {
-		return stxmccom_open_file_read(*name, error);
-	}
-
-	int STXMCCOM_OPEN_FILE_WRITE(SYS_STRING** name, int *error) {
-		return stxmccom_open_file_write(*name, error);
-	}
-
-	int STXMCCOM_OPEN_SERVER_WEBSOCKET(int port, int *error) {
-		return stxmccom_open_server_sebsocket(port, error);
-	}
-
-	int STXMCCOM_OPEN_CLIENT_CNCHAAS(SYS_STRING** address, int *error) {
-		return stxmccom_open_client_cnchaas(*address, error);
+	int STXMCCOM_OPEN(int channelType, int *error) {
+		return stxmccom_open(channelType, error);
 	}
 
 	int STXMCCOM_CONNECTED(int channelId, int *error) {

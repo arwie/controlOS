@@ -6,9 +6,12 @@ class ChannelClientCncHaas : public BlockingChannel
 {
 public:
 
-	ChannelClientCncHaas(const string& address)
-		: host(address), port("80")
+	ChannelClientCncHaas(const Message& args)
 	{
+		host = args.get<string>("host");
+		port = args.get<string>("port", "80");
+
+		string address = host;
 		boost::smatch match;
 
 		// IPv4 syntax

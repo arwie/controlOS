@@ -2,10 +2,9 @@
 #define CHANNEL_HPP_
 
 
-class Channel
+class Channel : public enable_shared_from_this<Channel>
 {
 public:
-
 	virtual void send(const Message& message)		{ throw exception(); }
 	virtual void sendSelf(const Message& message)	{ throw exception(); }
 
@@ -18,12 +17,10 @@ public:
 	virtual void run()			{}
     virtual bool needsRunner()	{ return false; }
 
+	virtual void open()		{}
 	virtual void reset()	{}
 	virtual void close()	{}
 	virtual ~Channel()		{}
-
-protected:
-	Channel()	{}
 };
 
 

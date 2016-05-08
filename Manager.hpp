@@ -4,12 +4,12 @@
 
 class Manager
 {
-	using ChannelPtr = shared_ptr<Channel>;
-
 public:
 
 	int openChannel(ChannelPtr&& channel)
 	{
+		channel->open();
+
 		if (channel->needsRunner())
 			thread(channelRunner, channel).detach();
 

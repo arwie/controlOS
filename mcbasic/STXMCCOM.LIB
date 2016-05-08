@@ -1,18 +1,21 @@
 common shared com_error as error "general com error"	  20800
 
+common shared com_channelLog				as const long		= 1
+common shared com_channelShell				as const long		= 2
+common shared com_channelState				as const long		= 3
+common shared com_channelFifo				as const long		= 4
+common shared com_channelChangenotify		as const long		= 5
+common shared com_channelFileRead			as const long		= 6
+common shared com_channelFileWrite			as const long		= 7
+common shared com_channelServerWebsocket	as const long		= 8
+common shared com_channelClientCncHaas		as const long		= 9
+
 
 dim shared waitLoopTimeoutMs as const long				= 100
 
 
 
-import_c STXMCCOM_OPEN_SHELL(as long) as long
-import_c STXMCCOM_OPEN_STATE(as long) as long
-import_c STXMCCOM_OPEN_FIFO(as long) as long
-import_c STXMCCOM_OPEN_CHANGENOTIFY(as long) as long
-import_c STXMCCOM_OPEN_FILE_READ(as string, as long) as long
-import_c STXMCCOM_OPEN_FILE_WRITE(as string, as long) as long
-import_c STXMCCOM_OPEN_SERVER_WEBSOCKET(byval as long, as long) as long
-import_c STXMCCOM_OPEN_CLIENT_CNCHAAS(as string, as long) as long
+import_c STXMCCOM_OPEN(byval as long, as long) as long
 import_c STXMCCOM_CONNECTED(byval as long, as long) as long
 import_c STXMCCOM_CONNECTED_TIMED(byval as long, byval as long, as long) as long
 import_c STXMCCOM_RECEIVE(byval as long, as long) as long
@@ -40,72 +43,9 @@ import_c STXMCCOM_PUT_STRING(as string, as string, as long)
 
 
 
-public function com_openShell as long
+public function com_open(byval channleType as long) as long
   dim err as long
-  com_openShell = STXMCCOM_OPEN_SHELL(err)
-  if err then
-    throw com_error
-  end if
-end function
-
-
-public function com_openState as long
-  dim err as long
-  com_openState = STXMCCOM_OPEN_STATE(err)
-  if err then
-    throw com_error
-  end if
-end function
-
-
-public function com_openFifo as long
-  dim err as long
-  com_openFifo = STXMCCOM_OPEN_FIFO(err)
-  if err then
-    throw com_error
-  end if
-end function
-
-
-public function com_openChangenotify as long
-  dim err as long
-  com_openChangenotify = STXMCCOM_OPEN_CHANGENOTIFY(err)
-  if err then
-    throw com_error
-  end if
-end function
-
-
-public function com_openFileRead(byval fname as string) as long
-  dim err as long
-  com_openFileRead = STXMCCOM_OPEN_FILE_READ(fname, err)
-  if err then
-    throw com_error
-  end if
-end function
-
-
-public function com_openFileWrite(byval fname as string) as long
-  dim err as long
-  com_openFileWrite = STXMCCOM_OPEN_FILE_WRITE(fname, err)
-  if err then
-    throw com_error
-  end if
-end function
-
-
-public function com_openServerWebsocket(byval port as long) as long
-  dim err as long
-  com_openServerWebsocket = STXMCCOM_OPEN_SERVER_WEBSOCKET(port, err)
-  if err then
-    throw com_error
-  end if
-end function
-
-
-public function com_openClientCncHaas(byval address_ as string) as long
-  dim err as long
-  com_openClientCncHaas = STXMCCOM_OPEN_CLIENT_CNCHAAS(address_, err)
+  com_open = STXMCCOM_OPEN(channleType, err)
   if err then
     throw com_error
   end if

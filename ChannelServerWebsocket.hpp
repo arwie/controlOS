@@ -9,9 +9,14 @@ class ChannelServerWebsocket : public ConnectingChannel
 {
 public:
 
-	ChannelServerWebsocket(int port)
+	ChannelServerWebsocket(const Message& args)
 	{
+		port = args.get<int>("port");
+
 		wsServer.init_asio();
+		wsServer.set_reuse_addr(true);
+		wsServer.clear_access_channels(websocketpp::log::alevel::frame_header | websocketpp::log::alevel::frame_payload);
+		setConnected(false);
 
 		wsServer.set_open_handler([this](websocketpp::connection_hdl hdl)
 		{
@@ -33,14 +38,12 @@ public:
 		{
 			pushMessage(make_unique<Message>(msg->get_payload()));
 		});
+	}
 
-		wsServer.set_reuse_addr(true);
+	void open() override
+	{
 		wsServer.listen(websocketpp::lib::asio::ip::tcp::v4(), port);
 		wsServer.start_accept();
-
-		wsServer.clear_access_channels(websocketpp::log::alevel::frame_header | websocketpp::log::alevel::frame_payload);
-
-		setConnected(false);
 	}
 
 
@@ -75,6 +78,7 @@ private:
 
 	using WsServer = websocketpp::server<websocketpp::config::asio>;
 
+	int port;
 	WsServer wsServer;
 	set<websocketpp::connection_hdl, std::owner_less<websocketpp::connection_hdl>> connections;
 	mutex connectionsMtx;

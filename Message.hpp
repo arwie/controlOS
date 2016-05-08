@@ -68,6 +68,4 @@ private:
 	string prefix;
 };
 
-using MessagePtr = unique_ptr<Message>;
-
 #endif /* MESSAGE_HPP_ */
