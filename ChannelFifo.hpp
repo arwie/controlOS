@@ -5,6 +5,7 @@
 class ChannelFifo : public BlockingChannel
 {
 public:
+	ChannelFifo(const Message& args) : Channel(args), BlockingChannel(args)	{}
 
 	void send(const Message& message) override
 	{

@@ -10,6 +10,7 @@ class ChannelServerWebsocket : public ConnectingChannel
 public:
 
 	ChannelServerWebsocket(const Message& args)
+		: Channel(args), ConnectingChannel(args)
 	{
 		port = args.get<int>("port");
 
@@ -44,6 +45,7 @@ public:
 	{
 		wsServer.listen(websocketpp::lib::asio::ip::tcp::v4(), port);
 		wsServer.start_accept();
+		ConnectingChannel::open();
 	}
 
 
@@ -68,11 +70,9 @@ public:
 	void close() override
 	{
 		wsServer.stop();
-		BlockingChannel::close();
+		ConnectingChannel::close();
 	}
 
-
-	//~ChannelServerWebsocket() { DEBUG("~ChannelServerWebsocket"); }
 
 private:
 

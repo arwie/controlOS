@@ -5,6 +5,7 @@
 class ChannelState : public StatefulChannel
 {
 public:
+	ChannelState(const Message& args) : Channel(args), StatefulChannel(args)	{}
 
 	void send(const Message& update) override
 	{

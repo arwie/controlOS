@@ -5,6 +5,7 @@
 class ChannelChangenotify : public BlockingChannel, private StatefulChannel
 {
 public:
+	ChannelChangenotify(const Message& args) : Channel(args), BlockingChannel(args), StatefulChannel(args)	{}
 
 	void send(const Message& update) override
 	{

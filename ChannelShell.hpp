@@ -12,6 +12,7 @@
 class ChannelShell : public Channel
 {
 public:
+	ChannelShell(const Message& args) : Channel(args)	{}
 
 	void send(const Message& message) override
 	{

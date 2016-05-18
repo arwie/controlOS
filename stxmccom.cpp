@@ -22,10 +22,12 @@ using namespace std;
 class Message; using MessagePtr = unique_ptr<Message>;
 class Channel; using ChannelPtr = shared_ptr<Channel>;
 
-static void logMessage(Message& message);
+class Log;
+static void logMsg(const Log&);
 
 
 #include "Message.hpp"
+#include "Log.hpp"
 #include "Channel.hpp"
 #include "ChannelLog.hpp"
 #include "ChannelShell.hpp"
@@ -50,11 +52,11 @@ static int stxmccom_open(int channelType, int *error) noexcept
 	*error = 0;
 	try {
 		switch(channelType) {
-			case  1: return manager.openChannel(make_shared<ChannelLog>				());
-			case  2: return manager.openChannel(make_shared<ChannelShell>			());
-			case  3: return manager.openChannel(make_shared<ChannelState>			());
-			case  4: return manager.openChannel(make_shared<ChannelFifo>			());
-			case  5: return manager.openChannel(make_shared<ChannelChangenotify>	());
+			case  1: return manager.openChannel(make_shared<ChannelLog>				(*messagePtr));
+			case  2: return manager.openChannel(make_shared<ChannelShell>			(*messagePtr));
+			case  3: return manager.openChannel(make_shared<ChannelState>			(*messagePtr));
+			case  4: return manager.openChannel(make_shared<ChannelFifo>			(*messagePtr));
+			case  5: return manager.openChannel(make_shared<ChannelChangenotify>	(*messagePtr));
 			case  6: return manager.openChannel(make_shared<ChannelFileRead>		(*messagePtr));
 			case  7: return manager.openChannel(make_shared<ChannelFileWrite>		(*messagePtr));
 			case  8: return manager.openChannel(make_shared<ChannelServerWebsocket>	(*messagePtr));

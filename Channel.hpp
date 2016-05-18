@@ -17,10 +17,26 @@ public:
 	virtual void run()			{}
     virtual bool needsRunner()	{ return false; }
 
-	virtual void open()		{}
-	virtual void reset()	{}
-	virtual void close()	{}
-	virtual ~Channel()		{}
+	virtual void open()		{ logMsg(LogInfo("channel opened")); }
+	virtual void reset()	{ logMsg(LogInfo("channel reset")); }
+	virtual void close()	{ logMsg(LogInfo("channel closed")); }
+	virtual ~Channel()		{ logMsg(LogDebug("channel destroyed")); }
+
+protected:
+	Channel(const Message& args)
+		: log(args.get_child("log", Message()))
+	{}
+
+	virtual void logMsg(const Log& msg)
+	{
+		for (auto& kv : log)
+			const_cast<Log&>(msg).put_child(kv.first, kv.second);
+
+		::logMsg(msg);
+	}
+
+private:
+	Message log;
 };
 
 
@@ -31,11 +47,15 @@ public:
 
 	void reset() override
 	{
-		lock_guard<mutex> lock(stateMtx);
-		state.clear();
+		{ lock_guard<mutex> lock(stateMtx);
+			state.clear();
+		}
+		Channel::reset();
 	}
 
 protected:
+	StatefulChannel(const Message& args) : Channel(args)	{}
+
 	Message state;
 	mutex stateMtx;
 };
@@ -76,8 +96,11 @@ public:
 	{
 		queue<MessagePtr> emptyQueue;
 
-		lock_guard<mutex> lock(blockMtx);
-		swap(receiveQueue, emptyQueue);
+		{ lock_guard<mutex> lock(blockMtx);
+			swap(receiveQueue, emptyQueue);
+		}
+
+		Channel::reset();
 	}
 
 	void close() override
@@ -86,10 +109,12 @@ public:
 			closed = true;
 		}
 		blockCond.notify_all();
+		Channel::close();
 	}
 
 
 protected:
+	BlockingChannel(const Message& args) : Channel(args)	{}
 
 	enum { poll = 0 };
 
@@ -131,6 +156,7 @@ public:
 
 
 protected:
+	ConnectingChannel(const Message& args) : Channel(args), BlockingChannel(args)	{}
 
 	void setConnected(bool connected)
 	{

@@ -7,9 +7,11 @@ class ChannelClientCncHaas : public BlockingChannel
 public:
 
 	ChannelClientCncHaas(const Message& args)
+		: Channel(args), BlockingChannel(args),
+		  host(args.get<string>("host")),
+		  port(args.get<string>("port", "80")),
+		  timeoutMs(args.get<int>("timeout", 3000))
 	{
-		host = args.get<string>("host");
-		port = args.get<string>("port", "80");
 
 		string address = host;
 		boost::smatch match;
@@ -48,11 +50,18 @@ public:
 		BlockingChannel::close();
 	}
 
+protected:
+	void logMsg(const Log& msg) override
+	{
+		BlockingChannel::logMsg(const_cast<Log&>(msg).channel("clientCncHaas").log("host", host).log("port", port));
+	}
+
 
 private:
     boost::asio::io_service asioService;
     string host;
     string port;
+    int timeoutMs;
 
 
 	class Connection : public enable_shared_from_this<Connection>
@@ -61,7 +70,7 @@ private:
 
 		Connection(ChannelClientCncHaas& channel, const Message& message)
 			: channel(channel), resolver(channel.asioService), socket(channel.asioService),
-			  deadline(channel.asioService, boost::posix_time::milliseconds(3000)),
+			  deadline(channel.asioService, boost::posix_time::milliseconds(channel.timeoutMs)),
 			  dataItemRegex("^Data item (\\d+) \\(length = (\\d+)\\) = \"(.*)\".*$")
 		{
 			ostream requestStream(&request);
@@ -83,13 +92,22 @@ private:
 			requestStream << "Accept: */*"					<< "\r\n";
 			requestStream << "Connection: close"			<< "\r\n";
 			requestStream 									<< "\r\n";
+
+			parseErrorLog.log("request", string(boost::asio::buffer_cast<const char*>(request.data()), request.size()));
 		}
 
 		void execute()
 		{
 			auto thisPtr = shared_from_this();
 			deadline.async_wait([thisPtr](const boost::system::error_code& err) {
-				thisPtr->cancel();
+				if (err == boost::asio::error::operation_aborted)
+					return;
+
+				thisPtr->cancelled = true;
+				boost::system::error_code dummyErr;
+				thisPtr->socket.close(dummyErr);
+
+				thisPtr->channel.logMsg(LogError("connection timeout").log("timeout", thisPtr->channel.timeoutMs));
 			});
 
 			resolve();
@@ -99,63 +117,82 @@ private:
 
 		void resolve()
 		{
-			if (cancelled) return;
-
 			auto thisPtr = shared_from_this();
 			resolver.async_resolve(boost::asio::ip::tcp::resolver::query(channel.host, channel.port),
 					[thisPtr](const boost::system::error_code& err, boost::asio::ip::tcp::resolver::iterator endpoint_iterator) {
-						if (!err) thisPtr->connect(endpoint_iterator); else DEBUG("cncHaas: " << err);
+						if (thisPtr->cancelled)
+							return;
+						if (!err)
+							thisPtr->connect(endpoint_iterator);
+						else {
+							thisPtr->deadline.cancel();
+							thisPtr->channel.logMsg(LogError("resolve failed: "+err.message()));
+						}
 					}
 			);
 		}
 
 		void connect(boost::asio::ip::tcp::resolver::iterator endpoint_iterator)
 		{
-			if (cancelled) return;
-
 			auto thisPtr = shared_from_this();
 			boost::asio::async_connect(socket, endpoint_iterator,
 					[thisPtr](const boost::system::error_code& err, boost::asio::ip::tcp::resolver::iterator endpoint_iterator) {
-						if (!err) thisPtr->write(); else DEBUG("cncHaas: " << err);
+						if (thisPtr->cancelled)
+							return;
+						if (!err)
+							thisPtr->write();
+						else {
+							thisPtr->deadline.cancel();
+							thisPtr->channel.logMsg(LogError("connect failed: "+err.message()));
+						}
 					}
 			);
 		}
 
 		void write()
 		{
-			if (cancelled) return;
-
 			auto thisPtr = shared_from_this();
 			boost::asio::async_write(socket, request,
 					[thisPtr](const boost::system::error_code& err, std::size_t bytes_transferred) {
-						if (!err) thisPtr->read(); else DEBUG("cncHaas: " << err);
+						if (thisPtr->cancelled)
+							return;
+						if (!err)
+							thisPtr->read();
+						else {
+							thisPtr->deadline.cancel();
+							thisPtr->channel.logMsg(LogError("write failed: "+err.message()));
+						}
 					}
 			);
 		}
 
 		void read()
 		{
-			if (cancelled) return;
-
 			auto thisPtr = shared_from_this();
 			boost::asio::async_read(socket, response, boost::asio::transfer_at_least(1),
 					[thisPtr](const boost::system::error_code& err, std::size_t bytes_transferred) {
+						if (thisPtr->cancelled)
+							return;
 						if (!err)
 							thisPtr->read();
 						else if (err == boost::asio::error::eof)
 							thisPtr->parse();
-						else
-							DEBUG("cncHaas: " << err);
+						else {
+							thisPtr->deadline.cancel();
+							thisPtr->channel.logMsg(LogError("read failed: "+err.message()));
+						}
 					}
 			);
 		}
 
 		void parse()
 		{
-			if (cancelled) return;
+			deadline.cancel();
 
 			try {
 				auto messagePtr = make_unique<Message>();
+
+				parseErrorLog.log("response", string(boost::asio::buffer_cast<const char*>(response.data()), response.size()));
 
 				istream responseStream(&response);
 				string line;
@@ -173,17 +210,14 @@ private:
 					}
 				}
 
-				channel.pushMessage(move(messagePtr));
-				deadline.cancel();
-			}
-			catch (exception& e) { DEBUG("cncHaas: " << e.what()); }
-		}
+				if (!queryQueue.empty())
+					throw runtime_error("incomplete query");
 
-		void cancel()
-		{
-			cancelled = true;
-			boost::system::error_code dummyErr;
-			socket.close(dummyErr);
+				channel.pushMessage(move(messagePtr));
+			}
+			catch (exception& e) {
+				channel.logMsg(parseErrorLog.message("failed to parse response: "+string(e.what())));
+			}
 		}
 
 
@@ -196,6 +230,7 @@ private:
 		boost::regex dataItemRegex;
 		bool cancelled = false;
 		queue<pair<string, string>> queryQueue;
+		LogError parseErrorLog;
 	};
 };
 
