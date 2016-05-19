@@ -10,7 +10,7 @@ class ChannelServerWebsocket : public ConnectingChannel
 public:
 
 	ChannelServerWebsocket(const Message& args)
-		: Channel(args), ConnectingChannel(args)
+		: Channel("serverWebsocket", args), ConnectingChannel(args)
 	{
 		port = args.get<int>("port");
 

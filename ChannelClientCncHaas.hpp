@@ -7,7 +7,7 @@ class ChannelClientCncHaas : public BlockingChannel
 public:
 
 	ChannelClientCncHaas(const Message& args)
-		: Channel(args), BlockingChannel(args),
+		: Channel("clientCncHaas", args), BlockingChannel(args),
 		  host(args.get<string>("host")),
 		  port(args.get<string>("port", "80")),
 		  timeoutMs(args.get<int>("timeout", 3000))
@@ -27,6 +27,9 @@ public:
 			host = match[1];
 			port = match[2];
 		}
+
+		log.put("host", host);
+		log.put("port", port);
 	}
 
 
@@ -52,10 +55,6 @@ public:
 
 
 private:
-	void logMsg(const Log& msg) override
-	{
-		Channel::logMsg(const_cast<Log&>(msg).channel("clientCncHaas").log("host", host).log("port", port));
-	}
 
     boost::asio::io_service asioService;
     string host;

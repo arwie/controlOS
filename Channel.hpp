@@ -22,11 +22,6 @@ public:
 	virtual void close()	{ logMsg(LogInfo("channel closed")); }
 	virtual ~Channel()		{ logMsg(LogDebug("channel destroyed")); }
 
-protected:
-	Channel(const Message& args)
-		: log(args.get_child("log", Message()))
-	{}
-
 	virtual void logMsg(const Log& msg)
 	{
 		for (auto& kv : log)
@@ -35,7 +30,13 @@ protected:
 		::logMsg(msg);
 	}
 
-private:
+protected:
+	Channel(const string& channelName, const Message& args)
+		: log(args.get_child("log", Message()))
+	{
+		log.put("channel", channelName);
+	}
+
 	Message log;
 };
 
@@ -54,7 +55,7 @@ public:
 	}
 
 protected:
-	StatefulChannel(const Message& args) : Channel(args)	{}
+	StatefulChannel(const Message& args) : Channel("", args)	{}
 
 	Message state;
 	mutex stateMtx;
@@ -114,7 +115,7 @@ public:
 
 
 protected:
-	BlockingChannel(const Message& args) : Channel(args)	{}
+	BlockingChannel(const Message& args) : Channel("", args)	{}
 
 	enum { poll = 0 };
 
@@ -156,7 +157,7 @@ public:
 
 
 protected:
-	ConnectingChannel(const Message& args) : Channel(args), BlockingChannel(args)	{}
+	ConnectingChannel(const Message& args) : Channel("", args), BlockingChannel(args)	{}
 
 	void setConnected(bool connected)
 	{

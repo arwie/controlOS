@@ -11,7 +11,7 @@ static string formatFileNameDat(const string& name)
 class ChannelFileRead : public Channel
 {
 public:
-	ChannelFileRead(const Message& args) : Channel(args), stream(formatFileNameDat(args.get<string>("file"))) {}
+	ChannelFileRead(const Message& args) : Channel("fileRead", args), stream(formatFileNameDat(args.get<string>("file"))) {}
 
 	bool receive(MessagePtr& message) override
 	{
@@ -33,7 +33,7 @@ private:
 class ChannelFileWrite : public Channel
 {
 public:
-	ChannelFileWrite(const Message& args) : Channel(args), stream(formatFileNameDat(args.get<string>("file"))) {}
+	ChannelFileWrite(const Message& args) : Channel("fileWrite", args), stream(formatFileNameDat(args.get<string>("file"))) {}
 
 	void send(const Message& message) override
 	{

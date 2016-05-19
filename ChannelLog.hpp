@@ -21,7 +21,7 @@ class ChannelLog : public BlockingChannel
 {
 public:
 	ChannelLog(const Message& args)
-		: Channel(args), BlockingChannel(args),
+		: Channel("log", args), BlockingChannel(args),
 		  base(args.get_child("base", Message())),
 		  priority(args.get<int>("priority", LogInfo::priority))
 	{}
