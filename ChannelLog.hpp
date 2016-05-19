@@ -1,6 +1,8 @@
 #ifndef CHANNELLOG_HPP_
 #define CHANNELLOG_HPP_
 
+#include <sys/syscall.h>
+
 
 static ChannelPtr channelLog;
 
@@ -43,7 +45,13 @@ public:
 			messagePtr->put_child(kv.first, kv.second);
 
 		//messagePtr->put("timestamp", chrono::steady_clock::now().time_since_epoch());
-		//messagePtr->put("pid", pid);
+
+		thread_local pid_t tid = syscall(SYS_gettid);	// cache tid (reduce syscalls)
+		messagePtr->put("tid", tid);
+
+		thread_local string prg = messagePtr->get<string>("prg", string());
+		if (!prg.empty())
+			messagePtr->put("prg", prg);
 
 		pushMessage(move(messagePtr));
 	}

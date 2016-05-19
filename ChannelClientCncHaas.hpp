@@ -50,14 +50,13 @@ public:
 		BlockingChannel::close();
 	}
 
-protected:
-	void logMsg(const Log& msg) override
-	{
-		BlockingChannel::logMsg(const_cast<Log&>(msg).channel("clientCncHaas").log("host", host).log("port", port));
-	}
-
 
 private:
+	void logMsg(const Log& msg) override
+	{
+		Channel::logMsg(const_cast<Log&>(msg).channel("clientCncHaas").log("host", host).log("port", port));
+	}
+
     boost::asio::io_service asioService;
     string host;
     string port;
