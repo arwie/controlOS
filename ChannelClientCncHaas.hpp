@@ -214,7 +214,7 @@ private:
 				channel.pushMessage(move(messagePtr));
 			}
 			catch (exception& e) {
-				channel.logMsg(parseErrorLog.message("failed to parse response: "+string(e.what())));
+				channel.logMsg(move(parseErrorLog.message("failed to parse response: "+string(e.what()))));
 			}
 		}
 

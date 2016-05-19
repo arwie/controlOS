@@ -22,12 +22,12 @@ public:
 	virtual void close()	{ logMsg(LogInfo("channel closed")); }
 	virtual ~Channel()		{ logMsg(LogDebug("channel destroyed")); }
 
-	virtual void logMsg(const Log& msg)
+	virtual void logMsg(Log&& msg)
 	{
 		for (auto& kv : log)
-			const_cast<Log&>(msg).put_child(kv.first, kv.second);
+			msg.put_child(kv.first, kv.second);
 
-		::logMsg(msg);
+		::logMsg(move(msg));
 	}
 
 protected:

@@ -23,7 +23,7 @@ class Message; using MessagePtr = unique_ptr<Message>;
 class Channel; using ChannelPtr = shared_ptr<Channel>;
 
 class Log;
-static void logMsg(const Log&);
+static void logMsg(Log&&);
 
 
 #include "Message.hpp"

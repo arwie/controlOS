@@ -6,20 +6,20 @@ class Log : public Message
 public:
 
 	template<class Type>
-	Log& log(const string& path, const Type& value)
+	Log&& log(const string& path, const Type& value)
 	{
 		put(path, value);
-		return *this;
+		return move(*this);
 	}
 
-	Log& message(const string& message)		{ return log("message", message); }
+	Log&& message(const string& message)	{ return log("message", message); }
 
-	Log& channel(const string& channel)		{ return log("channel", channel); }
+	Log&& channel(const string& channel)	{ return log("channel", channel); }
 
-	Log& file(const string& file)			{ return log("code_file", file); }
-	Log& func(const string& func)			{ return log("code_func", func); }
+	Log&& file(const string& file)			{ return log("code_file", file); }
+	Log&& func(const string& func)			{ return log("code_func", func); }
 
-	Log& prg(const string& prg)				{ return log("prg", prg); }
+	Log&& prg(const string& prg)			{ return log("prg", prg); }
 
 
 protected:

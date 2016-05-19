@@ -6,12 +6,12 @@
 
 static ChannelPtr channelLog;
 
-static void logMsg(const Log& msg)
+static void logMsg(Log&& msg)
 {
 	ChannelPtr channelLogCopy = channelLog;
 	if (!channelLogCopy) return;
 
-	const_cast<Log&>(msg).file("stxmccom");
+	msg.file("stxmccom");
 
 	channelLogCopy->send(msg);
 }
