@@ -234,6 +234,19 @@ static void stxmccom_extract(SYS_STRING* path, int *error) noexcept
 }
 
 
+static void stxmccom_compact(SYS_STRING* path, int *error) noexcept
+{
+	*error = 0;
+	try {
+		MessagePtr newMessage = make_unique<Message>();
+		newMessage->put_child_with(amcsGetString(path), *messagePtr);
+		messagePtr.swap(newMessage);
+	} catch (exception& e) {
+		*error = 1;
+	}
+}
+
+
 static void stxmccom_receive_string(SYS_STRING* str, int *error) noexcept
 {
 	*error = 0;
@@ -362,6 +375,10 @@ extern "C" {
 
 	void STXMCCOM_EXTRACT(SYS_STRING** path, int *error) {
 		stxmccom_extract(*path, error);
+	}
+
+	void STXMCCOM_COMPACT(SYS_STRING** path, int *error) {
+		stxmccom_compact(*path, error);
 	}
 
 	void STXMCCOM_RECEIVE_STRING(SYS_STRING** str, int *error) {

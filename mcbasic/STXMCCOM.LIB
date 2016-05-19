@@ -32,6 +32,7 @@ import_c STXMCCOM_RESTORE(as long)
 import_c STXMCCOM_DELETE(as string)
 import_c STXMCCOM_WITH(as string)
 import_c STXMCCOM_EXTRACT(as string, as long)
+import_c STXMCCOM_COMPACT(as string, as long)
 import_c STXMCCOM_RECEIVE_STRING(as string, as long)
 import_c STXMCCOM_SEND_STRING(as long) as string
 import_c STXMCCOM_GET_LONG(as string, as long) as long
@@ -195,6 +196,15 @@ end sub
 public sub com_extract(byval path as string)
   dim err as long
   STXMCCOM_EXTRACT(path, err)
+  if err then
+    throw com_error
+  end if
+end sub
+
+
+public sub com_compact(byval path as string)
+  dim err as long
+  STXMCCOM_COMPACT(path, err)
   if err then
     throw com_error
   end if

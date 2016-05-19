@@ -8,7 +8,7 @@
 class Message : public boost::property_tree::ptree
 {
 public:
-	Message() : boost::property_tree::ptree() {}
+	Message() {}
 	Message(const boost::property_tree::ptree& rhs) : boost::property_tree::ptree(rhs) {}
 
 	Message(const string& json)
@@ -62,6 +62,11 @@ public:
 	const boost::property_tree::ptree& get_child_with(const string& path) const
 	{
 		return get_child(prefix+path);
+	}
+
+	void put_child_with(const string& path, const boost::property_tree::ptree& child)
+	{
+		put_child(prefix+path, child);
 	}
 
 private:
