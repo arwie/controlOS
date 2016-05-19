@@ -52,14 +52,14 @@ private:
 
 	static void channelRunner(ChannelPtr channel) noexcept
 	{
+		channel->logMsg(LogDebug("com runner started").prg("comRunner"));
 		try {
 			channel->run();
 		}
 		catch (exception& e) {
-			DEBUG("channelRunner exception: " << e.what());
-			// TODO: close channel
+			channel->logMsg(LogError("exception in com runner: "+string(e.what())));
 		}
-		//DEBUG("channelRunner exited");
+		channel->logMsg(LogDebug("com runner finished"));
 	}
 
 

@@ -19,6 +19,8 @@ public:
 	Log& file(const string& file)			{ return log("code_file", file); }
 	Log& func(const string& func)			{ return log("code_func", func); }
 
+	Log& prg(const string& prg)				{ return log("prg", prg); }
+
 
 protected:
 
