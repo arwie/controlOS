@@ -16,7 +16,7 @@
 
 using namespace std;
 
-#define DEBUG(x)	if (true) { cerr << x << endl; }
+#define DEBUG(x)	if (true) { cout << x << endl; }
 
 
 class Message; using MessagePtr = unique_ptr<Message>;
@@ -160,7 +160,7 @@ static void stxmccom_clear(int *error) noexcept
 {
 	*error = 0;
 	try {
-		messagePtr->clear();
+		messagePtr.reset(new Message());
 	} catch (exception& e) {
 		*error = 1;
 	}
