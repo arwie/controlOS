@@ -12,7 +12,11 @@ public:
 	ChannelServerWebsocket(const Message& args)
 		: Channel("serverWebsocket", args), ConnectingChannel(args)
 	{
-		port = args.get<int>("port");
+		port			= args.get<int>("port");
+		auto receive	= args.get<bool>("receive", true);
+
+		log.put("port", port);
+		log.put("receive", receive);
 
 		wsServer.init_asio();
 		wsServer.set_reuse_addr(true);
@@ -35,10 +39,12 @@ public:
 			setConnected(!connections.empty());
 		});
 
-		wsServer.set_message_handler([this](websocketpp::connection_hdl hdl, WsServer::message_ptr msg)
-		{
-			pushMessage(make_unique<Message>(msg->get_payload()));
-		});
+		if (receive) {
+			wsServer.set_message_handler([this](websocketpp::connection_hdl hdl, WsServer::message_ptr msg)
+			{
+				pushMessage(make_unique<Message>(msg->get_payload()));
+			});
+		}
 	}
 
 	void open() override
