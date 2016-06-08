@@ -69,7 +69,8 @@ private:
 		Connection(ChannelClientCncHaas& channel, const Message& message)
 			: channel(channel), resolver(channel.asioService), socket(channel.asioService),
 			  deadline(channel.asioService, boost::posix_time::milliseconds(channel.timeoutMs)),
-			  dataItemRegex("^Data item (\\d+) \\(length = (\\d+)\\) = \"(.*)\".*$")
+			  dataItemRegex("^Data item (\\d+) \\(length = (\\d+)\\) = \"(.*)\".*$"),
+			  macroValueRegex("^MACRO, *\\d*, *(.*)$")
 		{
 			ostream requestStream(&request);
 			requestStream << "GET " << "/m-net?mds,1,S";
@@ -203,7 +204,14 @@ private:
 						if (stoi(match[1]) != stoi(query.second))
 							throw runtime_error("wrong query order");
 
-						messagePtr->put<string>(query.first+"."+query.second, match[3]);
+						string value = match[3];
+
+						boost::smatch macroValueMatch;
+						if (boost::regex_match(value, macroValueMatch, macroValueRegex))
+							value = string(macroValueMatch[1]);
+
+						messagePtr->put<string>(query.first+"."+query.second, value);
+
 						queryQueue.pop();
 					}
 				}
@@ -226,6 +234,7 @@ private:
 		boost::asio::streambuf request;
 		boost::asio::streambuf response;
 		boost::regex dataItemRegex;
+		boost::regex macroValueRegex;
 		bool cancelled = false;
 		queue<pair<string, string>> queryQueue;
 		LogError parseErrorLog;
