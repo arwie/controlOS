@@ -297,6 +297,14 @@ public sub com_putString(byval path as string, byval stringValue as string)
   end if
 end sub
 
+public sub com_putStringRef(byval path as string, stringValue as string)
+  dim err as long
+  STXMCCOM_PUT_STRING(path, stringValue, err)
+  if err then
+    throw com_error
+  end if
+end sub
+
 
 public sub com_putLocationXy(byval path as string, byval pos as location of xy)
   call com_putDouble(path+".x", pos{1})
