@@ -1,13 +1,13 @@
-#ifndef CHANNELCLIENTCNCHAAS_HPP_
-#define CHANNELCLIENTCNCHAAS_HPP_
+#ifndef CHANNELCLIENTHAASMNET_HPP_
+#define CHANNELCLIENTHAASMNET_HPP_
 
 
-class ChannelClientCncHaas : public BlockingChannel
+class ChannelClientHaasMnet : public BlockingChannel
 {
 public:
 
-	ChannelClientCncHaas(const Message& args)
-		: Channel("clientCncHaas", args), BlockingChannel(args),
+	ChannelClientHaasMnet(const Message& args)
+		: Channel("clientHaasMnet", args), BlockingChannel(args),
 		  host(args.get<string>("host")),
 		  port(args.get<string>("port", "80")),
 		  timeoutMs(args.get<int>("timeout", 3000))
@@ -66,7 +66,7 @@ private:
 	{
 	public:
 
-		Connection(ChannelClientCncHaas& channel, const Message& message)
+		Connection(ChannelClientHaasMnet& channel, const Message& message)
 			: channel(channel), resolver(channel.asioService), socket(channel.asioService),
 			  deadline(channel.asioService, boost::posix_time::milliseconds(channel.timeoutMs)),
 			  dataItemRegex("^Data item (\\d+) \\(length = (\\d+)\\) = \"(.*)\".*$"),
@@ -227,7 +227,7 @@ private:
 		}
 
 
-		ChannelClientCncHaas& channel;
+		ChannelClientHaasMnet& channel;
 		boost::asio::ip::tcp::resolver resolver;
 		boost::asio::ip::tcp::socket socket;
 		boost::asio::deadline_timer deadline;
@@ -241,4 +241,4 @@ private:
 	};
 };
 
-#endif /* CHANNELCLIENTCNCHAAS_HPP_ */
+#endif /* CHANNELCLIENTHAASMNET_HPP_ */

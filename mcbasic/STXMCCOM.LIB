@@ -8,7 +8,7 @@ common shared com_channelChangenotify		as const long		= 5
 common shared com_channelFileRead			as const long		= 6
 common shared com_channelFileWrite			as const long		= 7
 common shared com_channelServerWebsocket	as const long		= 8
-common shared com_channelClientCncHaas		as const long		= 9
+common shared com_channelClientHaasMnet		as const long		= 9
 
 
 dim shared waitLoopTimeoutMs as const long				= 100

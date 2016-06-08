@@ -36,7 +36,7 @@ static void logMsg(Log&&);
 #include "ChannelFifo.hpp"
 #include "ChannelChangenotify.hpp"
 #include "ChannelServerWebsocket.hpp"
-#include "ChannelClientCncHaas.hpp"
+#include "ChannelClientHaasMnet.hpp"
 #include "Manager.hpp"
 
 #include "amcs.h"
@@ -60,7 +60,7 @@ static int stxmccom_open(int channelType, int *error) noexcept
 			case  6: return manager.openChannel(make_shared<ChannelFileRead>		(*messagePtr));
 			case  7: return manager.openChannel(make_shared<ChannelFileWrite>		(*messagePtr));
 			case  8: return manager.openChannel(make_shared<ChannelServerWebsocket>	(*messagePtr));
-			case  9: return manager.openChannel(make_shared<ChannelClientCncHaas>	(*messagePtr));
+			case  9: return manager.openChannel(make_shared<ChannelClientHaasMnet>	(*messagePtr));
 			default: throw exception();
 		}
 	} catch (exception& e) {
