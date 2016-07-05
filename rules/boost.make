@@ -57,6 +57,7 @@ BOOST_JAM	:= \
 	variant=$(subst $(space),$(comma),$(strip $(JAM_LIB_DEBUG) $(JAM_LIB_RELEASE))) \
 	threading=$(subst $(space),$(comma),$(strip $(JAM_LIB_SINGLE) $(JAM_LIB_MULTI))) \
 	link=static \
+	cxxflags=-fPIC \
 	toolset=gcc-$(PTXCONF_ARCH_STRING) \
 	target-os=linux
 
