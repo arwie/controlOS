@@ -12,8 +12,9 @@ public:
 	ChannelServerWebsocket(const Message& args)
 		: Channel("serverWebsocket", args), ConnectingChannel(args)
 	{
-		port			= args.get<int>("port");
-		auto receive	= args.get<bool>("receive", true);
+		port				= args.get<int>("port");
+		auto receive		= args.get<bool>("receive", true);
+		connectReceiveEmpty	= args.get<bool>("connect.receiveEmpty", false);
 
 		log.put("port", port);
 		log.put("receive", receive);
@@ -29,6 +30,8 @@ public:
 				connections.insert(hdl);
 			}
 			setConnected(!connections.empty());
+			if (connectReceiveEmpty)
+				pushMessage(make_unique<Message>());
 		});
 
 		wsServer.set_close_handler([this](websocketpp::connection_hdl hdl)
@@ -85,6 +88,7 @@ private:
 	using WsServer = websocketpp::server<websocketpp::config::asio>;
 
 	int port;
+	bool connectReceiveEmpty;
 	WsServer wsServer;
 	set<websocketpp::connection_hdl, std::owner_less<websocketpp::connection_hdl>> connections;
 	mutex connectionsMtx;

@@ -11,7 +11,7 @@ static void logMsg(Log&& msg)
 	ChannelPtr channelLogCopy = channelLog;
 	if (!channelLogCopy) return;
 
-	msg.file("stxmccom");
+	msg.file("mccom");
 
 	channelLogCopy->send(msg);
 }
