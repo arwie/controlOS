@@ -1,8 +1,8 @@
 ## SECTION=project_specific
 
-config STXMCCOM
+config MCCOM
 	bool
-	prompt "stxmccom"
+	prompt "mccom"
 	select HOST_CMAKE
 	select BOOST
 	select WEBSOCKETPP
