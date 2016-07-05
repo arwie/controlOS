@@ -1,3 +1,7 @@
+/*
+* Copyright (c) 2016 Artur Wiebe <artur@4wiebe.de>
+*/
+
 #ifndef LOG_HPP_
 #define LOG_HPP_
 

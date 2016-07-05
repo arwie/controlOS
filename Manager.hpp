@@ -1,3 +1,7 @@
+/*
+* Copyright (c) 2016 Artur Wiebe <artur@4wiebe.de>
+*/
+
 #ifndef MANAGER_HPP_
 #define MANAGER_HPP_
 

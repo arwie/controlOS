@@ -1,3 +1,7 @@
+/*
+* Copyright (c) 2016 Artur Wiebe <artur@4wiebe.de>
+*/
+
 #ifndef CHANNELSTATE_HPP_
 #define CHANNELSTATE_HPP_
 

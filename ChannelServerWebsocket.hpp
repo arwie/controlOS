@@ -1,3 +1,7 @@
+/*
+* Copyright (c) 2016 Artur Wiebe <artur@4wiebe.de>
+*/
+
 #ifndef CHANNELSERVERWEBSOCKET_HPP_
 #define CHANNELSERVERWEBSOCKET_HPP_
 

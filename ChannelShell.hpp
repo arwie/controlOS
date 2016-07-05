@@ -1,9 +1,6 @@
 /*
- * ChannelShell.hpp
- *
- *  Created on: 17.12.2015
- *      Author: client
- */
+* Copyright (c) 2016 Artur Wiebe <artur@4wiebe.de>
+*/
 
 #ifndef CHANNELSHELL_HPP_
 #define CHANNELSHELL_HPP_

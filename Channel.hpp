@@ -1,3 +1,7 @@
+/*
+* Copyright (c) 2016 Artur Wiebe <artur@4wiebe.de>
+*/
+
 #ifndef CHANNEL_HPP_
 #define CHANNEL_HPP_
 

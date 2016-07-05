@@ -1,3 +1,7 @@
+/*
+* Copyright (c) 2016 Artur Wiebe <artur@4wiebe.de>
+*/
+
 #ifndef MESSAGE_HPP_
 #define MESSAGE_HPP_
 
