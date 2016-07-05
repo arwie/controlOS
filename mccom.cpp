@@ -47,7 +47,7 @@ thread_local MessagePtr messagePtr(new Message());
 thread_local stack<MessagePtr> messageStack;
 
 
-static int stxmccom_open(int channelType, int *error) noexcept
+static int mccom_open(int channelType, int *error) noexcept
 {
 	*error = 0;
 	try {
@@ -69,7 +69,7 @@ static int stxmccom_open(int channelType, int *error) noexcept
 	return -1;
 }
 
-static int stxmccom_connected(int channelId, int *error) noexcept
+static int mccom_connected(int channelId, int *error) noexcept
 {
 	*error = 0;
 	try {
@@ -80,7 +80,7 @@ static int stxmccom_connected(int channelId, int *error) noexcept
 	return false;
 }
 
-static int stxmccom_connected_timed(int channelId, chrono::milliseconds timeout, int *error) noexcept
+static int mccom_connected_timed(int channelId, chrono::milliseconds timeout, int *error) noexcept
 {
 	*error = 0;
 	try {
@@ -91,7 +91,7 @@ static int stxmccom_connected_timed(int channelId, chrono::milliseconds timeout,
 	return false;
 }
 
-static int stxmccom_receive(int channelId, int *error) noexcept
+static int mccom_receive(int channelId, int *error) noexcept
 {
 	*error = 0;
 	try {
@@ -102,7 +102,7 @@ static int stxmccom_receive(int channelId, int *error) noexcept
 	return false;
 }
 
-static int stxmccom_receive_timed(int channelId, chrono::milliseconds timeout, int *error) noexcept
+static int mccom_receive_timed(int channelId, chrono::milliseconds timeout, int *error) noexcept
 {
 	*error = 0;
 	try {
@@ -113,18 +113,18 @@ static int stxmccom_receive_timed(int channelId, chrono::milliseconds timeout, i
 	return false;
 }
 
-static void stxmccom_send(int channelId, int *error) noexcept
+static void mccom_send(int channelId, int *error) noexcept
 {
 	*error = 0;
 	try {
 		manager.getChannel(channelId)->send(*messagePtr);
 	} catch (exception& e) {
 		*error = 1;
-		DEBUG("stxmccom_send: " << e.what());
+		DEBUG("mccom_send: " << e.what());
 	}
 }
 
-static void stxmccom_send_self(int channelId, int *error) noexcept
+static void mccom_send_self(int channelId, int *error) noexcept
 {
 	*error = 0;
 	try {
@@ -134,21 +134,21 @@ static void stxmccom_send_self(int channelId, int *error) noexcept
 	}
 }
 
-static void stxmccom_reset(int channelId) noexcept
+static void mccom_reset(int channelId) noexcept
 {
 	try {
 		manager.getChannel(channelId)->reset();
 	} catch (exception& e) {}
 }
 
-static void stxmccom_close(int channelId) noexcept
+static void mccom_close(int channelId) noexcept
 {
 	try {
 		manager.closeChannel(channelId);
 	} catch (exception& e) {}
 }
 
-static void stxmccom_close_all() noexcept
+static void mccom_close_all() noexcept
 {
 	try {
 		manager.closeAllChannels();
@@ -156,7 +156,7 @@ static void stxmccom_close_all() noexcept
 }
 
 
-static void stxmccom_clear(int *error) noexcept
+static void mccom_clear(int *error) noexcept
 {
 	*error = 0;
 	try {
@@ -166,7 +166,7 @@ static void stxmccom_clear(int *error) noexcept
 	}
 }
 
-static int stxmccom_empty(int *error) noexcept
+static int mccom_empty(int *error) noexcept
 {
 	*error = 0;
 	try {
@@ -178,7 +178,7 @@ static int stxmccom_empty(int *error) noexcept
 }
 
 
-static void stxmccom_store(bool copy, int *error) noexcept
+static void mccom_store(bool copy, int *error) noexcept
 {
 	*error = 0;
 	try {
@@ -193,7 +193,7 @@ static void stxmccom_store(bool copy, int *error) noexcept
 	}
 }
 
-static void stxmccom_restore(int *error) noexcept
+static void mccom_restore(int *error) noexcept
 {
 	*error = 0;
 	try {
@@ -205,7 +205,7 @@ static void stxmccom_restore(int *error) noexcept
 }
 
 
-static void stxmccom_delete(SYS_STRING* path) noexcept
+static void mccom_delete(SYS_STRING* path) noexcept
 {
 	try {
 		messagePtr->erase_with(amcsGetString(path));
@@ -214,7 +214,7 @@ static void stxmccom_delete(SYS_STRING* path) noexcept
 }
 
 
-static void stxmccom_with(SYS_STRING* path) noexcept
+static void mccom_with(SYS_STRING* path) noexcept
 {
 	try {
 		messagePtr->with(amcsGetString(path));
@@ -223,7 +223,7 @@ static void stxmccom_with(SYS_STRING* path) noexcept
 }
 
 
-static void stxmccom_extract(SYS_STRING* path, int *error) noexcept
+static void mccom_extract(SYS_STRING* path, int *error) noexcept
 {
 	*error = 0;
 	try {
@@ -234,7 +234,7 @@ static void stxmccom_extract(SYS_STRING* path, int *error) noexcept
 }
 
 
-static void stxmccom_compact(SYS_STRING* path, int *error) noexcept
+static void mccom_compact(SYS_STRING* path, int *error) noexcept
 {
 	*error = 0;
 	try {
@@ -247,7 +247,7 @@ static void stxmccom_compact(SYS_STRING* path, int *error) noexcept
 }
 
 
-static void stxmccom_receive_string(SYS_STRING* str, int *error) noexcept
+static void mccom_receive_string(SYS_STRING* str, int *error) noexcept
 {
 	*error = 0;
 	try {
@@ -257,7 +257,7 @@ static void stxmccom_receive_string(SYS_STRING* str, int *error) noexcept
 	}
 }
 
-static string stxmccom_send_string(int *error) noexcept
+static string mccom_send_string(int *error) noexcept
 {
 	*error = 0;
 	string str;
@@ -271,7 +271,7 @@ static string stxmccom_send_string(int *error) noexcept
 
 
 template<class Type>
-static Type stxmccom_get(SYS_STRING* path, int *error) noexcept
+static Type mccom_get(SYS_STRING* path, int *error) noexcept
 {
 	*error = 0;
 	try {
@@ -284,7 +284,7 @@ static Type stxmccom_get(SYS_STRING* path, int *error) noexcept
 
 
 template<class Type>
-static void stxmccom_put(SYS_STRING* path, Type value, int *error) noexcept
+static void mccom_put(SYS_STRING* path, Type value, int *error) noexcept
 {
 	*error = 0;
 	try {
@@ -294,10 +294,10 @@ static void stxmccom_put(SYS_STRING* path, Type value, int *error) noexcept
 	}
 }
 
-static void stxmccom_put_string(SYS_STRING* path, SYS_STRING* value, int *error) noexcept
+static void mccom_put_string(SYS_STRING* path, SYS_STRING* value, int *error) noexcept
 {
 	try {
-		stxmccom_put(path, amcsGetString(value), error);
+		mccom_put(path, amcsGetString(value), error);
 	} catch (exception& e) {
 		*error = 1;
 	}
@@ -309,111 +309,111 @@ static void stxmccom_put_string(SYS_STRING* path, SYS_STRING* value, int *error)
  
 extern "C" {
 
-	int STXMCCOM_OPEN(int channelType, int *error) {
-		return stxmccom_open(channelType, error);
+	int MCCOM_OPEN(int channelType, int *error) {
+		return mccom_open(channelType, error);
 	}
 
-	int STXMCCOM_CONNECTED(int channelId, int *error) {
-		return stxmccom_connected(channelId, error);
+	int MCCOM_CONNECTED(int channelId, int *error) {
+		return mccom_connected(channelId, error);
 	}
 
-	int STXMCCOM_CONNECTED_TIMED(int channelId, int timeout, int *error) {
-		return stxmccom_connected_timed(channelId, chrono::milliseconds(timeout), error);
+	int MCCOM_CONNECTED_TIMED(int channelId, int timeout, int *error) {
+		return mccom_connected_timed(channelId, chrono::milliseconds(timeout), error);
 	}
 
-	int STXMCCOM_RECEIVE(int channelId, int *error) {
-		return stxmccom_receive(channelId, error);
+	int MCCOM_RECEIVE(int channelId, int *error) {
+		return mccom_receive(channelId, error);
 	}
 
-	int STXMCCOM_RECEIVE_TIMED(int channelId, int timeout, int *error) {
-		return stxmccom_receive_timed(channelId, chrono::milliseconds(timeout), error);
+	int MCCOM_RECEIVE_TIMED(int channelId, int timeout, int *error) {
+		return mccom_receive_timed(channelId, chrono::milliseconds(timeout), error);
 	}
 
-	void STXMCCOM_SEND(int channelId, int *error) {
-		stxmccom_send(channelId, error);
+	void MCCOM_SEND(int channelId, int *error) {
+		mccom_send(channelId, error);
 	}
 
-	void STXMCCOM_SEND_SELF(int channelId, int *error) {
-		stxmccom_send_self(channelId, error);
+	void MCCOM_SEND_SELF(int channelId, int *error) {
+		mccom_send_self(channelId, error);
 	}
 
-	void STXMCCOM_RESET(int channelId) {
-		stxmccom_reset(channelId);
+	void MCCOM_RESET(int channelId) {
+		mccom_reset(channelId);
 	}
 
-	void STXMCCOM_CLOSE(int channelId) {
-		stxmccom_close(channelId);
+	void MCCOM_CLOSE(int channelId) {
+		mccom_close(channelId);
 	}
 
-	void STXMCCOM_CLOSE_ALL(void) {
-		stxmccom_close_all();
+	void MCCOM_CLOSE_ALL(void) {
+		mccom_close_all();
 	}
 
-	void STXMCCOM_CLEAR(int *error) {
-		stxmccom_clear(error);
+	void MCCOM_CLEAR(int *error) {
+		mccom_clear(error);
 	}
 
-	int STXMCCOM_EMPTY(int *error) {
-		return stxmccom_empty(error);
+	int MCCOM_EMPTY(int *error) {
+		return mccom_empty(error);
 	}
 
-	void STXMCCOM_STORE(int copy, int *error) {
-		stxmccom_store(copy, error);
+	void MCCOM_STORE(int copy, int *error) {
+		mccom_store(copy, error);
 	}
 
-	void STXMCCOM_RESTORE(int *error) {
-		stxmccom_restore(error);
+	void MCCOM_RESTORE(int *error) {
+		mccom_restore(error);
 	}
 
-	void STXMCCOM_DELETE(SYS_STRING** path) {
-		stxmccom_delete(*path);
+	void MCCOM_DELETE(SYS_STRING** path) {
+		mccom_delete(*path);
 	}
 
-	void STXMCCOM_WITH(SYS_STRING** path) {
-		stxmccom_with(*path);
+	void MCCOM_WITH(SYS_STRING** path) {
+		mccom_with(*path);
 	}
 
-	void STXMCCOM_EXTRACT(SYS_STRING** path, int *error) {
-		stxmccom_extract(*path, error);
+	void MCCOM_EXTRACT(SYS_STRING** path, int *error) {
+		mccom_extract(*path, error);
 	}
 
-	void STXMCCOM_COMPACT(SYS_STRING** path, int *error) {
-		stxmccom_compact(*path, error);
+	void MCCOM_COMPACT(SYS_STRING** path, int *error) {
+		mccom_compact(*path, error);
 	}
 
-	void STXMCCOM_RECEIVE_STRING(SYS_STRING** str, int *error) {
-		stxmccom_receive_string(*str, error);
+	void MCCOM_RECEIVE_STRING(SYS_STRING** str, int *error) {
+		mccom_receive_string(*str, error);
 	}
 
-	SYS_STRING* STXMCCOM_SEND_STRING(int *error) {
-		auto str = stxmccom_send_string(error);
+	SYS_STRING* MCCOM_SEND_STRING(int *error) {
+		auto str = mccom_send_string(error);
 		return str_GetString((unsigned char*)str.c_str(), str.length(), ASCII8_STRING_TYPE);
 	}
 
-	int STXMCCOM_GET_LONG(SYS_STRING** path, int *error) {
-		return stxmccom_get<int>(*path, error);
+	int MCCOM_GET_LONG(SYS_STRING** path, int *error) {
+		return mccom_get<int>(*path, error);
 	}
 
-	double STXMCCOM_GET_DOUBLE(SYS_STRING** path, int *error) {
-		return stxmccom_get<double>(*path, error);
+	double MCCOM_GET_DOUBLE(SYS_STRING** path, int *error) {
+		return mccom_get<double>(*path, error);
 	}
 
-	SYS_STRING* STXMCCOM_GET_STRING(SYS_STRING** path, int *error)
+	SYS_STRING* MCCOM_GET_STRING(SYS_STRING** path, int *error)
 	{
-		auto str = stxmccom_get<string>(*path, error);
+		auto str = mccom_get<string>(*path, error);
 		return str_GetString((unsigned char*)str.c_str(), str.length(), ASCII8_STRING_TYPE);
 	}
 
-	void STXMCCOM_PUT_LONG(SYS_STRING** path, int value, int *error) {
-		stxmccom_put(*path, value, error);
+	void MCCOM_PUT_LONG(SYS_STRING** path, int value, int *error) {
+		mccom_put(*path, value, error);
 	}
 
-	void STXMCCOM_PUT_DOUBLE(SYS_STRING** path, double value, int *error) {
-		stxmccom_put(*path, value, error);
+	void MCCOM_PUT_DOUBLE(SYS_STRING** path, double value, int *error) {
+		mccom_put(*path, value, error);
 	}
 
-	void STXMCCOM_PUT_STRING(SYS_STRING** path, SYS_STRING** value, int *error) {
-		stxmccom_put_string(*path, *value, error);
+	void MCCOM_PUT_STRING(SYS_STRING** path, SYS_STRING** value, int *error) {
+		mccom_put_string(*path, *value, error);
 	}
 
 }

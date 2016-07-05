@@ -1,4 +1,4 @@
-common shared com_error as error "general com error"	  20800
+common shared com_error as error "general mccom error"	  20800
 
 common shared com_channelLog				as const long		= 1
 common shared com_channelShell				as const long		= 2
@@ -15,38 +15,38 @@ dim shared waitLoopTimeoutMs as const long				= 100
 
 
 
-import_c STXMCCOM_OPEN(byval as long, as long) as long
-import_c STXMCCOM_CONNECTED(byval as long, as long) as long
-import_c STXMCCOM_CONNECTED_TIMED(byval as long, byval as long, as long) as long
-import_c STXMCCOM_RECEIVE(byval as long, as long) as long
-import_c STXMCCOM_RECEIVE_TIMED(byval as long, byval as long, as long) as long
-import_c STXMCCOM_SEND(byval as long, as long)
-import_c STXMCCOM_SEND_SELF(byval as long, as long)
-import_c STXMCCOM_RESET(byval as long)
-import_c STXMCCOM_CLOSE(byval as long)
-import_c STXMCCOM_CLOSE_ALL()
-import_c STXMCCOM_CLEAR(as long)
-import_c STXMCCOM_EMPTY(as long) as long
-import_c STXMCCOM_STORE(byval as long, as long)
-import_c STXMCCOM_RESTORE(as long)
-import_c STXMCCOM_DELETE(as string)
-import_c STXMCCOM_WITH(as string)
-import_c STXMCCOM_EXTRACT(as string, as long)
-import_c STXMCCOM_COMPACT(as string, as long)
-import_c STXMCCOM_RECEIVE_STRING(as string, as long)
-import_c STXMCCOM_SEND_STRING(as long) as string
-import_c STXMCCOM_GET_LONG(as string, as long) as long
-import_c STXMCCOM_GET_DOUBLE(as string, as long) as double
-import_c STXMCCOM_GET_STRING(as string, as long) as string
-import_c STXMCCOM_PUT_LONG(as string, byval as long, as long)
-import_c STXMCCOM_PUT_DOUBLE(as string, byval as double, as long)
-import_c STXMCCOM_PUT_STRING(as string, as string, as long)
+import_c MCCOM_OPEN(byval as long, as long) as long
+import_c MCCOM_CONNECTED(byval as long, as long) as long
+import_c MCCOM_CONNECTED_TIMED(byval as long, byval as long, as long) as long
+import_c MCCOM_RECEIVE(byval as long, as long) as long
+import_c MCCOM_RECEIVE_TIMED(byval as long, byval as long, as long) as long
+import_c MCCOM_SEND(byval as long, as long)
+import_c MCCOM_SEND_SELF(byval as long, as long)
+import_c MCCOM_RESET(byval as long)
+import_c MCCOM_CLOSE(byval as long)
+import_c MCCOM_CLOSE_ALL()
+import_c MCCOM_CLEAR(as long)
+import_c MCCOM_EMPTY(as long) as long
+import_c MCCOM_STORE(byval as long, as long)
+import_c MCCOM_RESTORE(as long)
+import_c MCCOM_DELETE(as string)
+import_c MCCOM_WITH(as string)
+import_c MCCOM_EXTRACT(as string, as long)
+import_c MCCOM_COMPACT(as string, as long)
+import_c MCCOM_RECEIVE_STRING(as string, as long)
+import_c MCCOM_SEND_STRING(as long) as string
+import_c MCCOM_GET_LONG(as string, as long) as long
+import_c MCCOM_GET_DOUBLE(as string, as long) as double
+import_c MCCOM_GET_STRING(as string, as long) as string
+import_c MCCOM_PUT_LONG(as string, byval as long, as long)
+import_c MCCOM_PUT_DOUBLE(as string, byval as double, as long)
+import_c MCCOM_PUT_STRING(as string, as string, as long)
 
 
 
 public function com_open(byval channleType as long) as long
   dim err as long
-  com_open = STXMCCOM_OPEN(channleType, err)
+  com_open = MCCOM_OPEN(channleType, err)
   if err then
     throw com_error
   end if
@@ -55,7 +55,7 @@ end function
 
 public function com_connected(byval channelId as long) as long
   dim err as long
-  com_connected = STXMCCOM_CONNECTED(channelId, err)
+  com_connected = MCCOM_CONNECTED(channelId, err)
   if err then
     throw com_error
   end if
@@ -64,7 +64,7 @@ end function
 
 public function com_connectedWaitTimed(byval channelId as long, byval tout as long) as long
   dim err as long
-  com_connectedWaitTimed = STXMCCOM_CONNECTED_TIMED(channelId, tout, err)
+  com_connectedWaitTimed = MCCOM_CONNECTED_TIMED(channelId, tout, err)
   if err then
     throw com_error
   end if
@@ -81,7 +81,7 @@ end function
 
 public function com_receive(byval channelId as long) as long
   dim err as long
-  com_receive = STXMCCOM_RECEIVE(channelId, err)
+  com_receive = MCCOM_RECEIVE(channelId, err)
   if err then
     throw com_error
   end if
@@ -90,7 +90,7 @@ end function
 
 public function com_receiveWaitTimed(byval channelId as long, byval tout as long) as long
   dim err as long
-  com_receiveWaitTimed = STXMCCOM_RECEIVE_TIMED(channelId, tout, err)
+  com_receiveWaitTimed = MCCOM_RECEIVE_TIMED(channelId, tout, err)
   if err then
     throw com_error
   end if
@@ -107,7 +107,7 @@ end function
 
 public sub com_send(byval channelId as long)
   dim err as long
-  STXMCCOM_SEND(channelId, err)
+  MCCOM_SEND(channelId, err)
   if err then
     throw com_error
   end if
@@ -116,7 +116,7 @@ end sub
 
 public sub com_sendSelf(byval channelId as long)
   dim err as long
-  STXMCCOM_SEND_SELF(channelId, err)
+  MCCOM_SEND_SELF(channelId, err)
   if err then
     throw com_error
   end if
@@ -124,23 +124,23 @@ end sub
 
 
 public sub com_reset(byval channelId as long)
-  STXMCCOM_RESET(channelId)
+  MCCOM_RESET(channelId)
 end sub
 
 
 public sub com_close(byval channelId as long)
-  STXMCCOM_CLOSE(channelId)
+  MCCOM_CLOSE(channelId)
 end sub
 
 
 public sub com_closeAll
-  STXMCCOM_CLOSE_ALL()
+  MCCOM_CLOSE_ALL()
 end sub
 
 
 public sub com_clear
   dim err as long
-  STXMCCOM_CLEAR(err)
+  MCCOM_CLEAR(err)
   if err then
     throw com_error
   end if
@@ -149,7 +149,7 @@ end sub
 
 public function com_empty as long
   dim err as long
-  com_empty = STXMCCOM_EMPTY(err)
+  com_empty = MCCOM_EMPTY(err)
   if err then
     throw com_error
   end if
@@ -158,7 +158,7 @@ end function
 
 public sub com_store
   dim err as long
-  STXMCCOM_STORE(false, err)
+  MCCOM_STORE(false, err)
   if err then
     throw com_error
   end if
@@ -167,7 +167,7 @@ end sub
 
 public sub com_storeCopy
   dim err as long
-  STXMCCOM_STORE(true, err)
+  MCCOM_STORE(true, err)
   if err then
     throw com_error
   end if
@@ -176,7 +176,7 @@ end sub
 
 public sub com_restore
   dim err as long
-  STXMCCOM_RESTORE(err)
+  MCCOM_RESTORE(err)
   if err then
     throw com_error
   end if
@@ -184,18 +184,18 @@ end sub
 
 
 public sub com_delete(byval path as string)
-  STXMCCOM_DELETE(path)
+  MCCOM_DELETE(path)
 end sub
 
 
 public sub com_with(byval path as string)
-  STXMCCOM_WITH(path)
+  MCCOM_WITH(path)
 end sub
 
 
 public sub com_extract(byval path as string)
   dim err as long
-  STXMCCOM_EXTRACT(path, err)
+  MCCOM_EXTRACT(path, err)
   if err then
     throw com_error
   end if
@@ -204,7 +204,7 @@ end sub
 
 public sub com_compact(byval path as string)
   dim err as long
-  STXMCCOM_COMPACT(path, err)
+  MCCOM_COMPACT(path, err)
   if err then
     throw com_error
   end if
@@ -213,7 +213,7 @@ end sub
 
 public sub com_receiveString(byval str as string)
   dim err as long
-  STXMCCOM_RECEIVE_STRING(str, err)
+  MCCOM_RECEIVE_STRING(str, err)
   if err then
     throw com_error
   end if
@@ -222,7 +222,7 @@ end sub
 
 public function com_sendString as string
   dim err as long
-  com_sendString = STXMCCOM_SEND_STRING(err)
+  com_sendString = MCCOM_SEND_STRING(err)
   if err then
     throw com_error
   end if
@@ -231,7 +231,7 @@ end function
 
 public function com_getLong(byval path as string) as long
   dim err as long
-  com_getLong = STXMCCOM_GET_LONG(path, err)
+  com_getLong = MCCOM_GET_LONG(path, err)
   if err then
     throw com_error
   end if
@@ -240,7 +240,7 @@ end function
 
 public function com_getDouble(byval path as string) as double
   dim err as long
-  com_getDouble = STXMCCOM_GET_DOUBLE(path, err)
+  com_getDouble = MCCOM_GET_DOUBLE(path, err)
   if err then
     throw com_error
   end if
@@ -249,7 +249,7 @@ end function
 
 public function com_getString(byval path as string) as string
   dim err as long
-  com_getString = STXMCCOM_GET_STRING(path, err)
+  com_getString = MCCOM_GET_STRING(path, err)
   if err then
     throw com_error
   end if
@@ -273,7 +273,7 @@ end function
 
 public sub com_putLong(byval path as string, byval longValue as long)
   dim err as long
-  STXMCCOM_PUT_LONG(path, longValue, err)
+  MCCOM_PUT_LONG(path, longValue, err)
   if err then
     throw com_error
   end if
@@ -282,7 +282,7 @@ end sub
 
 public sub com_putDouble(byval path as string, byval doubleValue as double)
   dim err as long
-  STXMCCOM_PUT_DOUBLE(path, doubleValue, err)
+  MCCOM_PUT_DOUBLE(path, doubleValue, err)
   if err then
     throw com_error
   end if
@@ -291,7 +291,7 @@ end sub
 
 public sub com_putString(byval path as string, byval stringValue as string)
   dim err as long
-  STXMCCOM_PUT_STRING(path, stringValue, err)
+  MCCOM_PUT_STRING(path, stringValue, err)
   if err then
     throw com_error
   end if
@@ -299,7 +299,7 @@ end sub
 
 public sub com_putStringRef(byval path as string, stringValue as string)
   dim err as long
-  STXMCCOM_PUT_STRING(path, stringValue, err)
+  MCCOM_PUT_STRING(path, stringValue, err)
   if err then
     throw com_error
   end if

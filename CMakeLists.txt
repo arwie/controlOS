@@ -30,28 +30,31 @@ set_target_properties(libc PROPERTIES
 )
 
 
-add_library(stxmccom SHARED
+add_library(mccom SHARED
 	${SRC_FILES}
 )
 
-target_link_libraries(stxmccom
+target_link_libraries(mccom
 	libboost_system
 	libboost_regex
 	libstdcpp
 	libc
 )
 
-set_target_properties(stxmccom PROPERTIES
+set_target_properties(mccom PROPERTIES
+	PREFIX ""
+	OUTPUT_NAME "MCCOM"
+	SUFFIX ".O"
 	LINK_FLAGS "-Wl,--strip-all"
 #	LINK_FLAGS "-Wl,--version-script,${PROJECT_SOURCE_DIR}/export.map"
 )
 
 
-install(TARGETS stxmccom 
-	DESTINATION lib
+install(TARGETS mccom
+	DESTINATION /FFS0/SSMC
 )
 
 install(
-	DIRECTORY mcbasic/
-	DESTINATION mcbasic
+	FILES MCCOM.LIB
+	DESTINATION /FFS0/SSMC
 )

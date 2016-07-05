@@ -1,4 +1,4 @@
 {
-global: STXMCCOM_*;
+global: MCCOM_*;
 local: *;
 };
