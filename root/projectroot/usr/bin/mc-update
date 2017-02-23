@@ -22,8 +22,13 @@ errexit()
 
 
 
-MC_VERID=$($SSH $MC "cat ver-id || echo 0")								|| errexit "failed to connect to mc"
-MC_APPID=$($SSH $MC "cat app-id || echo 0")								|| errexit "failed to connect to mc"
+if [ "$1" == "force" ]; then
+	MC_VERID=0
+	MC_APPID=0
+else
+	MC_VERID=$($SSH $MC "cat ver-id || echo 0")							|| errexit "failed to connect to mc"
+	MC_APPID=$($SSH $MC "cat app-id || echo 0")							|| errexit "failed to connect to mc"
+fi
 
 
 VERID=$(cat /version-id)
@@ -51,7 +56,7 @@ if [ "$MC_APPID" != "$APPID" ]; then	# copy app files
 fi
 
 
-# update stamp and reboot
+# reboot if necessary
 if [ -n "$REBOOT" ]; then
 	$SSH $MC "sudo reboot"												|| errexit "reboot mc"
 	echo "mc updated successfully"
