@@ -1,0 +1,37 @@
+
+dim shared stateWatchdogIntervalMs as const long	= 1000
+
+
+
+<?lib_init()?>
+<?	libComOpenServerWebsocket('state_comStateServer', 33000, ['long("receive", false)', 'long("connect.receiveEmpty", true)'])?>
+end sub
+
+
+
+<?lib_prgLoop(14)?>
+	dim msg_ as string
+	try
+		if com_receiveWaitTimed(state_comStateServer, stateWatchdogIntervalMs) then
+			call com_clear
+			call putState
+		else
+			call com_clear
+		end if
+		call com_send(state_comStateServer)
+	catch else
+		msg_ = com_sendString
+		call logPrgError
+		call com_putString("msg", msg_)
+		call logSend
+		sleep 333
+	end try
+end sub
+
+
+sub putState
+<?
+	foreach ($libs['all'] as $l) 
+		ll('call com_putLong("'.$l['name'].'", '.$l['name'].'_started)')
+?>
+end sub

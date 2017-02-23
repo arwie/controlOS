@@ -1,0 +1,15 @@
+#!/bin/sh
+
+SCRIPT=$(readlink -f $0)
+BASEDIR=$(dirname $SCRIPT)
+
+
+cd $BASEDIR
+
+
+ptxdist drop os-release.targetinstall
+
+
+ptxdist images		|| exit 1
+
+exit 0

@@ -1,0 +1,55 @@
+<div data-bind="page: {id: 'update', with: update, beforeShow: update.start, afterHide: update.stop}">
+
+	<div class="panel panel-default">
+		<div class="panel-heading" data-l10n-id="update-current"></div>
+		<div class="panel-body">
+			<dl>
+				<dt data-l10n-id="update-version-id"></dt>
+				<dd data-bind="text: versionId"></dd>
+			</dl>
+		</div>
+	</div>
+	
+	<label class="btn btn-primary btn-file btn-block">
+		<span data-l10n-id="update-file"></span> 
+		<input type="file" data-bind="event: {change: function() { upload($element.files[0]) }}" style="display: none;">
+	</label>
+	
+</div>
+
+
+
+<script>(function(){
+	
+gui.update = new function() {
+	let self = this;
+	
+	self.versionId = ko.observable();
+	
+	self.upload = function(file) {
+		let formData = new FormData();
+		formData.append('update', file);
+		$.ajax({
+			url: '/update',
+			type: "put",
+			data: formData,
+			processData: false,
+			contentType: false,
+		})
+		.done(function() {
+			pager.navigate('');
+		});
+	}
+	
+	self.start = function()	{
+		$.getJSON('/update', function(data) {
+			self.versionId(data['version-id']);
+		});
+	}
+	
+	self.stop = function() {
+		self.versionId(null);
+	}
+}
+
+})();</script>

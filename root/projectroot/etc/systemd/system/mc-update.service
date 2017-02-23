@@ -1,0 +1,11 @@
+[Unit]
+ConditionPathExists=!/etc/debug
+After=network.target
+
+[Service]
+ExecStartPre=/bin/sleep 5
+ExecStart=/usr/bin/mc-update
+
+Restart=on-failure
+RestartSec=10
+StartLimitInterval=0

@@ -1,0 +1,60 @@
+<div data-bind="page: {id: 'wlan', with: wlan, beforeShow: wlan.start, afterHide: wlan.stop}">
+	
+	<ol class="breadcrumb">
+		<li class="active" data-l10n-id="wlan"></li>
+	</ol>
+	<hr>
+	
+	<form class="form-horizontal">
+		
+		<div class="form-group">
+			<label class="col-md-2 control-label" data-l10n-id="wlan-ssid"></label>
+			<div class="col-md-8">
+				<input data-bind="value: ssid" type="text" class="form-control">
+			</div>
+		</div>
+		
+		<div class="form-group">
+			<label class="col-md-2 control-label" data-l10n-id="wlan-psk"></label>
+			<div class="col-md-8">
+				<input data-bind="value: psk" type="text" class="form-control">
+			</div>
+		</div>
+		
+	</form>
+	<hr>
+
+	<div class="btn-group btn-group-justified">
+		<a data-bind="click: remove"	class="btn btn-warning" data-l10n-id="remove"></a>
+		<a data-bind="click: set"		class="btn btn-primary" data-l10n-id="set"></a>
+	</div>
+	
+</div>
+
+
+
+<script>(function(){
+	
+gui.wlan = new function() {
+	let self = this;
+	
+	self.ssid	= ko.observable();
+	self.psk	= ko.observable();
+	
+	
+	self.set	= function() {
+		$.post('/wlan?'+$.param({do:'set', ssid:self.ssid(), psk:self.psk()}));
+	}
+	
+	self.remove	= function() {
+		$.post('/wlan?'+$.param({do:'remove'}));
+	}
+	
+	self.start = function()	{
+	}
+	
+	self.stop = function() {
+	}
+}
+
+})();</script>

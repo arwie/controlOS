@@ -1,0 +1,31 @@
+<div data-bind="page: {id: 'remote', with: remote, beforeShow: remote.start, afterHide: remote.stop}">
+	
+	<ol class="breadcrumb">
+		<li class="active" data-l10n-id="remote"></li>
+	</ol>
+	<hr>
+
+	<a data-bind="click:activate" class="btn btn-primary btn-block" data-l10n-id="activate"></a>
+	
+</div>
+
+
+
+<script>(function(){
+	
+gui.remote = new function() {
+	let self = this;
+	
+	
+	self.activate = function() {
+		$.post('/remote');
+	}
+	
+	self.start = function()	{
+	}
+	
+	self.stop = function() {
+	}
+}
+
+})();</script>

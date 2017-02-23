@@ -1,0 +1,4 @@
+/dev/sda1   /mnt/boot      vfat    ro                0 0
+/dev/sda2   /mnt/switch    vfat    defaults          0 1
+/dev/sda3   /mnt/root      ext4    defaults          0 1
+/dev/sda4   /mnt/data      ext4    defaults          0 1

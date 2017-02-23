@@ -1,0 +1,11 @@
+[Unit]
+ConditionPathExists=/etc/wlan.conf
+
+[Service]
+Type=dbus
+BusName=fi.epitest.hostap.WPASupplicant
+ExecStart=/sbin/wpa_supplicant -u -c /etc/wpa_supplicant.conf -I /etc/wlan.conf -i wlp0s29f7u4
+
+[Install]
+WantedBy=multi-user.target
+Alias=dbus-fi.epitest.hostap.WPASupplicant.service

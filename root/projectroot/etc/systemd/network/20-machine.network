@@ -1,0 +1,7 @@
+[Match]
+Name=enp1s0
+Name=enp0s3
+Name=tap*
+
+[Network]
+Bridge=machine

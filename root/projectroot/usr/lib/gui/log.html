@@ -1,0 +1,205 @@
+<div data-bind="page: {id: 'log', with: log, beforeShow: log.start, afterHide: log.stop}" class="row">
+	
+	<div class="col-md-2">
+		<div data-bind="with: filter" class="panel panel-default">
+			<div class="panel-heading" data-l10n-id="log-filter"></div>
+			<div class="panel-body">
+				
+				<div class="form-group">
+					<label class="control-label" data-l10n-id="log-priority"></label>
+					<select data-bind="options: priorities, value: priority, optionsText: priorityName" class="form-control"></select>
+				</div>
+				
+				<div class="form-group">
+					<label class="control-label" data-l10n-id="log-since"></label>
+					<select data-bind="options: sinceValues, value: since, optionsCaption: ''" class="form-control"></select>
+				</div>
+				
+				<div class="form-group">
+					<label class="control-label" data-l10n-id="log-host"></label>
+					<select data-bind="options: hosts, value: host, optionsCaption: ''" class="form-control"></select>
+				</div>
+				
+				<div class="form-group">
+					<label class="control-label" data-l10n-id="log-identifier"></label>
+					<select data-bind="options: identifiers, value: identifier, optionsCaption: ''" class="form-control"></select>
+				</div>
+				
+				<div class="form-group">
+					<label class="control-label" data-l10n-id="log-cmdline"></label>
+					<input data-bind="value: cmdline" type="text" class="form-control">
+				</div>
+				
+			</div>
+		</div>
+				
+		<button data-bind="visible:connection(),  click:disconnect" class="btn btn-default btn-block" data-l10n-id="log-disconnect"></button>
+		<button data-bind="visible:!connection(), click:query"      class="btn btn-primary btn-block" data-l10n-id="log-reconnect"></button>
+	</div>
+	
+	<div class="col-md-10">
+		
+		<div data-bind="visible: !connection()"                      class="alert alert-warning" data-l10n-id="log-disconnected"></div>
+		<div data-bind="visible: connection() && !messages().length" class="alert alert-info"    data-l10n-id="log-empty"></div>
+		
+		<table class="table table-condensed table-hover">
+			<tbody data-bind="foreach: { data: messages, as: 'message' }">
+				
+				<tr data-bind="css: {danger: priority <= 3, warning: priority == 4, info: priority == 5}">
+					<td data-bind="text: timestamp"></td>
+					<td data-bind="text: priorityName(priority)"></td>
+					<td data-bind="text: hostname"></td>
+					<td data-bind="text: identifier"></td>
+					
+					<td width="70%">
+						<a data-bind="click: toggleDetails" href="#"><strong data-bind="text: message" style="white-space:pre-line"></strong></a>
+						<!-- ko if: details -->
+							<p></p>
+							<table class="table table-condensed">
+								<tbody data-bind="foreach: {data: keys(), as: 'key'}">
+									<tr>
+										<td data-bind="text: key"></td>
+										<td data-bind="text: message.value(key)" style="white-space:pre-line"></td>
+									</tr>
+								</tbody>
+							</table>
+						<!-- /ko -->
+					</td>				
+				</tr>				
+			</tbody>
+		</table>
+	</div>
+
+</div>
+
+
+
+<script>(function(){
+	
+function priorityName(prio) {
+	switch (prio) {
+		case 0: return "Emergency";
+		case 1: return "Alert";
+		case 2: return "Critical";
+		case 3: return "Error";
+		case 4: return "Warning";
+		case 5: return "Notice";
+		case 6: return "Info";
+		case 7: return "Debug";
+	}	
+}
+
+
+function Filter(onChange) {
+	let self = this;
+	
+	self.priorities		= [0, 1, 2, 3, 4, 5, 6, 7]
+	self.priority		= ko.observable(4);
+	self.priorityName	= priorityName;
+	
+	self.sinceValues	= ko.observableArray(['60minutes', '3hours', '9hours', '24hours', '3days', '2weeks', '1month', '1year']);
+	self.since			= ko.observable();
+	
+	self.hosts			= ko.observableArray();
+	self.host			= ko.observable();
+	
+	self.identifiers	= ko.observableArray();
+	self.identifier		= ko.observable();
+	
+	self.cmdline		= ko.observable('');
+
+	self.priority.subscribe(onChange);
+	self.host.subscribe(onChange);
+	self.identifier.subscribe(onChange);
+	self.since.subscribe(onChange);
+	self.cmdline.subscribe(onChange);
+	
+	self.args			= function(args = '') {
+		args += '--priority='+self.priority()+' ';
+		if (self.since())
+			args += '--since=-'+self.since()+' ';
+		if (self.host())
+			args += '_HOSTNAME='+self.host()+' ';
+		if (self.identifier())
+			args += '--identifier='+self.identifier()+' ';
+		return args + self.cmdline();
+	}
+}
+
+	
+function Message(msg) {
+	let self = this;
+	
+	self.msg			= msg;
+	
+	self.timestamp		= new Date(parseInt(msg['_SOURCE_REALTIME_TIMESTAMP'])/1000).toLocaleString();
+	self.identifier		= msg['SYSLOG_IDENTIFIER'];
+	self.hostname		= msg['_HOSTNAME'];
+	self.message		= msg['MESSAGE'];
+
+	self.priority		= parseInt(msg['PRIORITY']);
+	self.priorityName	= priorityName;
+	
+	self.details		= ko.observable(false);
+	self.toggleDetails	= function() { self.details(!self.details()); }
+	
+	self.keys			= function() { return Object.keys(self.msg); }
+	self.value			= function(key) { return self.msg[key]; }
+}
+
+
+gui.log = new function() {
+	let self = this;
+	
+	self.query = function()	{
+		self.stop();
+		
+		self.connection(new WebSocket('ws://'+location.hostname+'/log?'+$.param({args: self.filter.args()})));
+
+		self.connection().onmessage = function(e) {
+			self.messages.unshift(new Message(JSON.parse(e.data)));
+			
+			if (self.messages().length > 300)
+				self.messages.pop();
+		}
+		self.connection().onclose = self.connection().onerror = function() {
+			if (self.connection() == this) 
+				self.connection(null);
+		}
+	}
+	
+	self.start = function()	{
+		self.query();
+		
+		if (!self.filter.hosts().length) {
+			$.getJSON('/log/_HOSTNAME', function(data) { 
+				self.filter.hosts(data);
+			});
+		}
+		if (!self.filter.identifiers().length) {
+			$.getJSON('/log/SYSLOG_IDENTIFIER', function(data) { 
+				self.filter.identifiers(data);
+			});
+		}
+	}
+	
+	self.disconnect = function() {
+		try {
+			self.connection().close();
+		} catch(e) {}
+	}
+	
+	self.stop = function() {
+		self.disconnect();
+		self.connection(null);
+		self.messages([]);
+	}
+	
+	
+	self.connection		= ko.observable();
+	self.filter			= new Filter(self.query);
+	self.messages		= ko.observableArray();
+	self.messages.extend({ rateLimit: 500 });
+}
+
+})();</script>

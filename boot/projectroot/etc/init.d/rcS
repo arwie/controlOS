@@ -1,0 +1,128 @@
+#!/bin/sh
+
+DISKDEV=/dev/sda
+SWITCHDEV=/dev/sda2
+ROOTDEV=/dev/sda3
+DATADEV=/dev/sda4
+
+SWITCHMNT=/mnt/switch
+ROOTMNT=/mnt/root
+DATAMNT=/mnt/data
+
+UPDATEFILE=$SWITCHMNT/update
+DATAFILE=$SWITCHMNT/data
+
+
+#exec > /var/log/update 2>&1
+
+
+data_format()
+{
+echo "appending data partition (using rest of sd-card)"
+sfdisk -a $DISKDEV << +++++
+-,+,-,-
++++++
+
+sync
+sleep 3
+blockdev --rereadpt $DISKDEV
+sleep 2
+}
+
+
+data_init()
+{
+echo "running data init"
+
+echo "(re)creating data fs ..."
+mkfs.ext4 -Fq -L "DATA" $DATADEV
+mount $DATAMNT
+
+echo "initializing data fs ..."
+tar -C $DATAMNT -x -f $DATAFILE
+
+sync
+rm -f $DATAFILE 
+sync
+
+echo "finished data init"	
+}
+
+
+switch_mount() 
+{
+echo "check and mount switch partition"
+
+fsck.vfat -a $SWITCHDEV
+mount $SWITCHMNT
+
+# delete all stubs created by fsck
+find $SWITCHMNT -iname "*.REC" -delete
+}
+
+
+update() 
+{
+echo "running update"
+
+echo "testing update file integrity"
+if ! tar -x -O -f $UPDATEFILE &> /dev/null
+then
+	echo "update file is corrupt -> deleting"
+	rm -f $UPDATEFILE
+	return 1
+fi
+
+echo "(re)creating root fs ..."
+mkfs.ext4 -Fq -L "ROOT" $ROOTDEV
+mount $ROOTMNT
+
+echo "updating root fs ..."
+tar -C $ROOTMNT -x -f $UPDATEFILE
+
+sync
+rm -f $UPDATEFILE
+sync
+
+echo "finished update"	
+}
+
+
+while [ ! -b $DISKDEV ]; do
+	echo "waiting for $DISKDEV ..."
+	sleep 1; 
+done
+
+
+if [ ! -b $DATADEV ]; then
+	data_format
+	REBOOT=yes
+fi
+
+switch_mount
+
+if [ -f $DATAFILE ]; then
+	data_init
+	REBOOT=yes
+fi
+
+if [ -f $UPDATEFILE ]; then
+	update
+	REBOOT=yes
+fi
+
+
+if [ -n "$REBOOT" ]; then
+	reboot
+fi
+
+
+
+########################################
+echo "start recovery shell"
+
+echo "mount all filesystems"
+mount -a
+
+echo "run rc.d services"
+run-parts -a start /etc/rc.d

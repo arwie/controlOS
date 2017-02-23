@@ -1,0 +1,142 @@
+<div data-bind="page: {id: 'simio', with: simio, beforeShow: simio.start, afterHide: simio.stop, guard: $root.stateGuard('simio')}" class="row">
+	
+	<ol class="breadcrumb">
+		<li class="active" data-l10n-id="simio"></li>
+	</ol>
+	<hr>
+	
+	<script type="text/html" id="simio-io">
+		<table class="table table-condensed table-hover">
+		<thead>
+			<tr>
+				<th data-l10n-id="name"></th>
+				<th data-l10n-id="type"></th>
+				<th data-l10n-id="app"></th>
+				<th data-l10n-id="io"></th>
+				<th data-l10n-id="override"></th>
+			</tr>
+		</thead>
+		<tbody data-bind="foreach: $data">
+			<tr>
+				<th><p data-bind="text:name" class="form-control-static"></p></th>
+				<td><p data-bind="text:dir+'&nbsp;/&nbsp;'+type" class="form-control-static"></p></td>
+				<td  style="width:30%">
+					<p data-bind="text:app" class="form-control-static"></p>
+				</td>
+				<td  style="width:30%">
+					<!-- ko if:!sim--><p data-bind="text:io" class="form-control-static"></p><!-- /ko -->
+					<!-- ko if: sim--><p class="form-control-static"><span class="glyphicon glyphicon-ban-circle"></span></p><!-- /ko -->
+				</td>
+				<td style="min-width:200px">
+					<div class="input-group">
+						<span class="input-group-addon">
+							<input data-bind="checked:ord, disable:sim, click:ordToggle" type="checkbox">
+						</span>
+						<input data-bind="event:{keypress:ordSendValue}" type="text" class="form-control">
+						<!-- ko if:type=='long'-->
+						<div class="input-group-btn">
+							<button data-bind="click:ordSendPreset" class="btn btn-default" type="button" value="1">1</button>
+							<button data-bind="click:ordSendPreset" class="btn btn-default" type="button" value="0">0</button>
+						</div>
+						<!-- /ko -->
+					</div>
+				</td>
+			</tr>
+		</tbody>
+		</table>
+	</script>
+	
+	<div data-bind="template: { name:'simio-io', data:inputs }"  class="col-md-6"></div>
+	<div data-bind="template: { name:'simio-io', data:outputs }" class="col-md-6"></div>
+	
+</div>
+
+
+
+<script>(function(){
+	
+function Io(io, send) {
+	let self = this;
+	
+	self.id		= parseInt(io.id);
+	self.sim	= parseInt(io.sim);
+	self.name	= io.name;
+	self.dir	= io.dir;
+	self.type	= io.type;
+	
+	self.ord	= ko.observable();
+	self.app	= ko.observable();
+	self.io		= ko.observable();
+	
+	self.ordToggle = function() {
+		send({id:self.id, ord:(self.ord()?1:0)});
+	}
+	
+	self.ordSendValue = function(d, e) {
+		if (e.keyCode != 13) return true;
+		send({id:self.id, ord:2, io:e.target.value});
+		e.target.value = '';
+	}
+	
+	self.ordSendPreset = function(d, e) {
+		send({id:self.id, ord:2, io:e.target.value});
+	}
+	
+	self.update	= function(io) {
+		self.app(self.parseType(io.app));
+		self.io(self.parseType(io.io));
+		self.ord(parseInt(io.ord));
+	}
+	
+	self.parseType = function(value) {
+		switch (self.type) {
+			case 'long':
+				return parseInt(value);
+			case 'double':
+				return parseFloat(value).toFixed(2);
+		}
+		return value;
+	}
+}
+
+
+gui.simio = new function() {
+	let self = this;
+	
+	self.ios		= {};
+	self.inputs		= ko.observableArray();
+	self.outputs	= ko.observableArray();
+	
+	self.send		= function(msg) {
+		self.mc.send(JSON.stringify(msg));
+	}
+	
+	self.start = function()
+	{
+		self.mc = new WebSocket('ws://192.168.173.100:6002');
+		
+		self.mc.onmessage = function (e) {
+			let msg = JSON.parse(e.data);
+			
+			if ($.isEmptyObject(self.ios)) {
+				for (let id of Object.keys(msg)) {
+					self.ios[id] = new Io(msg[id], self.send);
+					if (msg[id].dir == 'in')
+						self.inputs.push(self.ios[id]);
+					else
+						self.outputs.push(self.ios[id]);
+				}
+			}
+
+			for (let id of Object.keys(msg)) {
+				self.ios[id].update(msg[id]);
+			}
+		}
+	}
+	
+	self.stop = function() {
+		self.mc.close();
+	}
+}
+
+})();</script>

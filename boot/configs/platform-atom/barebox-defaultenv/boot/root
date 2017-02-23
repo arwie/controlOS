@@ -1,0 +1,13 @@
+#!/bin/sh
+
+path="/mnt/root"
+
+if [ ! -d ${path} ]; then
+  mkdir -p ${path}
+  mount /dev/disk0.2 ${path}
+fi
+
+. ${path}/boot/boot.conf
+
+global.bootm.image="${path}/${image}"
+global.linux.bootargs.dyn.root="${bootargs}"

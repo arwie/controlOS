@@ -1,0 +1,10 @@
+[Unit]
+After=network.target
+ConditionPathExists=/etc/hostapd.conf
+
+[Service]
+ExecStart=/usr/sbin/hostapd /etc/hostapd.conf
+ExecReload=/bin/kill -HUP $MAINPID
+
+[Install]
+WantedBy=multi-user.target

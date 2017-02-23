@@ -1,0 +1,61 @@
+
+type xyzr_posType
+  xyzr		as location of xyzr
+  arm		as long
+end type
+
+
+
+
+public function xyzr_jntToPos(robot_ as generic group, byval jnt_ as joint of xyzr) as xyzr_posType
+	xyzr_jntToPos->xyzr = tocart(robot_, jnt_)
+	xyzr_jntToPos->arm  = xyzr_armOfJnt(jnt_)
+end function
+
+
+public function xyzr_armOfJnt(byval jnt_ as joint of xyzr) as long
+	select case sin(jnt_{2}*PI/180)
+	case is < 0
+		xyzr_armOfJnt = lefty
+	case is > 0
+		xyzr_armOfJnt = righty
+	case else 
+		xyzr_armOfJnt = 0
+	end select
+end function
+
+
+public function xyzr_posToJnt(robot_ as generic group, byval pos_ as xyzr_posType) as joint of xyzr
+	'configuration for SCARA robot: Arm (Bit 0): value=0 – Lefty (armcd = 1); value=1 – Righty (armcmd = 2)
+	xyzr_posToJnt = tojoint(robot_, pos_->xyzr, pos_->arm - 1)
+end function
+
+
+
+public function xyzr_isSamePos(byval oldPos as xyzr_posType, byval newPos as xyzr_posType, byval toleranceTrans as double, byval toleranceRot as double) as long
+	xyzr_isSamePos = (distl(newPos->xyzr, oldPos->xyzr) <= toleranceTrans  and  distr(newPos->xyzr, oldPos->xyzr) <= toleranceRot  and  newPos->arm = oldPos->arm)
+end function
+
+
+
+public function xyzr_robotHerePos(robot_ as generic group) as xyzr_posType
+	xyzr_robotHerePos = xyzr_jntToPos(robot_, robot_.positionfeedback)
+end function
+
+
+public function xyzr_robotDestPos(robot_ as generic group) as xyzr_posType
+	xyzr_robotDestPos = xyzr_jntToPos(robot_, robot_.dest_joint)
+end function
+
+
+
+public function xyzr_comGetPos(byval path as string) as xyzr_posType
+	xyzr_comGetPos->xyzr = com_getLocationXyzr(path)
+	xyzr_comGetPos->arm  = com_getLong(path+".arm")
+end function
+
+
+public sub xyzr_comPutPos(byval path as string, byval pos as xyzr_posType)
+	call com_putLocationXyzr(path, pos->xyzr)
+	call com_putLong(path+".arm", pos->arm)
+end sub

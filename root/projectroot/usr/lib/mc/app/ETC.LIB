@@ -1,0 +1,118 @@
+
+common shared etc_busnumber as const long = 0
+
+
+<?lib_prg()?>
+	dim dummy_ as long
+	dim slaveCount_ as long
+	dim slave_ as long
+
+	slaveCount_ = EC_ETHERCAT_INIT
+
+	call logLibInfo("ethercat init with "+str$(slaveCount_)+" slaves")
+	call log_putMessageId("af06a2c1696f46b18b948283b249a04e")
+	call com_putLong("slavecount", slaveCount_)
+	for slave_ = 1 to slaveCount_
+		call com_with("slave"+str$(slave_))
+		call com_putLong("position",		EC_SLAVES_INFO[slave_]->position)
+		call com_putLong("vendor",			EC_SLAVES_INFO[slave_]->vendor_id)
+		call com_putLong("product",			EC_SLAVES_INFO[slave_]->product_code)
+		call com_putLong("revision",		EC_SLAVES_INFO[slave_]->revision_number)
+		call com_putLong("serialnumber",	EC_SLAVES_INFO[slave_]->serial_number)
+		call com_putLong("alias",			EC_SLAVES_INFO[slave_]->alias)
+	next
+	call logSend
+
+<?
+	foreach($etc as $dev) {
+		switch ($dev['device']) {
+			case 'cdhd':
+#				ll('call EC_REMAP_CDHD_DEFAULT_PDOS('.$dev['address'].')');
+				break;
+		}
+	}
+?>
+
+	dummy_ = EC_RESCAN_SLAVES
+	sleep 500
+	dummy_ = CHECK_TOPOLOGY
+
+	call EC_CREATE_MASTER
+	call EC_SET_BUS_CYCLETIME(4000)
+
+<?
+	foreach($etc as $dev) {
+		switch ($dev['device']) {
+			case 'cdhd':
+				ll('call EC_CDHD_SET_PDOS('.$dev['address'].', etc_busnumber, 0, CDHD_OPMODE_SYNC_POSITION)');
+				ll('call EC_USE_SLAVE('.$dev['address'].', EC_SLAVES_INFO['.$dev['address'].']->vendor_id, EC_SLAVES_INFO['.$dev['address'].']->product_code, "ECAT_AXIS_SLAVE", true)');
+				ll('call etc_sdoWrite('.$dev['address'].', 0x6060, 0, 8,  CDHD_OPMODE_SYNC_POSITION)');
+				ll('call etc_sdoWrite('.$dev['address'].', 0x60C0, 0, 16, 2)');
+				ll('call etc_sdoWrite('.$dev['address'].', 0x6040, 0, 16, 128)');
+				break;
+			case 'wago':
+			case 'pilz':
+			case 'hilscher':
+				ll('call EC_USE_SLAVE('.$dev['address'].', EC_SLAVES_INFO['.$dev['address'].']->vendor_id, EC_SLAVES_INFO['.$dev['address'].']->product_code, "ECAT_IOMODULE_SLAVE", true)');
+				break;
+		}
+	}
+?>
+
+	call EC_STARTMASTER
+end sub
+
+
+
+public sub etc_write(byval slave_ as long, byval index_ as long, byval subindex_ as long, byval size_ as long, byval value_ as long)
+	if EC_IS_PDO(slave_, index_, subindex_) then
+		call etc_pdoWrite(slave_, index_, subindex_, value_)
+	else
+		call etc_sdoWrite(slave_, index_, subindex_, size_, value_)
+	end if
+end sub
+
+public function etc_read(byval slave_ as long, byval index_ as long, byval subindex_ as long) as long
+	if EC_IS_PDO(slave_, index_, subindex_) then
+		etc_read = etc_pdoRead(slave_, index_, subindex_)
+	else
+		etc_read = etc_sdoRead(slave_, index_, subindex_)
+	end if
+end function
+
+
+
+<?$etc_xdoReadWriteBody = function($cmd, $valueType=false) {
+	ll('try');
+	lll($cmd);
+	ll('catch else');
+	lll('call logLibError(scope+": "+error)');
+	lll('call com_putLong("error", errornumber)');
+	lll('call log_putCodeFunc(scope)');
+	lll('call com_putLong("slave", slave_)');
+	lll('call com_putString("index", hex$(index_)+"h")');
+	lll('call com_putLong("subindex", subindex_)');
+	if ($valueType) lll('call com_put'.ucfirst($valueType).'("value", value_)');
+	lll('call logSend');
+	ll('finally');
+	lll('throw');
+	ll('end try');
+}?>
+
+
+public sub etc_pdoWrite(byval slave_ as long, byval index_ as long, byval subindex_ as long, byval value_ as long)
+<?	$etc_xdoReadWriteBody('call EC_PDO_WRITE(slave_, index_, subindex_, value_)', 'long')?>
+end sub
+
+public function etc_pdoRead(byval slave_ as long, byval index_ as long, byval subindex_ as long) as long
+<?	$etc_xdoReadWriteBody('etc_pdoRead = EC_PDO_READ(slave_, index_, subindex_)')?>
+end function
+
+
+public sub etc_sdoWrite(byval slave_ as long, byval index_ as long, byval subindex_ as long, byval size_ as long, byval value_ as long)
+<?	$etc_xdoReadWriteBody('call EC_SDO_WRITE(slave_, index_, subindex_, size_, value_)', 'long')?>
+end sub
+
+public function etc_sdoRead(byval slave_ as long, byval index_ as long, byval subindex_ as long) as long
+<?	$etc_xdoReadWriteBody('etc_sdoRead = EC_SDO_READ(slave_, index_, subindex_)')?>
+end function

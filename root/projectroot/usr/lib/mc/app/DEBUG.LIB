@@ -1,0 +1,52 @@
+
+dim shared pollIntervalMs as const long		= 250
+
+dim shared comDebugServer as long	= 0
+
+
+
+<? lib_init() ?>
+<?	libComOpenServerWebsocket('comDebugServer', 5610, ['long("receive", false)']) ?>
+end sub
+
+
+<? lib_start() ?>
+end sub
+
+
+<? lib_stop() ?>
+end sub
+
+
+
+<? lib_prgLoop(16) ?>
+	if com_connectedWait(comDebugServer, debug_prgActive) then
+		call com_clear
+		call pollData
+		call com_send(comDebugServer)
+		sleep pollIntervalMs
+	end if
+end sub
+
+
+
+sub pollData
+<?
+	foreach($simio as $io) {
+		ll('call com_put'.ucfirst($io['type']).'("'.explode('_', $io['name'])[0].'.'.$io['name'].' ('.$io['dir'].')", '.($io['dir']=='out'?$io['app']:$io['name']).')');
+	}
+
+	foreach($robot as $rbt) {
+		ll('call com_putLong("'.$rbt['name'].'.enable", '.$rbt['name'].'.enable)');
+		ll('call com_putJoint'.ucfirst($rbt['type']).'("'.$rbt['name'].'.positionFeedback", '.$rbt['name'].'.positionFeedback)');
+	}
+
+	foreach($axis as $ax) {
+		ll('call com_putLong("'.$ax['name'].'.enable", '.$ax['name'].'.enable)');
+		ll('call com_putDouble("'.$ax['name'].'.positionFeedback", '.$ax['name'].'.positionFeedback)');
+		ll('call com_putDouble("'.$ax['name'].'.torqueFeedback", '.$ax['name'].'.torqueFeedback)');
+	}
+
+	include 'debug.inc';
+?> 
+end sub

@@ -1,0 +1,9 @@
+/dev/sda1        /mnt/boot      vfat     noauto,x-systemd.automount,ro                                                                0 0
+/dev/sda2        /mnt/switch    vfat     noauto,x-systemd.automount,x-systemd.idle-timeout=10,defaults                                0 1
+/dev/sda3        /mnt/root      ext4     noauto,x-systemd.automount,ro                                                                0 1
+
+/dev/sda4        /var           ext4     auto,defaults,nofail                                                                         0 1
+overlay          /etc           overlay  auto,x-systemd.requires=var-etc.service,lowerdir=/etc,upperdir=/var/etc,workdir=/var/.etc    0 0
+
+#/dev/disk/usb    /mnt/usb       auto     noauto,ro                                                                                    0 0
+

@@ -1,0 +1,125 @@
+
+dim shared pollIntervalMs as const long		= 250
+
+dim shared comSimioServer as long
+
+
+
+<?lib_init()?>
+end sub
+
+
+<?lib_start()?>
+<?	libComOpenServerWebsocket('comSimioServer', 6002, ['long("connect.receiveEmpty", true)'])?>
+end sub
+
+
+<?lib_stop()?>
+	call com_close(comSimioServer)
+end sub
+
+
+
+<? lib_prgLoop(16) ?>
+	if com_connectedWait(comSimioServer, simio_prgActive) then
+		call com_clear
+		if com_receiveWaitTimed(comSimioServer, pollIntervalMs) then
+			if com_empty then
+				call putList
+			else
+				try
+					call handleOverride
+				catch else
+					call logPrgError
+					call logSend
+				end try
+				call com_clear
+			end if
+		end if
+		try
+			call updateInputs
+		catch else
+			call logPrgError
+			call logSend
+		end try
+		call putUpdate
+		call com_send(comSimioServer)
+	end if
+end sub
+
+
+
+sub handleOverride
+	select case com_getLong("id")
+<?
+	foreach($simio as $io) {
+		ll('case '.$io['id']);
+		lll('select case com_getLong("ord")');
+		
+		lll('case 0');
+		if (!$io['sim']) {
+			if ($io['dir'] == 'out') {
+				llll($io['io'].' = '.$io['app']);
+				llll('call '.$io['set'].'('.$io['io'].')');
+			}
+			llll($io['ord'].' = 0');
+		}
+		
+		lll('case 1');
+		llll($io['ord'].' = 1');
+		
+		lll('case 2');
+		if ($io['dir'] == 'in') {
+			llll($io['app'].' = com_get'.ucfirst($io['type']).'("io")');
+			llll($io['ord'].' = 1');
+		} else if (!$io['sim']) {
+			llll($io['ord'].' = 1');
+			llll($io['io'].'  = com_get'.ucfirst($io['type']).'("io")');
+			llll('call '.$io['set'].'('.$io['io'].')');
+		}
+		
+		lll('end select');
+	}
+?>
+	end select
+end sub
+
+
+sub updateInputs
+<?
+	foreach($simio as $io) {
+		if (!$io['sim'] && $io['dir'] == 'in') {
+			ll('call '.$io['get'].'('.$io['io'].')');
+			ll('if not '.$io['ord'].' then');
+			lll($io['app'].' = '.$io['io']);
+			ll('end if');
+		}
+	}
+?>
+end sub
+
+
+sub putUpdate
+<?
+	foreach($simio as $io) {
+		ll('call com_with("'.$io['id'].'")');
+		lll('call com_putLong("ord", '.$io['ord'].')');
+		lll('call com_put'.ucfirst($io['type']).'("app", '.$io['app'].')');
+		lll('call com_put'.ucfirst($io['type']).'("io",  '.$io['io'].')');
+	}
+?>
+end sub
+
+
+sub putList
+<?
+	foreach($simio as $io) {
+		ll('call com_with("'.$io['id'].'")');
+		lll('call com_putLong("id",  '.$io['id'].')');
+		lll('call com_putLong("sim", '.$io['sim'].')');
+		lll('call com_putString("dir",  "'.$io['dir'].'")');
+		lll('call com_putString("name", "'.$io['name'].'")');
+		lll('call com_putString("type", "'.$io['type'].'")');
+	}
+?>
+end sub

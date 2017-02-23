@@ -1,0 +1,12 @@
+#!/bin/sh
+
+HOST=${1-192.168.173.1}
+
+SCRIPT=$0
+BASEDIR=$(dirname $SCRIPT)
+
+cd $BASEDIR
+
+
+scp -i ssh/id_rsa ../images/update root@$HOST:/mnt/switch/.update \
+	&& ssh -i ssh/id_rsa root@$HOST mv /mnt/switch/.update /mnt/switch/update

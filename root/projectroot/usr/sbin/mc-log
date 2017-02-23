@@ -1,0 +1,51 @@
+#!/usr/bin/python3
+
+import logging, argparse, time, json
+from systemd import journal
+from tornado import ioloop, gen, websocket
+
+
+logging.root.addHandler(journal.JournalHandler())
+logging.root.setLevel(logging.INFO)
+
+parser = argparse.ArgumentParser()
+parser.add_argument("host")
+parser.add_argument("port")
+args = parser.parse_args()
+
+
+
+def export(msg):
+	for key, value in msg.items():
+		if not isinstance(value, str) or '\n' in value:
+			value = json.dumps(value)
+		print('{}={}'.format(key.upper(), value))
+	print()
+
+
+def process(msg):
+	msg['__REALTIME_TIMESTAMP']		= int(time.time()      * 1000000)
+	msg['__MONOTONIC_TIMESTAMP']	= int(time.monotonic() * 1000000)
+	msg['_HOSTNAME']				= args.host
+	msg['SYSLOG_IDENTIFIER']		= msg.get('lib', 'mc')
+	
+	export(msg)
+
+
+@gen.coroutine
+def receive():
+	log = yield websocket.websocket_connect('ws://{}:{}'.format(args.host, args.port))
+	logging.info('connected')
+
+	while True:
+		msgJson = yield log.read_message()
+		if msgJson is None:
+			break
+		process(json.loads(msgJson))
+
+
+
+try:
+	ioloop.IOLoop.current().run_sync(receive)
+except Exception as e:
+	logging.error(e)

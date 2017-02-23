@@ -1,0 +1,4 @@
+.git-af
+/boot/platform-*/
+/root/platform-*/
+/**/configs/**/*.old

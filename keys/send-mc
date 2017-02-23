@@ -1,0 +1,11 @@
+#!/bin/sh
+
+HOST=192.168.173.1
+
+SCRIPT=$0
+BASEDIR=$(dirname $SCRIPT)
+
+cd $BASEDIR
+
+
+scp -i ssh/id_rsa -r ../mc root@$HOST:/usr/lib/  &&  ssh -i ssh/id_rsa root@$HOST mc-update

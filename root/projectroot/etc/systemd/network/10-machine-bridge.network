@@ -1,0 +1,12 @@
+[Match]
+Name=machine
+
+[Network]
+Address=192.168.173.1/24
+DHCPServer=yes
+IPForward=yes
+
+[DHCPServer]
+PoolOffset=200
+PoolSize=50
+EmitRouter=no

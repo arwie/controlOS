@@ -1,0 +1,93 @@
+
+common shared log_prioCritical	as const long	= 2
+common shared log_prioError		as const long	= 3
+common shared log_prioWarning	as const long	= 4
+common shared log_prioNotice	as const long	= 5
+common shared log_prioInfo		as const long	= 6
+common shared log_prioDebug		as const long	= 7
+
+common shared log_priority		as const long	= <? if ($sim) { ?>log_prioDebug<? } else { ?>log_prioInfo<? } ?> 
+common shared log_priorityPrint	as const long	= <? if ($sim) { ?>log_prioDebug<? } else { ?>log_prioWarning<? } ?> 
+
+
+dim shared comLogChannel as long
+dim shared comLogServer  as long
+
+
+
+public sub log_message(byval prio_ as long, byval message_ as string)
+	call log_messageRef(prio_, message_)
+end sub
+
+public sub log_messageRef(byval prio_ as long, message_ as string)
+	call com_clear
+	call com_putLong("priority", prio_)
+	call com_putStringRef("message", message_)
+end sub
+
+
+public sub log_putMessageId(byval messageId_ as string)
+	call com_putStringRef("message_id", messageId_)
+end sub
+
+public sub log_putCodeFunc(byval codeFunc_ as string)
+	call com_putStringRef("code_func", codeFunc_)
+end sub
+
+
+public sub log_send
+	try
+		call com_send(comLogChannel)
+	catch else
+		print "ERROR: log failed to send"
+	end try
+end sub
+
+
+
+<?lib_init()?>
+<?	libComOpen('comLogChannel', 'log', ['long("priority", log_priority)'])?> 
+end sub
+
+
+<?lib_start()?>
+<?	libComOpenServerWebsocket('comLogServer', 5600, ['long("receive", false)'])?>
+end sub
+
+
+
+<?lib_prgLoop(16)?>
+	if com_receiveWait(comLogChannel, log_prgActive) then
+		if com_connectedWait(comLogServer, log_prgActive) then
+			call com_send(comLogServer)
+		end if
+		call printLog
+	end if
+end sub
+
+
+
+sub printLog
+	dim prio as long
+	try
+		prio = com_getLong("priority")
+		if prio <= log_priorityPrint then
+			select case prio
+			case log_prioCritical
+				print "CRITICAL: ";
+			case log_prioError
+				print "ERROR:    ";
+			case log_prioWarning
+				print "WaRnInG:  ";
+			case log_prioNotice
+				print " Notice:  ";
+			case log_prioInfo
+				print "  info:   ";
+			case log_prioDebug
+				print "   debug: ";
+			end select
+			print com_getString("message")
+		end if
+	catch else
+	end try
+end sub

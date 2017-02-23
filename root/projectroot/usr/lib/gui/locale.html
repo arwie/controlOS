@@ -1,0 +1,33 @@
+<li data-bind="with: locale" class="dropdown">
+	<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+		<span class="glyphicon glyphicon-globe"></span>
+		<span data-l10n-id="locale"></span>
+		<span class="caret"></span>
+	</a>
+	<ul data-bind="foreach: locales" class="dropdown-menu">
+		<li>
+			<a data-bind="click: $parent.change, text: $data[1]" href="#"></a>
+		</li>
+	</ul>
+</li>
+
+
+
+<script>(function(){
+	
+gui.locale = new function() {
+	let self = this;
+	
+	self.locales	= [
+		['en', 'English'],
+		['de', 'Deutsch'],
+//		['ru', 'Русский'],
+//		['he', 'עִברִית'],
+	];
+	
+	self.change		= function(locale) {
+		document.l10n.requestLanguages([locale[0]]);
+	};
+}
+
+})();</script>

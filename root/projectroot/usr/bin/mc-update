@@ -1,0 +1,63 @@
+#!/bin/sh
+
+MC="mc@mc"
+MCROOT="root@mc"
+
+CONF=/usr/lib/mc/conf
+APPSRC=/usr/lib/mc/app
+APP=/tmp/mc-app
+
+PHP="php5 -n -d display_errors=stderr"
+SSH="ssh"
+SCP="scp -q"
+
+
+debug() { echo "$1" 1>&2; }
+
+errexit()
+{
+	debug "ERROR: $1"
+	exit 1
+}
+
+
+
+MC_VERID=$($SSH $MC "cat ver-id || echo 0")								|| errexit "failed to connect to mc"
+MC_APPID=$($SSH $MC "cat app-id || echo 0")								|| errexit "failed to connect to mc"
+
+
+VERID=$(cat /version-id)
+if [ "$MC_VERID" != "$VERID" ]; then	# copy configuration files
+	$SSH $MCROOT "mount -o remount,rw /"								|| errexit "remount rw rootfs on mc"
+	$SCP -r $CONF/* $MCROOT:/											|| errexit "copy configuration files to mc"
+	$SSH $MC "echo $VERID > ver-id"										|| errexit "update ver-id on mc"
+	REBOOT=yes
+	echo "copied configuration files to mc"
+fi
+
+
+# build application php files
+mkdir -p $APP															|| errexit "mkdir $APP"
+cd $APPSRC
+$PHP main.php $APP														|| errexit "build application files"
+
+
+APPID=$(cat $APP/* | md5sum | cut -d ' ' -f 1)
+if [ "$MC_APPID" != "$APPID" ]; then	# copy app files
+	$SCP $APP/* $MC:/FFS0/SSMC/											|| errexit "copy application files to mc"
+	$SSH $MC "echo $APPID > app-id"										|| errexit "update app-id on mc"
+	REBOOT=yes
+	echo "copied application files to mc"
+fi
+
+
+# update stamp and reboot
+if [ -n "$REBOOT" ]; then
+	$SSH $MC "sudo reboot"												|| errexit "reboot mc"
+	echo "mc updated successfully"
+else
+	echo "mc is up to date"
+fi
+
+
+exit 0

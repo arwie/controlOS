@@ -1,0 +1,89 @@
+
+common shared prgPriorityHigh		as const long		= 8
+common shared prgPriorityNormal		as const long		= 10
+common shared prgPriorityLow		as const long		= 12
+
+common shared errorApplication		as error	"error in application"		20810
+
+
+IMPORT_C SHELL(byval as string) as string
+
+
+
+public function sh(byval cmd_ as string) as string
+	sh = SHELL(cmd_)
+end function
+
+
+public function max(byval a as double, byval b as double) as double
+  if a > b then
+    max = a
+  else
+    max = b
+  end if
+end function
+
+public function maxl(byval a as long, byval b as long) as long
+  if a > b then
+    maxl = a
+  else
+    maxl = b
+  end if
+end function
+
+
+public function min(byval a as double, byval b as double) as double
+  if a < b then
+    min = a
+  else
+    min = b
+  end if
+end function
+
+public function minl(byval a as long, byval b as long) as long
+  if a < b then
+    minl = a
+  else
+    minl = b
+  end if
+end function
+
+
+
+public function sinDeg(byval angle_ as double) as double
+	sinDeg = sin(angle_*PI/180)
+end function
+
+public function cosDeg(byval angle_ as double) as double
+	cosDeg = cos(angle_*PI/180)
+end function
+
+
+public function normDeg(byval angle_ as double) as double
+	normDeg = angle_ mod 360
+	if abs(normDeg) > 180 then
+		normDeg = normDeg - sgn(normDeg)*360
+	end if
+end function
+
+
+
+public function taskIsRunning(byval task_ as string) as long
+	try
+		taskIsRunning = (taskstate(task_) <> TASK_KILLED)
+	catch else
+		taskIsRunning = false
+	end try
+end function
+
+
+public sub taskKillUnload(byval task_ as string)
+	try 
+		killtask$ task_
+	catch else
+	end try
+	try 
+		unload$ task_
+	catch else
+	end try
+end sub

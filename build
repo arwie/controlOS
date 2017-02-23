@@ -1,0 +1,13 @@
+#!/bin/sh
+
+SCRIPT=$(readlink -f $0)
+BASEDIR=$(dirname $SCRIPT)
+
+
+cd $BASEDIR/root
+./build				|| exit 1
+
+cd $BASEDIR/boot
+ptxdist images		|| exit 1
+
+exit 0

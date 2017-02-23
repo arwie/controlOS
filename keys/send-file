@@ -1,0 +1,11 @@
+#!/bin/sh
+
+HOST=192.168.173.1
+
+SCRIPT=$0
+BASEDIR=$(dirname $SCRIPT)
+
+cd $BASEDIR
+
+
+scp -i ssh/id_rsa -r $1 root@$HOST:$2

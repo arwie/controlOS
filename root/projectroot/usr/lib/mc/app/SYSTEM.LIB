@@ -1,0 +1,61 @@
+
+<?lib_prgStart()?>
+	call etc_init
+	call can_init
+	
+<?	if (!empty($etc))
+		ll('call etc_start')?>
+<?	if (!empty($can))
+		ll('call can_start')?>
+
+	call etc_wait
+	call can_wait
+
+<?	foreach($axis as $ax) 
+		ll('call '.$ax['name'].'_axisSetup')?>
+
+<?	foreach($robot as $rbt)
+		ll('call '.$rbt['name'].'_robotSetup')?>
+
+<?	foreach($axis as $ax) 
+		if ($ax['simulated']) {
+			ll($ax['name'].'.simulated					= true');
+		} else {
+			ll($ax['name'].'.busnumber					= '.$ax['bus'].'_busnumber');
+			ll($ax['name'].'.driveaddress				= '.$ax['address']);
+		}
+?>
+
+	call drivelog_init
+	call drivelog_start
+	call simio_init
+	call simio_start
+	call debug_init
+	call debug_start
+
+<?	foreach ($libs['app'] as $l) 
+		ll('call '.$l['name'].'_init')?>
+
+<?	ll('call '.end($libs['app'])['name'].'_start')?>
+end sub
+
+
+
+<?lib_prgLoop()?>
+	sleep 500
+end sub
+
+
+
+<?lib_prgStop()?>
+<?	ll('call '.end($libs['app'])['name'].'_stop')?>
+
+	call debug_stop
+	call simio_stop
+	call drivelog_stop
+
+<?	if (!empty($can))
+		ll('call can_stop')?>
+<?	if (!empty($etc))
+		ll('call etc_stop')?>
+end sub
