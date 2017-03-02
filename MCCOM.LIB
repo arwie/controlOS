@@ -20,14 +20,9 @@
 common shared com_version					as const long		= 1
 
 common shared com_channelLog				as const long		= 1
-common shared com_channelShell				as const long		= 2
-common shared com_channelState				as const long		= 3
-common shared com_channelFifo				as const long		= 4
-common shared com_channelChangenotify		as const long		= 5
-common shared com_channelFileRead			as const long		= 6
-common shared com_channelFileWrite			as const long		= 7
-common shared com_channelServerWebsocket	as const long		= 8
-common shared com_channelClientHaasMnet		as const long		= 9
+common shared com_channelState				as const long		= 2
+common shared com_channelFifo				as const long		= 3
+common shared com_channelWebsocket			as const long		= 4
 
 common shared com_error						as error	"error in module mccom"		20800
 

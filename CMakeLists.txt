@@ -18,28 +18,21 @@ set_target_properties(libboost_system PROPERTIES
 	IMPORTED_LOCATION ${BOOST_SYSTEM_PATH}
 )
 
-find_library(BOOST_REGEX_PATH libboost_regex-mt.a)
-add_library(libboost_regex STATIC IMPORTED)
-set_target_properties(libboost_regex PROPERTIES
-	IMPORTED_LOCATION ${BOOST_REGEX_PATH}
-)
-
 target_link_libraries(mccom
 	libboost_system
-	libboost_regex
 )
 
 
 #<hack purpose="workaround for outdated libc/libstdcpp on the target">
 add_library(libstdcpp STATIC IMPORTED)
 set_target_properties(libstdcpp PROPERTIES
-	IMPORTED_LOCATION /opt/OSELAS.Toolchain-2014.12.2/i586-unknown-linux-gnu/gcc-4.9.2-glibc-2.20-binutils-2.24-kernel-3.16-sanitized/i586-unknown-linux-gnu/lib/libstdc++.a
+	IMPORTED_LOCATION /opt/OSELAS.Toolchain-2016.06.1/i586-unknown-linux-gnu/gcc-5.4.0-glibc-2.23-binutils-2.26-kernel-4.6-sanitized/i586-unknown-linux-gnu/lib/libstdc++.a
 #	IMPORTED_LOCATION /opt/OSELAS.Toolchain-2014.12.2/arm-v7a-linux-gnueabihf/gcc-4.9.2-glibc-2.20-binutils-2.24-kernel-3.16-sanitized/arm-v7a-linux-gnueabihf/lib/libstdc++.a
 )
 
 add_library(libc STATIC IMPORTED)
 set_target_properties(libc PROPERTIES
-	IMPORTED_LOCATION /opt/OSELAS.Toolchain-2014.12.2/i586-unknown-linux-gnu/gcc-4.9.2-glibc-2.20-binutils-2.24-kernel-3.16-sanitized/sysroot-i586-unknown-linux-gnu/usr/lib/libc.a
+	IMPORTED_LOCATION /opt/OSELAS.Toolchain-2016.06.1/i586-unknown-linux-gnu/gcc-5.4.0-glibc-2.23-binutils-2.26-kernel-4.6-sanitized/sysroot-i586-unknown-linux-gnu/usr/lib/libc.a
 #	IMPORTED_LOCATION /opt/OSELAS.Toolchain-2014.12.2/arm-v7a-linux-gnueabihf/gcc-4.9.2-glibc-2.20-binutils-2.24-kernel-3.16-sanitized/sysroot-arm-v7a-linux-gnueabihf/usr/lib/libc.a
 )
 

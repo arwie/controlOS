@@ -2,19 +2,19 @@
 * Copyright (c) 2016 Artur Wiebe <artur@4wiebe.de>
 */
 
-#ifndef CHANNELSERVERWEBSOCKET_HPP_
-#define CHANNELSERVERWEBSOCKET_HPP_
+#ifndef CHANNELWEBSOCKET_HPP_
+#define CHANNELWEBSOCKET_HPP_
 
 #include <websocketpp/config/asio_no_tls.hpp>
 #include <websocketpp/server.hpp>
 
 
-class ChannelServerWebsocket : public ConnectingChannel
+class ChannelWebsocket : public ConnectingChannel
 {
 public:
 
-	ChannelServerWebsocket(const Message& args)
-		: Channel("serverWebsocket", args), ConnectingChannel(args)
+	ChannelWebsocket(const Message& args)
+		: Channel("websocket", args), ConnectingChannel(args)
 	{
 		port				= args.get<int>("port");
 		auto receive		= args.get<bool>("receive", true);
@@ -98,4 +98,4 @@ private:
 	mutex connectionsMtx;
 };
 
-#endif /* CHANNELSERVERWEBSOCKET_HPP_ */
+#endif /* CHANNELWEBSOCKET_HPP_ */

@@ -16,7 +16,6 @@
 #include <memory>
 #include <functional>
 #include <exception>
-#include <boost/regex.hpp>
 
 using namespace std;
 
@@ -34,13 +33,9 @@ static void logMsg(Log&&);
 #include "Log.hpp"
 #include "Channel.hpp"
 #include "ChannelLog.hpp"
-#include "ChannelShell.hpp"
 #include "ChannelState.hpp"
-#include "ChannelFile.hpp"
 #include "ChannelFifo.hpp"
-#include "ChannelChangenotify.hpp"
-#include "ChannelServerWebsocket.hpp"
-#include "ChannelClientHaasMnet.hpp"
+#include "ChannelWebsocket.hpp"
 #include "Manager.hpp"
 
 #include "amcs.h"
@@ -57,14 +52,9 @@ static int mccom_open(int channelType, int *error) noexcept
 	try {
 		switch(channelType) {
 			case  1: return manager.openChannel(make_shared<ChannelLog>				(*messagePtr));
-			case  2: return manager.openChannel(make_shared<ChannelShell>			(*messagePtr));
-			case  3: return manager.openChannel(make_shared<ChannelState>			(*messagePtr));
-			case  4: return manager.openChannel(make_shared<ChannelFifo>			(*messagePtr));
-			case  5: return manager.openChannel(make_shared<ChannelChangenotify>	(*messagePtr));
-			case  6: return manager.openChannel(make_shared<ChannelFileRead>		(*messagePtr));
-			case  7: return manager.openChannel(make_shared<ChannelFileWrite>		(*messagePtr));
-			case  8: return manager.openChannel(make_shared<ChannelServerWebsocket>	(*messagePtr));
-			case  9: return manager.openChannel(make_shared<ChannelClientHaasMnet>	(*messagePtr));
+			case  2: return manager.openChannel(make_shared<ChannelState>			(*messagePtr));
+			case  3: return manager.openChannel(make_shared<ChannelFifo>			(*messagePtr));
+			case  4: return manager.openChannel(make_shared<ChannelWebsocket>		(*messagePtr));
 			default: throw exception();
 		}
 	} catch (exception& e) {
