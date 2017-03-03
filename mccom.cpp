@@ -63,40 +63,7 @@ static int mccom_open(int channelType, int *error) noexcept
 	return -1;
 }
 
-static int mccom_connected(int channelId, int *error) noexcept
-{
-	*error = 0;
-	try {
-		return manager.getChannel(channelId)->connected();
-	} catch (exception& e) {
-		*error = 1;
-	}
-	return false;
-}
-
-static int mccom_connected_timed(int channelId, chrono::milliseconds timeout, int *error) noexcept
-{
-	*error = 0;
-	try {
-		return manager.getChannel(channelId)->connected(timeout);
-	} catch (exception& e) {
-		*error = 1;
-	}
-	return false;
-}
-
-static int mccom_receive(int channelId, int *error) noexcept
-{
-	*error = 0;
-	try {
-		return manager.getChannel(channelId)->receive(messagePtr);
-	} catch (exception& e) {
-		*error = 1;
-	}
-	return false;
-}
-
-static int mccom_receive_timed(int channelId, chrono::milliseconds timeout, int *error) noexcept
+static int mccom_receive(int channelId, chrono::milliseconds timeout, int *error) noexcept
 {
 	*error = 0;
 	try {
@@ -307,20 +274,8 @@ extern "C" {
 		return mccom_open(channelType, error);
 	}
 
-	int MCCOM_CONNECTED(int channelId, int *error) {
-		return mccom_connected(channelId, error);
-	}
-
-	int MCCOM_CONNECTED_TIMED(int channelId, int timeout, int *error) {
-		return mccom_connected_timed(channelId, chrono::milliseconds(timeout), error);
-	}
-
-	int MCCOM_RECEIVE(int channelId, int *error) {
-		return mccom_receive(channelId, error);
-	}
-
-	int MCCOM_RECEIVE_TIMED(int channelId, int timeout, int *error) {
-		return mccom_receive_timed(channelId, chrono::milliseconds(timeout), error);
+	int MCCOM_RECEIVE(int channelId, int timeout, int *error) {
+		return mccom_receive(channelId, chrono::milliseconds(timeout), error);
 	}
 
 	void MCCOM_SEND(int channelId, int *error) {

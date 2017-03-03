@@ -6,10 +6,10 @@
 #define CHANNELFIFO_HPP_
 
 
-class ChannelFifo : public BlockingChannel
+class ChannelFifo : public QueuingChannel
 {
 public:
-	ChannelFifo(const Message& args) : Channel("fifo", args), BlockingChannel(args)	{}
+	ChannelFifo(const Message& args) : Channel("fifo", args), QueuingChannel(args)	{}
 
 	void send(const Message& message) override
 	{

@@ -9,16 +9,15 @@
 #include <websocketpp/server.hpp>
 
 
-class ChannelWebsocket : public ConnectingChannel
+class ChannelWebsocket : public QueuingChannel
 {
 public:
 
 	ChannelWebsocket(const Message& args)
-		: Channel("websocket", args), ConnectingChannel(args)
+		: Channel("websocket", args), QueuingChannel(args)
 	{
 		port				= args.get<int>("port");
 		auto receive		= args.get<bool>("receive", true);
-		connectReceiveEmpty	= args.get<bool>("connect.receiveEmpty", false);
 
 		log.put("port", port);
 		log.put("receive", receive);
@@ -26,16 +25,13 @@ public:
 		wsServer.init_asio();
 		wsServer.set_reuse_addr(true);
 		wsServer.clear_access_channels(websocketpp::log::alevel::frame_header | websocketpp::log::alevel::frame_payload);
-		setConnected(false);
 
 		wsServer.set_open_handler([this](websocketpp::connection_hdl hdl)
 		{
 			{ lock_guard<mutex> lock(connectionsMtx);
 				connections.insert(hdl);
 			}
-			setConnected(!connections.empty());
-			if (connectReceiveEmpty)
-				pushMessage(make_unique<Message>());
+			pushMessage(make_unique<Message>(Message::Event::connect));
 		});
 
 		wsServer.set_close_handler([this](websocketpp::connection_hdl hdl)
@@ -43,7 +39,8 @@ public:
 			{ lock_guard<mutex> lock(connectionsMtx);
 				connections.erase(hdl);
 			}
-			setConnected(!connections.empty());
+			if (connections.empty())
+				pushMessage(make_unique<Message>(Message::Event::disconnect));
 		});
 
 		if (receive) {
@@ -58,7 +55,7 @@ public:
 	{
 		wsServer.listen(websocketpp::lib::asio::ip::tcp::v4(), port);
 		wsServer.start_accept();
-		ConnectingChannel::open();
+		QueuingChannel::open();
 	}
 
 
@@ -83,7 +80,7 @@ public:
 	void close() override
 	{
 		wsServer.stop();
-		ConnectingChannel::close();
+		QueuingChannel::close();
 	}
 
 
@@ -92,7 +89,6 @@ private:
 	using WsServer = websocketpp::server<websocketpp::config::asio>;
 
 	int port;
-	bool connectReceiveEmpty;
 	WsServer wsServer;
 	set<websocketpp::connection_hdl, std::owner_less<websocketpp::connection_hdl>> connections;
 	mutex connectionsMtx;

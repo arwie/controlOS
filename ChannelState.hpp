@@ -6,34 +6,47 @@
 #define CHANNELSTATE_HPP_
 
 
-class ChannelState : public StatefulChannel
+class ChannelState : public Channel
 {
 public:
-	ChannelState(const Message& args) : Channel("state", args), StatefulChannel(args)	{}
+	ChannelState(const Message& args) : Channel("state", args)	{}
 
-	void send(const Message& update) override
+	int receive(MessagePtr& message, chrono::milliseconds timeout) override
 	{
-		lock_guard<mutex> lock(stateMtx);
+		unique_lock<mutex> lock(blockMtx);
 
-		for (auto& kv : update)
-		{
-			auto& key = kv.first;
-			auto& newValue = kv.second;
-
-			state.put_child(key, newValue);
+		if (timeout.count() > 0) {
+			blockCond.wait_for(lock, timeout, [this]() { return state || closed; });
 		}
+
+		if (!state || closed)
+			return false;
+
+		message = make_unique<Message>(*state);
+
+		return message->event;
 	}
 
 
-	bool receive(MessagePtr& message) override
+	void send(const Message& message) override
 	{
-		lock_guard<mutex> lock(stateMtx);
-
-		message.reset(new Message(state));
-
-		return true;
+		{ lock_guard<mutex> lock(blockMtx);
+			state = make_unique<Message>(message);
+		}
+		blockCond.notify_all();
 	}
 
+
+	void reset() override
+	{
+		{ lock_guard<mutex> lock(blockMtx);
+			state.reset();
+		}
+		Channel::reset();
+	}
+
+
+	MessagePtr state;
 };
 
 #endif /* CHANNELSTATE_HPP_ */

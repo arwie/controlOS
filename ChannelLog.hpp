@@ -21,11 +21,11 @@ static void logMsg(Log&& msg)
 }
 
 
-class ChannelLog : public BlockingChannel
+class ChannelLog : public QueuingChannel
 {
 public:
 	ChannelLog(const Message& args)
-		: Channel("log", args), BlockingChannel(args),
+		: Channel("log", args), QueuingChannel(args),
 		  base(args.get_child("base", Message())),
 		  priority(args.get<int>("priority", LogInfo::priority))
 	{}
@@ -35,7 +35,7 @@ public:
 		if (channelLog) throw exception();
 		channelLog = shared_from_this();
 
-		BlockingChannel::open();
+		QueuingChannel::open();
 	}
 
 	void send(const Message& message) override
@@ -65,7 +65,7 @@ public:
 	{
 		channelLog.reset();
 
-		BlockingChannel::close();
+		QueuingChannel::close();
 	}
 
 private:

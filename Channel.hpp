@@ -12,19 +12,23 @@ public:
 	virtual void send(const Message& message)		{ throw exception(); }
 	virtual void sendSelf(const Message& message)	{ throw exception(); }
 
-	virtual bool receive(MessagePtr& message)								{ throw exception(); }
-	virtual bool receive(MessagePtr& message, chrono::milliseconds timeout)	{ throw exception(); }
-
-	virtual bool connected()								{ throw exception(); }
-	virtual bool connected(chrono::milliseconds timeout)	{ throw exception(); }
+	virtual int receive(MessagePtr& message, chrono::milliseconds timeout)	{ throw exception(); }
 
 	virtual void run()			{}
     virtual bool needsRunner()	{ return false; }
 
 	virtual void open()		{ logMsg(LogInfo("channel opened")); }
 	virtual void reset()	{ logMsg(LogInfo("channel reset")); }
-	virtual void close()	{ logMsg(LogInfo("channel closed")); }
 	virtual ~Channel()		{ logMsg(LogDebug("channel destroyed")); }
+
+	virtual void close()
+	{
+		{ lock_guard<mutex> lock(blockMtx);
+			closed = true;
+		}
+		blockCond.notify_all();
+		logMsg(LogInfo("channel closed"));
+	}
 
 	virtual void logMsg(Log&& msg)
 	{
@@ -41,43 +45,23 @@ protected:
 		log.put("channel", channelName);
 	}
 
+	bool closed = false;
+	mutex blockMtx;
+	condition_variable blockCond;
 	Message log;
 };
 
 
 
-class StatefulChannel : public virtual Channel
+class QueuingChannel : public virtual Channel
 {
 public:
 
-	void reset() override
-	{
-		{ lock_guard<mutex> lock(stateMtx);
-			state.clear();
-		}
-		Channel::reset();
-	}
-
-protected:
-	StatefulChannel(const Message& args) : Channel("", args)	{}
-
-	Message state;
-	mutex stateMtx;
-};
-
-
-
-class BlockingChannel : public virtual Channel
-{
-public:
-
-	bool receive(MessagePtr& message) override { return receive(message, chrono::milliseconds(poll)); }
-
-	bool receive(MessagePtr& message, chrono::milliseconds timeout) override
+	int receive(MessagePtr& message, chrono::milliseconds timeout) override
 	{
 		unique_lock<mutex> lock(blockMtx);
 
-		if (timeout.count() != poll) {
+		if (timeout.count() > 0) {
 			blockCond.wait_for(lock, timeout, [this]() { return !receiveQueue.empty() || closed; });
 		}
 
@@ -87,7 +71,7 @@ public:
 		message = move(receiveQueue.front());
 		receiveQueue.pop();
 
-		return true;
+		return message->event;
 	}
 
 
@@ -108,20 +92,9 @@ public:
 		Channel::reset();
 	}
 
-	void close() override
-	{
-		{ lock_guard<mutex> lock(blockMtx);
-			closed = true;
-		}
-		blockCond.notify_all();
-		Channel::close();
-	}
-
 
 protected:
-	BlockingChannel(const Message& args) : Channel("", args)	{}
-
-	enum { poll = 0 };
+	QueuingChannel(const Message& args) : Channel("", args)	{}
 
 	void pushMessage(MessagePtr&& message)
 	{
@@ -131,49 +104,10 @@ protected:
 		blockCond.notify_all();
 	}
 
-	bool closed = false;
-	mutex blockMtx;
-	condition_variable blockCond;
-
 
 private:
 	queue<MessagePtr> receiveQueue;
 };
 
-
-
-class ConnectingChannel : public BlockingChannel
-{
-public:
-
-	bool connected() override { return connected(chrono::milliseconds(poll)); }
-
-	bool connected(chrono::milliseconds timeout) override
-	{
-		unique_lock<mutex> lock(blockMtx);
-
-		if (timeout.count() != poll) {
-			blockCond.wait_for(lock, timeout, [this]() { return isConnected || closed; });
-		}
-
-		return isConnected;
-	}
-
-
-protected:
-	ConnectingChannel(const Message& args) : Channel("", args), BlockingChannel(args)	{}
-
-	void setConnected(bool connected)
-	{
-		{ lock_guard<mutex> lock(blockMtx);
-			isConnected = connected;
-		}
-		blockCond.notify_all();
-	}
-
-
-private:
-	bool isConnected = false;
-};
 
 #endif /* CHANNEL_HPP_ */

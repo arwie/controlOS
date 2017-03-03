@@ -12,7 +12,15 @@
 class Message : public boost::property_tree::ptree
 {
 public:
+	enum Event {
+		message			= 1,
+		connect			= 10,
+		disconnect		= 11,
+	};
+
+
 	Message() {}
+	Message(const Event event) : event(event) {}
 	Message(const boost::property_tree::ptree& rhs) : boost::property_tree::ptree(rhs) {}
 
 	Message(const string& json)
@@ -72,6 +80,10 @@ public:
 	{
 		put_child(prefix+path, child);
 	}
+
+
+	Event event = Event::message;
+
 
 private:
 	string prefix;
