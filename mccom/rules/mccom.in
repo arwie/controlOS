@@ -1,0 +1,10 @@
+## SECTION=project_specific
+
+config MCCOM
+	bool
+	prompt "mccom"
+	select HOST_CMAKE
+	select BOOST
+	select WEBSOCKETPP
+	help
+	  FIXME

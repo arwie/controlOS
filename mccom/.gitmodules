@@ -1,0 +1,3 @@
+[submodule "local_src/mccom"]
+	path = local_src/mccom
+	url = /media/privat/MECHATRONIK/platform/mccom.git/
