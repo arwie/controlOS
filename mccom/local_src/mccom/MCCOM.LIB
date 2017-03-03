@@ -1,0 +1,452 @@
+' Copyright (c) 2016 Artur Wiebe <artur@4wiebe.de>
+'
+' Permission is hereby granted, free of charge, to any person obtaining a copy of this software and 
+' associated documentation files (the "Software"), to deal in the Software without restriction, 
+' including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+' and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
+' subject to the following conditions:
+'
+' The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+'
+' THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+' INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+' IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
+' WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
+' OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+'
+' Licenses of included libraries at the end of this file
+
+
+common shared com_channelLog				as const long		= 1
+common shared com_channelState				as const long		= 2
+common shared com_channelFifo				as const long		= 3
+common shared com_channelWebsocket			as const long		= 4
+
+common shared com_receiveTimeout			as const long		= 0
+common shared com_receiveMessage			as const long		= 1
+common shared com_receiveConnect			as const long		= 10
+common shared com_receiveDisconnect			as const long		= 11
+
+common shared com_error						as error	"error in module mccom"		20800
+
+
+
+import_c MCCOM_OPEN(byval as long, as long) as long
+import_c MCCOM_RECEIVE(byval as long, byval as long, as long) as long
+import_c MCCOM_SEND(byval as long, as long)
+import_c MCCOM_SEND_SELF(byval as long, as long)
+import_c MCCOM_RESET(byval as long)
+import_c MCCOM_CLOSE(byval as long)
+import_c MCCOM_CLOSE_ALL()
+import_c MCCOM_CLEAR(as long)
+import_c MCCOM_EMPTY(as long) as long
+import_c MCCOM_STORE(byval as long, as long)
+import_c MCCOM_RESTORE(as long)
+import_c MCCOM_DELETE(as string)
+import_c MCCOM_WITH(as string)
+import_c MCCOM_EXTRACT(as string, as long)
+import_c MCCOM_COMPACT(as string, as long)
+import_c MCCOM_RECEIVE_STRING(as string, as long)
+import_c MCCOM_SEND_STRING(as long) as string
+import_c MCCOM_GET_LONG(as string, as long) as long
+import_c MCCOM_GET_DOUBLE(as string, as long) as double
+import_c MCCOM_GET_STRING(as string, as long) as string
+import_c MCCOM_PUT_LONG(as string, byval as long, as long)
+import_c MCCOM_PUT_DOUBLE(as string, byval as double, as long)
+import_c MCCOM_PUT_STRING(as string, as string, as long)
+
+
+
+public function com_open(byval channleType as long) as long
+  dim err as long
+  com_open = MCCOM_OPEN(channleType, err)
+  if err then
+    throw com_error
+  end if
+end function
+
+
+public function com_receive(byval channelId as long, byval tout as long) as long
+  dim err as long
+  com_receive = MCCOM_RECEIVE(channelId, tout, err)
+  if err then
+    throw com_error
+  end if
+end function
+
+
+public sub com_send(byval channelId as long)
+  dim err as long
+  MCCOM_SEND(channelId, err)
+  if err then
+    throw com_error
+  end if
+end sub
+
+
+public sub com_sendSelf(byval channelId as long)
+  dim err as long
+  MCCOM_SEND_SELF(channelId, err)
+  if err then
+    throw com_error
+  end if
+end sub
+
+
+public sub com_reset(byval channelId as long)
+  MCCOM_RESET(channelId)
+end sub
+
+
+public sub com_close(byval channelId as long)
+  MCCOM_CLOSE(channelId)
+end sub
+
+
+public sub com_closeAll
+  MCCOM_CLOSE_ALL()
+end sub
+
+
+public sub com_clear
+  dim err as long
+  MCCOM_CLEAR(err)
+  if err then
+    throw com_error
+  end if
+end sub
+
+
+public function com_empty as long
+  dim err as long
+  com_empty = MCCOM_EMPTY(err)
+  if err then
+    throw com_error
+  end if
+end function
+
+
+public sub com_store
+  dim err as long
+  MCCOM_STORE(false, err)
+  if err then
+    throw com_error
+  end if
+end sub
+
+
+public sub com_storeCopy
+  dim err as long
+  MCCOM_STORE(true, err)
+  if err then
+    throw com_error
+  end if
+end sub
+
+
+public sub com_restore
+  dim err as long
+  MCCOM_RESTORE(err)
+  if err then
+    throw com_error
+  end if
+end sub
+
+
+public sub com_delete(byval path as string)
+  MCCOM_DELETE(path)
+end sub
+
+
+public sub com_with(byval path as string)
+  MCCOM_WITH(path)
+end sub
+
+
+public sub com_extract(byval path as string)
+  dim err as long
+  MCCOM_EXTRACT(path, err)
+  if err then
+    throw com_error
+  end if
+end sub
+
+
+public sub com_compact(byval path as string)
+  dim err as long
+  MCCOM_COMPACT(path, err)
+  if err then
+    throw com_error
+  end if
+end sub
+
+
+public sub com_receiveString(byval str as string)
+  dim err as long
+  MCCOM_RECEIVE_STRING(str, err)
+  if err then
+    throw com_error
+  end if
+end sub
+
+
+public function com_sendString as string
+  dim err as long
+  com_sendString = MCCOM_SEND_STRING(err)
+  if err then
+    throw com_error
+  end if
+end function
+
+
+public function com_getLong(byval path as string) as long
+  dim err as long
+  com_getLong = MCCOM_GET_LONG(path, err)
+  if err then
+    throw com_error
+  end if
+end function
+
+
+public function com_getDouble(byval path as string) as double
+  dim err as long
+  com_getDouble = MCCOM_GET_DOUBLE(path, err)
+  if err then
+    throw com_error
+  end if
+end function
+
+
+public function com_getString(byval path as string) as string
+  dim err as long
+  com_getString = MCCOM_GET_STRING(path, err)
+  if err then
+    throw com_error
+  end if
+end function
+
+
+public function com_getLocationXy(byval path as string) as location of xy
+  com_getLocationXy = #{com_getDouble(path+".x"), com_getDouble(path+".y")} 
+end function
+
+
+public function com_getLocationXyzr(byval path as string) as location of xyzr
+  com_getLocationXyzr = #{com_getDouble(path+".x"), com_getDouble(path+".y"), com_getDouble(path+".z"), com_getDouble(path+".r")} 
+end function
+
+
+public function com_getJointXyzr(byval path as string) as joint of xyzr
+  com_getJointXyzr = {com_getDouble(path+".1"), com_getDouble(path+".2"), com_getDouble(path+".3"), com_getDouble(path+".4")} 
+end function
+
+
+public sub com_putLong(byval path as string, byval longValue as long)
+  dim err as long
+  MCCOM_PUT_LONG(path, longValue, err)
+  if err then
+    throw com_error
+  end if
+end sub
+
+
+public sub com_putDouble(byval path as string, byval doubleValue as double)
+  dim err as long
+  MCCOM_PUT_DOUBLE(path, doubleValue, err)
+  if err then
+    throw com_error
+  end if
+end sub
+
+
+public sub com_putString(byval path as string, byval stringValue as string)
+  dim err as long
+  MCCOM_PUT_STRING(path, stringValue, err)
+  if err then
+    throw com_error
+  end if
+end sub
+
+public sub com_putStringRef(byval path as string, stringValue as string)
+  dim err as long
+  MCCOM_PUT_STRING(path, stringValue, err)
+  if err then
+    throw com_error
+  end if
+end sub
+
+
+public sub com_putLocationXy(byval path as string, byval pos as location of xy)
+  call com_putDouble(path+".x", pos{1})
+  call com_putDouble(path+".y", pos{2})
+end sub
+
+
+public sub com_putLocationXyzr(byval path as string, byval pos as location of xyzr)
+  call com_putDouble(path+".x", pos{1})
+  call com_putDouble(path+".y", pos{2})
+  call com_putDouble(path+".z", pos{3})
+  call com_putDouble(path+".r", pos{4})
+end sub
+
+
+public sub com_putJointXyzr(byval path as string, byval jnt as joint of xyzr)
+  call com_putDouble(path+".1", jnt{1})
+  call com_putDouble(path+".2", jnt{2})
+  call com_putDouble(path+".3", jnt{3})
+  call com_putDouble(path+".4", jnt{4})
+end sub
+
+
+
+
+
+'Included libraries:
+'
+'****** WebSocket++ Library (www.zaphoyd.com/websocketpp)******
+'WebSocket++ is an open source header only C++ library that impliments RFC6455 The WebSocket Protocol. 
+'It allows integrating WebSocket client and server functionality into C++ programs. 
+'It uses interchangable network transport modules including one based on C++ iostreams and one based on Boost Asio.
+'
+'Copyright (c) 2014, Peter Thorson. All rights reserved.
+'
+'Redistribution and use in source and binary forms, with or without
+'modification, are permitted provided that the following conditions are met:
+'    * Redistributions of source code must retain the above copyright
+'      notice, this list of conditions and the following disclaimer.
+'    * Redistributions in binary form must reproduce the above copyright
+'      notice, this list of conditions and the following disclaimer in the
+'      documentation and/or other materials provided with the distribution.
+'    * Neither the name of the WebSocket++ Project nor the
+'      names of its contributors may be used to endorse or promote products
+'      derived from this software without specific prior written permission.
+'
+'THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+'AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+'IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+'ARE DISCLAIMED. IN NO EVENT SHALL PETER THORSON BE LIABLE FOR ANY
+'DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+'(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+'LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+'ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+'(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+'SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+'
+'****** Base 64 Library (base64/base64.hpp) ******
+'base64.hpp is a repackaging of the base64.cpp and base64.h files into a
+'single header suitable for use as a header only library. This conversion was
+'done by Peter Thorson (webmaster@zaphoyd.com) in 2012. All modifications to
+'the code are redistributed under the same license as the original, which is
+'listed below.
+'
+'base64.cpp and base64.h
+'
+'Copyright (C) 2004-2008 René Nyffenegger
+'
+'This source code is provided 'as-is', without any express or implied
+'warranty. In no event will the author be held liable for any damages
+'arising from the use of this software.
+'
+'Permission is granted to anyone to use this software for any purpose,
+'including commercial applications, and to alter it and redistribute it
+'freely, subject to the following restrictions:
+'
+'1. The origin of this source code must not be misrepresented; you must not
+'  claim that you wrote the original source code. If you use this source code
+'  in a product, an acknowledgment in the product documentation would be
+'  appreciated but is not required.
+'
+'2. Altered source versions must be plainly marked as such, and must not be
+'  misrepresented as being the original source code.
+'
+'3. This notice may not be removed or altered from any source distribution.
+'
+'René Nyffenegger rene.nyffenegger@adp-gmbh.ch
+'
+'****** SHA1 Library (sha1/sha1.hpp) ******
+'sha1.hpp is a repackaging of the sha1.cpp and sha1.h files from the shallsha1
+'library (http://code.google.com/p/smallsha1/) into a single header suitable for
+'use as a header only library. This conversion was done by Peter Thorson
+'(webmaster@zaphoyd.com) in 2013. All modifications to the code are redistributed
+'under the same license as the original, which is listed below.
+'
+' Copyright (c) 2011, Micael Hildenborg
+' All rights reserved.
+'
+' Redistribution and use in source and binary forms, with or without
+' modification, are permitted provided that the following conditions are met:
+'    * Redistributions of source code must retain the above copyright
+'      notice, this list of conditions and the following disclaimer.
+'    * Redistributions in binary form must reproduce the above copyright
+'      notice, this list of conditions and the following disclaimer in the
+'      documentation and/or other materials provided with the distribution.
+'    * Neither the name of Micael Hildenborg nor the
+'      names of its contributors may be used to endorse or promote products
+'      derived from this software without specific prior written permission.
+'
+' THIS SOFTWARE IS PROVIDED BY Micael Hildenborg ''AS IS'' AND ANY
+' EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+' WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+' DISCLAIMED. IN NO EVENT SHALL Micael Hildenborg BE LIABLE FOR ANY
+' DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+' (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+' LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+' ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+' (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+' SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+'
+'****** MD5 Library (common/md5.hpp) ******
+'md5.hpp is a reformulation of the md5.h and md5.c code from
+'http://www.opensource.apple.com/source/cups/cups-59/cups/md5.c to allow it to
+'function as a component of a header only library. This conversion was done by
+'Peter Thorson (webmaster@zaphoyd.com) in 2012 for the WebSocket++ project. The
+'changes are released under the same license as the original (listed below)
+'
+'Copyright (C) 1999, 2002 Aladdin Enterprises.  All rights reserved.
+'
+'This software is provided 'as-is', without any express or implied
+'warranty.  In no event will the authors be held liable for any damages
+'arising from the use of this software.
+'
+'Permission is granted to anyone to use this software for any purpose,
+'including commercial applications, and to alter it and redistribute it
+'freely, subject to the following restrictions:
+'
+'1. The origin of this software must not be misrepresented; you must not
+' claim that you wrote the original software. If you use this software
+' in a product, an acknowledgment in the product documentation would be
+' appreciated but is not required.
+'2. Altered source versions must be plainly marked as such, and must not be
+' misrepresented as being the original software.
+'3. This notice may not be removed or altered from any source distribution.
+'
+'L. Peter Deutsch
+'ghost@aladdin.com
+'
+'****** UTF8 Validation logic (utf8_validation.hpp) ******
+'utf8_validation.hpp is adapted from code originally written by Bjoern Hoehrmann
+'<bjoern@hoehrmann.de>. See http://bjoern.hoehrmann.de/utf-8/decoder/dfa/ for
+'details.
+'
+'The original license:
+'
+'Copyright (c) 2008-2009 Bjoern Hoehrmann <bjoern@hoehrmann.de>
+'
+'Permission is hereby granted, free of charge, to any person obtaining a copy
+'of this software and associated documentation files (the "Software"), to deal
+'in the Software without restriction, including without limitation the rights
+'to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+'copies of the Software, and to permit persons to whom the Software is
+'furnished to do so, subject to the following conditions:
+'
+'The above copyright notice and this permission notice shall be included in
+'all copies or substantial portions of the Software.
+'
+'THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+'IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+'FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+'AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+'LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+'OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+'SOFTWARE.
+'
