@@ -1,5 +1,9 @@
 <?
 
+if (file_exists('/etc/app/sim.conf'))
+	$sim = parse_ini_file('/etc/app/sim.conf');
+
+
 function l($basic)		{ echo $basic."\n"; }
 function ll($basic)		{ echo "\t".$basic."\n"; }
 function lll($basic)	{ echo "\t\t".$basic."\n"; }

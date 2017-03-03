@@ -12,7 +12,7 @@ function libBegin($file, $type='app') { global $lib;
 }
 
 
-function libComOpenServerWebsocket($name, $port, $args=[])	{ libComOpen($name, 'serverWebsocket', array_merge(['long("port", '.$port.')'], $args)); }
+function libComOpenServerWebsocket($name, $port, $args=[])	{ libComOpen($name, 'websocket', array_merge(['long("port", '.$port.')'], $args)); }
 function libComOpenFifo($name, $args=[])					{ libComOpen($name, 'fifo', $args); }
 
 function libComOpen($name, $type, $args=[]) { global $lib;

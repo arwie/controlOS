@@ -1,16 +1,18 @@
 
 dim shared pollIntervalMs as const long		= 250
 
-dim shared comDebugServer as long	= 0
+dim shared debugWebsocket as long
+dim shared debugWebsocketConnected as long
 
 
 
 <? lib_init() ?>
-<?	libComOpenServerWebsocket('comDebugServer', 5610, ['long("receive", false)']) ?>
+<?	libComOpenServerWebsocket('debugWebsocket', 5610, ['long("receive", false)']) ?>
 end sub
 
 
 <? lib_start() ?>
+	debugWebsocketConnected = false
 end sub
 
 
@@ -20,11 +22,17 @@ end sub
 
 
 <? lib_prgLoop(16) ?>
-	if com_connectedWait(comDebugServer, debug_prgActive) then
+	select case com_receive(debugWebsocket, pollIntervalMs)
+	case com_receiveConnect
+		debugWebsocketConnected = true
+	case com_receiveDisconnect
+		debugWebsocketConnected = false
+	end select
+
+	if debugWebsocketConnected then
 		call com_clear
 		call pollData
-		call com_send(comDebugServer)
-		sleep pollIntervalMs
+		call com_send(debugWebsocket)
 	end if
 end sub
 

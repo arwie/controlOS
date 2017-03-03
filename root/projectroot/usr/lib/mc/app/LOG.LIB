@@ -6,8 +6,8 @@ common shared log_prioNotice	as const long	= 5
 common shared log_prioInfo		as const long	= 6
 common shared log_prioDebug		as const long	= 7
 
-common shared log_priority		as const long	= <? if ($sim) { ?>log_prioDebug<? } else { ?>log_prioInfo<? } ?> 
-common shared log_priorityPrint	as const long	= <? if ($sim) { ?>log_prioDebug<? } else { ?>log_prioWarning<? } ?> 
+common shared log_priority		as const long	= <?=$sim ? 'log_prioDebug' : 'log_prioInfo'?> 
+common shared log_priorityPrint	as const long	= <?=$sim ? 'log_prioDebug' : 'log_prioWarning'?> 
 
 
 dim shared comLogChannel as long
@@ -56,11 +56,20 @@ end sub
 
 
 
+<?lib_prgStart()?>
+	dim websocketConnected_ as long = false
+	while not websocketConnected_ and log_prgActive
+		select case com_receive(comLogServer, 100)
+		case com_receiveConnect
+			websocketConnected_ = true
+		end select
+	end while
+end sub
+
+
 <?lib_prgLoop(16)?>
-	if com_receiveWait(comLogChannel, log_prgActive) then
-		if com_connectedWait(comLogServer, log_prgActive) then
-			call com_send(comLogServer)
-		end if
+	if com_receive(comLogChannel, 250) then
+		call com_send(comLogServer)
 		call printLog
 	end if
 end sub

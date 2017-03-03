@@ -17,30 +17,21 @@
 ' Licenses of included libraries at the end of this file
 
 
-common shared com_version					as const long		= 1
-
 common shared com_channelLog				as const long		= 1
-common shared com_channelShell				as const long		= 2
-common shared com_channelState				as const long		= 3
-common shared com_channelFifo				as const long		= 4
-common shared com_channelChangenotify		as const long		= 5
-common shared com_channelFileRead			as const long		= 6
-common shared com_channelFileWrite			as const long		= 7
-common shared com_channelServerWebsocket	as const long		= 8
-common shared com_channelClientHaasMnet		as const long		= 9
+common shared com_channelState				as const long		= 2
+common shared com_channelFifo				as const long		= 3
+common shared com_channelWebsocket			as const long		= 4
+
+common shared com_receiveMessage			as const long		= 1
+common shared com_receiveConnect			as const long		= 10
+common shared com_receiveDisconnect			as const long		= 11
 
 common shared com_error						as error	"error in module mccom"		20800
 
 
-dim shared waitLoopTimeoutMs				as const long		= 100
-
-
 
 import_c MCCOM_OPEN(byval as long, as long) as long
-import_c MCCOM_CONNECTED(byval as long, as long) as long
-import_c MCCOM_CONNECTED_TIMED(byval as long, byval as long, as long) as long
-import_c MCCOM_RECEIVE(byval as long, as long) as long
-import_c MCCOM_RECEIVE_TIMED(byval as long, byval as long, as long) as long
+import_c MCCOM_RECEIVE(byval as long, byval as long, as long) as long
 import_c MCCOM_SEND(byval as long, as long)
 import_c MCCOM_SEND_SELF(byval as long, as long)
 import_c MCCOM_RESET(byval as long)
@@ -74,55 +65,12 @@ public function com_open(byval channleType as long) as long
 end function
 
 
-public function com_connected(byval channelId as long) as long
+public function com_receive(byval channelId as long, byval tout as long) as long
   dim err as long
-  com_connected = MCCOM_CONNECTED(channelId, err)
+  com_receive = MCCOM_RECEIVE(channelId, tout, err)
   if err then
     throw com_error
   end if
-end function
-
-
-public function com_connectedWaitTimed(byval channelId as long, byval tout as long) as long
-  dim err as long
-  com_connectedWaitTimed = MCCOM_CONNECTED_TIMED(channelId, tout, err)
-  if err then
-    throw com_error
-  end if
-end function
-
-
-public function com_connectedWait(byval channelId as long, waitWhile as long) as long
-  com_connectedWait = false
-  while not com_connectedWait and waitWhile
-    com_connectedWait = com_connectedWaitTimed(channelId, waitLoopTimeoutMs)
-  end while
-end function
-
-
-public function com_receive(byval channelId as long) as long
-  dim err as long
-  com_receive = MCCOM_RECEIVE(channelId, err)
-  if err then
-    throw com_error
-  end if
-end function
-
-
-public function com_receiveWaitTimed(byval channelId as long, byval tout as long) as long
-  dim err as long
-  com_receiveWaitTimed = MCCOM_RECEIVE_TIMED(channelId, tout, err)
-  if err then
-    throw com_error
-  end if
-end function
-
-
-public function com_receiveWait(byval channelId as long, waitWhile as long) as long
-  com_receiveWait = false
-  while not com_receiveWait and waitWhile
-    com_receiveWait = com_receiveWaitTimed(channelId, waitLoopTimeoutMs)
-  end while
 end function
 
 

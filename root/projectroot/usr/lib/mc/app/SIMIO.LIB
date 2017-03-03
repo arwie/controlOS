@@ -1,41 +1,42 @@
 
 dim shared pollIntervalMs as const long		= 250
 
-dim shared comSimioServer as long
+dim shared simioWebsocket as long
+dim shared simioWebsocketConnected as long
 
-
-
-<?lib_init()?>
-end sub
 
 
 <?lib_start()?>
-<?	libComOpenServerWebsocket('comSimioServer', 6002, ['long("connect.receiveEmpty", true)'])?>
+<?	libComOpenServerWebsocket('simioWebsocket', 6002)?>
+	simioWebsocketConnected = false
 end sub
 
 
 <?lib_stop()?>
-	call com_close(comSimioServer)
+	call com_close(simioWebsocket)
 end sub
 
 
 
 <? lib_prgLoop(16) ?>
-	if com_connectedWait(comSimioServer, simio_prgActive) then
+	select case com_receive(simioWebsocket, pollIntervalMs)
+	case com_receiveConnect
+		simioWebsocketConnected = true
 		call com_clear
-		if com_receiveWaitTimed(comSimioServer, pollIntervalMs) then
-			if com_empty then
-				call putList
-			else
-				try
-					call handleOverride
-				catch else
-					call logPrgError
-					call logSend
-				end try
-				call com_clear
-			end if
-		end if
+		call putList
+	case com_receiveMessage
+		try
+			call handleOverride
+		catch else
+			call logPrgError
+			call logSend
+		end try
+		call com_clear
+	case com_receiveDisconnect
+		simioWebsocketConnected = false
+	end select
+
+	if simioWebsocketConnected then
 		try
 			call updateInputs
 		catch else
@@ -43,7 +44,7 @@ end sub
 			call logSend
 		end try
 		call putUpdate
-		call com_send(comSimioServer)
+		call com_send(simioWebsocket)
 	end if
 end sub
 
