@@ -1,5 +1,4 @@
 .git-af
 /src
-/boot/platform-*/
-/root/platform-*/
+/**/platform-*/
 /**/configs/**/*.old
