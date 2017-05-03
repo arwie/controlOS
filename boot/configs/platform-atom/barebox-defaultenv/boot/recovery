@@ -1,4 +1,0 @@
-#!/bin/sh
-
-global.bootm.image="boot/recovery"
-global.linux.bootargs.dyn.root="console=ttyS0,115200n8"

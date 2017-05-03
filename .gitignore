@@ -1,4 +1,6 @@
 .git-af
 /src
-/**/platform-*/
 /**/configs/**/*.old
+/boot/platform-*/
+/root/platform-*/
+/mccom/platform-*/

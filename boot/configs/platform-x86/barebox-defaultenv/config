@@ -18,24 +18,16 @@
 
 
 # timeout in seconds before the default boot entry is started
-#global.autoboot_timeout=3
+global.autoboot_timeout=5
 
 # base bootargs
 #global.linux.bootargs.base=""
 
 
-# try boot root, else boot recovery
-global.boot.default="root recovery"
 
-
-# mount switch partition
-mkdir -p /mnt/switch
-mount /dev/disk0.1 /mnt/switch
-
-
-# try to boot the update first, else start recovery to apply it
-if [ -f /mnt/switch/update ]
-then
-  global.boot.default="update recovery"
+if [ -f /boot/system.img.xz ]; then
+	global.boot.default="install"
+else
+	global.boot.default="debug"
 fi
 

@@ -1,7 +1,0 @@
-#!/bin/sh
-
-path="/mnt/switch"
-
-global.bootm.image="${path}/update"
-#global.bootm.image.loadaddr=0x87000000
-global.linux.bootargs.dyn.root=""

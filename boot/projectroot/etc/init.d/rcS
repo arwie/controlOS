@@ -17,20 +17,31 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-DISKDEV=/dev/sda
-SWITCHDEV=/dev/sda2
-ROOTDEV=/dev/sda3
-DATADEV=/dev/sda4
-
-SWITCHMNT=/mnt/switch
-ROOTMNT=/mnt/root
-DATAMNT=/mnt/data
-
-UPDATEFILE=$SWITCHMNT/update
-DATAFILE=$SWITCHMNT/data
+waitfs()
+{
+while ! findfs LABEL=$1 > /dev/null; do
+	echo "waiting for $1 device ..."
+	sleep 1; 
+done
+}
 
 
-#exec > /var/log/update 2>&1
+disk_install()
+{
+. /etc/install.conf
+
+waitfs INSTALL
+echo "installing system to $DISKDEV"
+
+mount -r /mnt/install
+
+xzcat /mnt/install/system.img.xz | dd of=$DISKDEV bs=32K
+
+sync
+sleep 3
+blockdev --rereadpt $DISKDEV
+sleep 2
+}
 
 
 data_format()
@@ -53,93 +64,134 @@ echo "running data init"
 
 echo "(re)creating data fs ..."
 mkfs.ext4 -Fq -L "DATA" $DATADEV
-mount $DATAMNT
+mount /mnt/data
 
 echo "initializing data fs ..."
-tar -C $DATAMNT -x -f $DATAFILE
+tar -C /mnt/data -x -f /mnt/init/data
 
-sync
-rm -f $DATAFILE 
+umount /mnt/data
+rm -f /mnt/init/data
 sync
 
-echo "finished data init"	
+echo "finished data init"
 }
 
 
-switch_mount() 
+init_mount() 
 {
-echo "check and mount switch partition"
+echo "check and mount init partition"
 
-fsck.vfat -a $SWITCHDEV
-mount $SWITCHMNT
+dosfsck -av $INITDEV
+mount /mnt/init
 
 # delete all stubs created by fsck
-find $SWITCHMNT -iname "*.REC" -delete
+find /mnt/init -iname "*.REC" -delete
 }
 
 
-update() 
+root_update() 
 {
 echo "running update"
 
 echo "testing update file integrity"
-if ! tar -x -O -f $UPDATEFILE &> /dev/null
+if ! tar -x -O -f /mnt/init/update &> /dev/null
 then
 	echo "update file is corrupt -> deleting"
-	rm -f $UPDATEFILE
+	rm -f /mnt/init/update
 	return 1
 fi
 
 echo "(re)creating root fs ..."
 mkfs.ext4 -Fq -L "ROOT" $ROOTDEV
-mount $ROOTMNT
+mount /mnt/root
 
 echo "updating root fs ..."
-tar -C $ROOTMNT -x -f $UPDATEFILE
+tar -C /mnt/root -x -f /mnt/init/update
 
-sync
-rm -f $UPDATEFILE
+umount /mnt/root
+rm -f /mnt/init/update
 sync
 
-echo "finished update"	
+echo "finished update"
 }
 
 
-while [ ! -b $DISKDEV ]; do
-	echo "waiting for $DISKDEV ..."
-	sleep 1; 
-done
+root_boot() 
+{
+echo "starting root system"
+
+mount -r /mnt/root
+
+. /mnt/root/boot/boot.conf
+kexec --load /mnt/root/boot/$IMAGE --command-line="root=$ROOTDEV $BOOTARGS"
+kexec --exec
+}
+
+
+recovery()
+{
+echo "starting recovery system"
+
+sleep 3
+mount -a
+
+run-parts -a start /etc/rc.d
+
+exit
+}
+
+
+
+case $(cat /proc/cmdline) in
+	*install*)	disk_install;;
+	*debug*)	recovery;;
+esac
+
+
+
+waitfs BOOT
+
+BOOTDEV=$(findfs LABEL=BOOT)
+case $BOOTDEV in
+	*mmcblk*)
+		DISKDEV=${BOOTDEV%??}
+		INITDEV=${DISKDEV}p2
+		ROOTDEV=${DISKDEV}p3
+		DATADEV=${DISKDEV}p4
+		;;
+	*)
+		DISKDEV=${BOOTDEV%?}
+		INITDEV=${DISKDEV}2
+		ROOTDEV=${DISKDEV}3
+		DATADEV=${DISKDEV}4
+		;;
+esac
+echo "using: DISKDEV=$DISKDEV INITDEV=$INITDEV ROOTDEV=$ROOTDEV DATADEV=$DATADEV"
+
 
 
 if [ ! -b $DATADEV ]; then
 	data_format
-	REBOOT=yes
 fi
 
-switch_mount
 
-if [ -f $DATAFILE ]; then
+init_mount
+
+if [ -f /mnt/init/data ]; then
 	data_init
-	REBOOT=yes
+else
+	e2fsck -pv $DATADEV
 fi
 
-if [ -f $UPDATEFILE ]; then
-	update
-	REBOOT=yes
+if [ -f /mnt/init/update ]; then
+	root_update
 fi
 
-
-if [ -n "$REBOOT" ]; then
-	reboot
+if [ -f /mnt/init/debug ]; then
+	recovery
 fi
 
+umount /mnt/init
 
 
-########################################
-echo "start recovery shell"
-
-echo "mount all filesystems"
-mount -a
-
-echo "run rc.d services"
-run-parts -a start /etc/rc.d
+root_boot

@@ -67,10 +67,13 @@ $(STATEDIR)/system.targetinstall:
 	@$(call install_fixup,system,AUTHOR,"Artur Wiebe")
 	@$(call install_fixup,system,DESCRIPTION,missing)
 
+	@$(call install_copy,        system, 0, 0, 0755, /mnt/install)
 	@$(call install_copy,        system, 0, 0, 0755, /mnt/boot)
-	@$(call install_copy,        system, 0, 0, 0755, /mnt/switch)
+	@$(call install_copy,        system, 0, 0, 0755, /mnt/init)
 	@$(call install_copy,        system, 0, 0, 0755, /mnt/root)
 	@$(call install_copy,        system, 0, 0, 0755, /mnt/data)
+
+	@$(call install_alternative, system, 0, 0, 0644, /etc/install.conf)
 	
 	@$(call install_finish,system)
 	@$(call touch)

@@ -1,0 +1,4 @@
+#!/bin/sh
+
+global.bootm.image="boot/linuximage"
+global.linux.bootargs.dyn.root="install"

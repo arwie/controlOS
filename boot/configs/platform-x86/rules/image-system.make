@@ -21,9 +21,9 @@ $(IMAGE_SYSTEM_IMAGE):
 	@$(call image/genimage, IMAGE_SYSTEM)
 	
 	rm -f $(IMAGEDIR)/boot.vfat
-	rm -f $(IMAGEDIR)/switch.vfat
+	rm -f $(IMAGEDIR)/init.vfat
 	
-	#xz -zf $(IMAGE_SYSTEM_IMAGE)
+	xz -T0 -zf $(IMAGE_SYSTEM_IMAGE)
 	
 	@$(call finish)
 

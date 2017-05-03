@@ -5,7 +5,7 @@ BASEDIR=$(dirname $SCRIPT)
 
 
 cd $BASEDIR/root
-./build				|| exit 1
+ptxdist images		|| exit 1
 
 cd $BASEDIR/boot
 ptxdist images		|| exit 1

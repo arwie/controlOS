@@ -2,7 +2,7 @@
 
 config IMAGE_SYSTEM
 	bool
-	select IMAGE_BOOT_VFAT
+	select IMAGE_KERNEL
 	select HOST_GENIMAGE
 	select HOST_DOSFSTOOLS
 	select HOST_MTOOLS

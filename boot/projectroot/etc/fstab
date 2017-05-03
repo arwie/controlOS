@@ -1,4 +1,5 @@
-/dev/sda1   /mnt/boot      vfat    ro                0 0
-/dev/sda2   /mnt/switch    vfat    defaults          0 1
-/dev/sda3   /mnt/root      ext4    defaults          0 1
-/dev/sda4   /mnt/data      ext4    defaults          0 1
+LABEL=INSTALL	/mnt/install	vfat	ro			0	0
+LABEL=BOOT		/mnt/boot		vfat	ro			0	0
+LABEL=INIT		/mnt/init		vfat	defaults	0	1
+LABEL=ROOT		/mnt/root		ext4	defaults	0	0
+LABEL=DATA		/mnt/data		ext4	defaults	0	1
