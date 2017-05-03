@@ -31,6 +31,13 @@ function axis($ax, $simulated=false) { global $axis, $lib, $out;
 	
 	$ax['drive']		= parseDriveSetup($ax);
 
+	switch ($ax['device']) {
+		case 'cdhd':
+			$ax['readBit']  = [['index'=>0x60FD, 'subindex'=>0, 'size'=>32]];
+			//$ax['writeBit'] = [['index'=>0x60FE, 'subindex'=>1, 'size'=>6,  'offset'=>16]];
+			break;
+	}
+
 	$lib['axis']		= $ax;
 	if ($ax['bus'])
 		device($ax);

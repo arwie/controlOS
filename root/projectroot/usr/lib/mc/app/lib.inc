@@ -104,51 +104,55 @@ function libEnd() { global $lib, $libs, $out;
 	}
 	l('end sub');
 		
+	l('public sub '.$lib['name'].'_start');
+	ll('if not '.$lib['name'].'_started then');
+	if ($lib['start']) lll('call libStart');
+	lll($lib['name'].'_started = true');
+	lll('call com_sendSelf(state_comStateServer)');
+	lll($lib['name'].'_prgActive = true');
 	if ($lib['prg']) {
-		l('public sub '.$lib['name'].'_start');
-		ll('if not '.$lib['name'].'_started then');
-		if ($lib['start']) lll('call libStart');
-		lll($lib['name'].'_started = true');
-		lll('call com_sendSelf(state_comStateServer)');
-		lll($lib['name'].'_prgActive = true');
 		lll('starttask '.$lib['prg']['file']);
-		lll('call logLibInfo("'.$lib['name'].' lib started")');
-		lll('call logSend');
-		ll('end if');
-		l('end sub');
-
-		l('public sub '.$lib['name'].'_stopTrigger');
-		ll($lib['name'].'_prgActive = false');
-		if ($lib['stopTrigger']) ll('call libStopTrigger');
-		l('end sub');
-
-		l('public function '.$lib['name'].'_isRunning as long');
-		ll($lib['name'].'_isRunning = '.$lib['name'].'_prgActive or not ('.$lib['prg']['file'].'.state = TASK_KILLED or '.$lib['prg']['file'].'.state = TASK_READY)');
-		l('end function');
-
-		l('public sub '.$lib['name'].'_wait');
-		ll('dim true_ as long = true');
-		ll('call '.$lib['name'].'_waitWhile(true_)');
-		l('end sub');
-
-		l('public sub '.$lib['name'].'_waitWhile(while_ as long)');
-		ll('while '.$lib['name'].'_isRunning and while_');
-		lll('sleep 10');
-		ll('end while');
-		l('end sub');
-
-		l('public sub '.$lib['name'].'_stop');
-		ll('if '.$lib['name'].'_started then');
-		lll('call '.$lib['name'].'_stopTrigger');
-		lll('call '.$lib['name'].'_wait');
-		lll($lib['name'].'_started = false');
-		lll('call com_sendSelf(state_comStateServer)');
-		if ($lib['stop']) lll('call libStop');
-		lll('call logLibInfo("'.$lib['name'].' lib stopped")');
-		lll('call logSend');
-		ll('end if');
-		l('end sub');
 	}
+	lll('call logLibInfo("'.$lib['name'].' lib started")');
+	lll('call logSend');
+	ll('end if');
+	l('end sub');
+
+	l('public sub '.$lib['name'].'_stopTrigger');
+	ll($lib['name'].'_prgActive = false');
+	if ($lib['stopTrigger']) ll('call libStopTrigger');
+	l('end sub');
+
+	l('public function '.$lib['name'].'_isRunning as long');
+	if ($lib['prg']) {
+		ll($lib['name'].'_isRunning = '.$lib['name'].'_prgActive or not ('.$lib['prg']['file'].'.state = TASK_KILLED or '.$lib['prg']['file'].'.state = TASK_READY)');
+	} else {
+		ll($lib['name'].'_isRunning = '.$lib['name'].'_prgActive');
+	}
+	l('end function');
+
+	l('public sub '.$lib['name'].'_wait');
+	ll('dim true_ as long = true');
+	ll('call '.$lib['name'].'_waitWhile(true_)');
+	l('end sub');
+
+	l('public sub '.$lib['name'].'_waitWhile(while_ as long)');
+	ll('while '.$lib['name'].'_isRunning and while_');
+	lll('sleep 10');
+	ll('end while');
+	l('end sub');
+
+	l('public sub '.$lib['name'].'_stop');
+	ll('if '.$lib['name'].'_started then');
+	lll('call '.$lib['name'].'_stopTrigger');
+	lll('call '.$lib['name'].'_wait');
+	lll($lib['name'].'_started = false');
+	lll('call com_sendSelf(state_comStateServer)');
+	if ($lib['stop']) lll('call libStop');
+	lll('call logLibInfo("'.$lib['name'].' lib stopped")');
+	lll('call logSend');
+	ll('end if');
+	l('end sub');
 
 	foreach (['Error', 'Warning', 'Notice', 'Info', 'Debug'] as $prio) {
 		l('sub logLib'.$prio.'(byval message as string)');

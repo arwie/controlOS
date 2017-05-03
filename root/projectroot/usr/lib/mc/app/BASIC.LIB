@@ -84,22 +84,21 @@ end function
 
 
 
-public function taskIsRunning(byval task_ as string) as long
-	try
-		taskIsRunning = (taskstate(task_) <> TASK_KILLED)
-	catch else
-		taskIsRunning = false
-	end try
+public function setBit(byval input_ as long, byval bit_ as long, byval value_ as long) as long
+	if value_ then
+		setBit = input_ bor (1 shl bit_)
+	else
+		setBit = input_ band (bnot (1 shl bit_))
+	end if
+end function
+
+public function getBit(byval input_ as long, byval bit_ as long) as long
+	getBit = (input_ band (1 shl bit_)) > 0
 end function
 
 
-public sub taskKillUnload(byval task_ as string)
-	try 
-		killtask$ task_
-	catch else
-	end try
-	try 
-		unload$ task_
-	catch else
-	end try
-end sub
+
+public function blinkHerz(byval herz_ as double) as long
+	dim wavelength_ as long = 1000 / herz_
+	blinkHerz = (system.clock mod wavelength_) < (wavelength_ / 2)
+end function

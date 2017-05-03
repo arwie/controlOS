@@ -1,0 +1,62 @@
+<div data-bind="page: {id: 'report', with: report, beforeShow: report.start, afterHide: report.stop}">
+	
+	<table class="table table-hover">
+		<tbody data-bind="foreach:messages">
+			<tr data-bind="css:{danger:priority <= 3, warning:priority == 4, info:priority == 5}">
+				<td data-bind="text:timestamp"></td>
+				<td width="85%">
+					<strong data-bind="attr:{'data-l10n-id':report}" style="white-space:pre-line"></strong>
+					<p data-bind="attr:{'data-l10n-id':report+'-help'}, visible:help"></p>
+				</td>
+				<td data-bind="click:toggleHelp"><span class="glyphicon glyphicon-question-sign"></span></td>
+			</tr>
+		</tbody>
+	</table>
+
+</div>
+
+
+
+<script>(function(){
+
+function Message(msg) {
+	let self = this;
+	
+	self.timestamp		= new Date(parseInt(msg['_SOURCE_REALTIME_TIMESTAMP'])/1000).toLocaleString();
+	self.priority		= parseInt(msg['PRIORITY']);
+	self.identifier		= msg['SYSLOG_IDENTIFIER'];
+	self.report			= msg['REPORT'] ? msg['REPORT'] : msg['MESSAGE'];
+	
+	self.help			= ko.observable(false);
+	self.toggleHelp		= function() { self.help(!self.help()); }
+}
+
+
+gui.report = new function() {
+	let self = this;
+	
+	self.messages		= ko.observableArray();
+	self.messages.extend({ rateLimit: 500 });
+	
+	self.connection		= ko.observable();
+
+	self.start = function()	{
+		self.connection(new WebSocket('ws://'+location.hostname+'/log?'+$.param({args:'--since=-24hours REPORTS=1'})));
+
+		self.connection().onmessage = function(e) {
+			self.messages.unshift(new Message(JSON.parse(e.data)));
+			
+			if (self.messages().length > 50)
+				self.messages.pop();
+		}
+	}
+	
+	self.stop = function() {
+		try {
+			self.connection().close();
+		} catch(e) {}
+		self.messages([]);
+	}
+}
+
+})();</script>

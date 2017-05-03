@@ -23,6 +23,7 @@ common shared etc_busnumber as const long = 0
 	dim slaveCount_ as long
 	dim slave_ as long
 
+try
 	slaveCount_ = EC_ETHERCAT_INIT
 
 	call logLibInfo("ethercat init with "+str$(slaveCount_)+" slaves")
@@ -40,7 +41,7 @@ common shared etc_busnumber as const long = 0
 	call logSend
 
 <?
-	foreach($etc as $dev) {
+	foreach(get('etc') as $dev) {
 		switch ($dev['device']) {
 			case 'cdhd':
 #				ll('call EC_REMAP_CDHD_DEFAULT_PDOS('.$dev['address'].')');
@@ -55,9 +56,9 @@ common shared etc_busnumber as const long = 0
 
 	call EC_CREATE_MASTER
 	call EC_SET_BUS_CYCLETIME(4000)
-
 <?
-	foreach($etc as $dev) {
+	foreach(get('etc') as $dev) {
+		ll("'--------");
 		switch ($dev['device']) {
 			case 'cdhd':
 				ll('call EC_CDHD_SET_PDOS('.$dev['address'].', etc_busnumber, 0, CDHD_OPMODE_SYNC_POSITION)');
@@ -72,10 +73,18 @@ common shared etc_busnumber as const long = 0
 				ll('call EC_USE_SLAVE('.$dev['address'].', EC_SLAVES_INFO['.$dev['address'].']->vendor_id, EC_SLAVES_INFO['.$dev['address'].']->product_code, "ECAT_IOMODULE_SLAVE", true)');
 				break;
 		}
+		foreach (array_merge($dev['readBit'], $dev['writeBit']) as $bit)
+			ll('call EC_ASSOCIATE_PDO_TO_SYS_DIO('.$dev['address'].', 0x'.dechex($bit['index']).', '.$bit['subindex'].', '.$bit['dio'].', '.$bit['size'].', '.$bit['offset'].')');
 	}
 ?>
 
 	call EC_STARTMASTER
+catch else
+	call logPrgError
+	call logSend
+	print sh("reboot")
+end try
+
 end sub
 
 

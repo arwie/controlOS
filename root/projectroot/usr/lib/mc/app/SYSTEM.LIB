@@ -19,9 +19,9 @@
 	call etc_init
 	call can_init
 	
-<?	if (!empty($etc))
+<?	if (!empty(get('etc')))
 		ll('call etc_start')?>
-<?	if (!empty($can))
+<?	if (!empty(get('can')))
 		ll('call can_start')?>
 
 	call etc_wait

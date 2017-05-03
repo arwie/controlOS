@@ -15,6 +15,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+
+function &set($what) { global $real, $out;
+	static $fake;
+	
+	if ($out) {
+		$fake = $fake ?: $real;
+		return $fake[$what];
+	}
+	
+	$real[$what] = $real[$what] ?: [];
+	return $real[$what];
+}
+function get($what)  { global $real;
+	return $real[$what];
+}
+
+
 if (file_exists('/etc/app/sim.conf'))
 	$sim = parse_ini_file('/etc/app/sim.conf');
 
@@ -33,7 +50,7 @@ require 'robot.inc';
 require 'simio.inc';
 
 
-function includeLib($file, $type='app') { global $out, $libs, $simio, $axis, $robot, $can, $etc, $drive, $sim;
+function includeLib($file, $type='app') { global $out, $libs, $simio, $axis, $robot, $drive, $sim;
 	libBegin($file, $type);
 	l("'--------------------");
 	l('');
@@ -63,7 +80,8 @@ ob_end_clean();
 
 
 
-$out = $argv[1].'/';
+$out = $argv[1].'/SSMC/';
+if (!is_dir($out)) mkdir($out);
 
 foreach ($libs['all'] as $lib) {
 	ob_start();
@@ -81,4 +99,22 @@ foreach(glob('*.PRG') as $file) {
 	ob_start();
 	include $file;
 	file_put_contents($out.$file, ob_get_contents()); ob_end_clean();
+}
+
+
+
+if (file_exists('/etc/mc.conf')) {
+	$mc = parse_ini_file('/etc/mc.conf');
+	file_put_contents($argv[1].'/SN', <<<EOT
+program
+	sn "{$mc['sn']}"
+end program
+EOT
+	);
+	file_put_contents($argv[1].'/UAC', <<<EOT
+program
+	uac "{$mc['uac']}"
+end program
+EOT
+	);
 }

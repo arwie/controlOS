@@ -69,6 +69,10 @@ public sub EC_USE_SLAVE(byval slaveaddress as long, byval vendor as long, byval 
 	throw simmc_error
 end sub
 
+public sub EC_ASSOCIATE_PDO_TO_SYS_DIO(byval slaveAddr as long, byval PDOindex as long, byval PDOsubindex as long, byval systemDIOnumber as long, byval range as long, byval inherent_offset as long)
+	throw simmc_error
+end sub
+
 
 
 public sub EC_REMAP_CDHD_DEFAULT_PDOS(byval drive_addr as long)

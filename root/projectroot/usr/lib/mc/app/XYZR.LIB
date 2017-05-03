@@ -23,6 +23,19 @@ end type
 
 
 
+public function xyzr_pos(byval xyzr_ as location of xyzr, byval arm_ as long) as xyzr_posType
+	xyzr_pos->xyzr = xyzr_
+	xyzr_pos->arm  = arm_
+end function
+
+
+public function xyzr_posOffset(byval pos_ as xyzr_posType, byval offset_ as location of xyzr) as xyzr_posType
+	xyzr_posOffset->xyzr = pos_->xyzr + offset_
+	xyzr_posOffset->arm  = pos_->arm
+end function
+
+
+
 public function xyzr_jntToPos(robot_ as generic group, byval jnt_ as joint of xyzr) as xyzr_posType
 	xyzr_jntToPos->xyzr = tocart(robot_, jnt_)
 	xyzr_jntToPos->arm  = xyzr_armOfJnt(jnt_)

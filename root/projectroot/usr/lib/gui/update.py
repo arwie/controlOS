@@ -28,6 +28,6 @@ class UpdateHandler(RequestHandler):
 		self.write(json.dumps(info).encode('utf8'))
 	
 	def put(self):
-		with open('/mnt/switch/.update', 'wb') as f:
+		with open('/mnt/init/.update', 'wb') as f:
 			f.write(self.request.files['update'][0]['body'])
-		os.rename('/mnt/switch/.update', '/mnt/switch/update')
+		os.rename('/mnt/init/.update', '/mnt/init/update')

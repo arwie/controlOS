@@ -50,6 +50,11 @@ public sub log_putCodeFunc(byval codeFunc_ as string)
 	call com_putStringRef("code_func", codeFunc_)
 end sub
 
+public sub log_putReport(byval report_ as string)
+	call com_putStringRef("report", report_)
+	call com_putLong("reports", true)
+end sub
+
 
 public sub log_send
 	try
