@@ -294,6 +294,7 @@ ifdef PTXCONF_SYSTEMD_TIMEDATE
 endif
 ifdef PTXCONF_SYSTEMD_NETWORK
 	@$(call install_copy, systemd, 0, 0, 0755, -, /usr/bin/systemd-resolve)
+	@$(call install_copy, systemd, 0, 0, 0644, -, /lib/systemd/resolv.conf)
 	@$(call install_alternative, systemd, 0, 0, 0644, \
 		/etc/systemd/resolved.conf)
 endif

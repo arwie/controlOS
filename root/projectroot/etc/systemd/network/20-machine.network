@@ -1,7 +1,17 @@
 [Match]
+
+#SolidRun
+Name=enp3s0
+
+#iEi
 Name=enp1s0
+
+#VBox
 Name=enp0s3
+
+#remote
 Name=tap*
+
 
 [Network]
 Bridge=machine

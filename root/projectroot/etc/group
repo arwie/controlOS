@@ -23,6 +23,6 @@ mysql:x:117:
 systemd-journal:x:201:
 systemd-network:x:202:
 systemd-journal-gateway:x:206:
-systemd-journal-remote:x:207:
+systemd-journal-remote:x:203:
 systemd-journal-upload:x:208:
 nogroup:x:65534:

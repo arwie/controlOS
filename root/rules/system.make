@@ -79,7 +79,7 @@ $(STATEDIR)/system.targetinstall:
 	# mountpoints
 	@$(call install_copy,        system, 0, 0, 0755, /mnt/boot)
 	@$(call install_copy,        system, 0, 0, 0755, /mnt/root)
-	@$(call install_copy,        system, 0, 0, 0755, /mnt/switch)
+	@$(call install_copy,        system, 0, 0, 0755, /mnt/init)
 	@$(call install_copy,        system, 0, 0, 0755, /mnt/usb)
 	@$(call install_alternative, system, 0, 0, 0644, /lib/systemd/system/var-etc.service)
 
@@ -95,7 +95,7 @@ $(STATEDIR)/system.targetinstall:
 	
 	# update
 	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/system/update-apply.service)
-	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/system/mnt-switch.mount.wants/update-apply.path)
+	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/system/mnt-init.mount.wants/update-apply.path)
 
 	# sshd root key
 	@$(call install_copy,        system, 0, 0, 0700, /root/.ssh)
@@ -106,7 +106,7 @@ $(STATEDIR)/system.targetinstall:
 	# central syslog
 	@$(call install_alternative, system, 0, 0, 0644, /etc/tmpfiles.d/persistent-journal.conf)
 
-	@$(call install_copy,        system, 0, 0, 0755, /etc/app)
+	@$(call install_alternative_tree,  system, 0, 0, /etc/app)
 
 	@$(call install_finish,system)
 	@$(call touch)

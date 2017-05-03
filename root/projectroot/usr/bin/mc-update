@@ -26,33 +26,28 @@ APP=/tmp/mc-app
 
 PHP="php5 -n -d display_errors=stderr"
 SSH="ssh"
-SCP="scp -q"
+SCP="scp -r -q"
 
+md5hash() {
+	find $1 -type f -exec cat {} + | md5sum | cut -d ' ' -f 1
+}
 
 debug() { echo "$1" 1>&2; }
 
-errexit()
-{
+errexit() {
 	debug "ERROR: $1"
 	exit 1
 }
 
 
 
-if [ "$1" == "force" ]; then
-	MC_VERID=0
-	MC_APPID=0
-else
-	MC_VERID=$($SSH $MC "cat ver-id || echo 0")							|| errexit "failed to connect to mc"
-	MC_APPID=$($SSH $MC "cat app-id || echo 0")							|| errexit "failed to connect to mc"
-fi
+MC_CONFHASH=$($SSH $MCROOT "cat conf.hash || echo 0")					|| errexit "failed to connect to $MCROOT"
+CONFHASH=$(md5hash $CONF)
 
-
-VERID=$(cat /version-id)
-if [ "$MC_VERID" != "$VERID" ]; then	# copy configuration files
+if [ "$MC_CONFHASH" != "$CONFHASH" ]; then	# copy configuration files
 	$SSH $MCROOT "mount -o remount,rw /"								|| errexit "remount rw rootfs on mc"
-	$SCP -r $CONF/* $MCROOT:/											|| errexit "copy configuration files to mc"
-	$SSH $MC "echo $VERID > ver-id"										|| errexit "update ver-id on mc"
+	$SCP $CONF/* $MCROOT:/												|| errexit "copy configuration files to mc"
+	$SSH $MCROOT "echo $CONFHASH > conf.hash"							|| errexit "update conf.hash on mc"
 	REBOOT=yes
 	echo "copied configuration files to mc"
 fi
@@ -64,10 +59,12 @@ cd $APPSRC
 $PHP main.php $APP														|| errexit "build application files"
 
 
-APPID=$(cat $APP/* | md5sum | cut -d ' ' -f 1)
-if [ "$MC_APPID" != "$APPID" ]; then	# copy app files
-	$SCP $APP/* $MC:/FFS0/SSMC/											|| errexit "copy application files to mc"
-	$SSH $MC "echo $APPID > app-id"										|| errexit "update app-id on mc"
+MC_APPHASH=$($SSH $MC "cat app.hash || echo 0")							|| errexit "failed to connect to $MC"
+APPHASH=$(md5hash $APP)
+
+if [ "$MC_APPHASH" != "$APPHASH" ]; then	# copy app files
+	$SCP $APP/* $MC:/FFS0/												|| errexit "copy application files to mc"
+	$SSH $MC "echo $APPHASH > app.hash"									|| errexit "update app.hash on mc"
 	REBOOT=yes
 	echo "copied application files to mc"
 fi

@@ -1,0 +1,12 @@
+#!/bin/sh
+
+
+FILE=${1-system.vdi}
+SIZE=${2-1073741824}
+
+
+SCRIPT=$(readlink -f $0)
+BASEDIR=$(dirname $SCRIPT)
+
+
+xzcat $BASEDIR/system.img.xz | vboxmanage convertfromraw stdin $FILE $SIZE --uuid 4841d7a8-b075-4d69-99f0-5ac8b7bc8683

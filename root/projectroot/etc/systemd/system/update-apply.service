@@ -1,5 +1,5 @@
 [Unit]
-ConditionPathExists=/mnt/switch/update
+ConditionPathExists=/mnt/init/update
 
 [Service]
 Type=oneshot

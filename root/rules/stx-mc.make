@@ -59,7 +59,7 @@ $(STATEDIR)/stx-mc.targetinstall:
 	@$(call install_fixup, stx-mc,AUTHOR,"Artur Wiebe <artur@4wiebe.de>")
 	@$(call install_fixup, stx-mc,DESCRIPTION,missing)
 
-	@$(call install_alternative_tree, stx-mc, 0, 0, /usr/lib/mc)
+	@$(call install_alternative_tree, stx-mc, 0, 0, /usr/lib/mc, no)
 	
 	@$(call install_alternative, stx-mc, 0, 0, 0755, /usr/bin/mc-update)
 	@$(call install_alternative, stx-mc, 0, 0, 0644, /etc/systemd/system/mc-update.service)
