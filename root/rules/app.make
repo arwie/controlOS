@@ -68,6 +68,8 @@ $(STATEDIR)/app.targetinstall:
 	@$(call install_fixup,app,AUTHOR,"Artur Wiebe <artur@4wiebe.de>")
 	@$(call install_fixup,app,DESCRIPTION,missing)
 
+	@$(call install_alternative_tree, app, 0, 0, /etc/app)
+
 	@$(call install_alternative, app, 0, 0, 0644, /etc/hostapd.conf)
 	@$(call install_alternative, app, 0, 0, 0644, /etc/systemd/system/hostapd.service)
 	@$(call install_link,        app, ../hostapd.service, /etc/systemd/system/multi-user.target.wants/hostapd.service)

@@ -103,8 +103,6 @@ $(STATEDIR)/system.targetinstall:
 	# central syslog
 	@$(call install_alternative, system, 0, 0, 0644, /etc/tmpfiles.d/persistent-journal.conf)
 
-	@$(call install_alternative_tree,  system, 0, 0, /etc/app)
-
 	@$(call install_finish,system)
 	@$(call touch)
 
