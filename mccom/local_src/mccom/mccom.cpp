@@ -72,6 +72,7 @@ static int mccom_open(int channelType, int *error) noexcept
 		}
 	} catch (exception& e) {
 		*error = 1;
+		logMsg(LogError(e.what()).func(__func__));
 	}
 	return -1;
 }
@@ -83,6 +84,7 @@ static int mccom_receive(int channelId, chrono::milliseconds timeout, int *error
 		return manager.getChannel(channelId)->receive(messagePtr, timeout);
 	} catch (exception& e) {
 		*error = 1;
+		logMsg(LogError(e.what()).func(__func__));
 	}
 	return false;
 }
@@ -94,7 +96,7 @@ static void mccom_send(int channelId, int *error) noexcept
 		manager.getChannel(channelId)->send(*messagePtr);
 	} catch (exception& e) {
 		*error = 1;
-		DEBUG("mccom_send: " << e.what());
+		logMsg(LogError(e.what()).func(__func__));
 	}
 }
 
@@ -105,6 +107,7 @@ static void mccom_send_self(int channelId, int *error) noexcept
 		manager.getChannel(channelId)->sendSelf(*messagePtr);
 	} catch (exception& e) {
 		*error = 1;
+		logMsg(LogError(e.what()).func(__func__));
 	}
 }
 
@@ -137,6 +140,7 @@ static void mccom_clear(int *error) noexcept
 		messagePtr.reset(new Message());
 	} catch (exception& e) {
 		*error = 1;
+		logMsg(LogError(e.what()).func(__func__));
 	}
 }
 
@@ -147,6 +151,7 @@ static int mccom_empty(int *error) noexcept
 	 	return messagePtr->empty();
 	} catch (exception& e) {
 		*error = 1;
+		logMsg(LogError(e.what()).func(__func__));
 	}
 	return true;
 }
@@ -164,6 +169,7 @@ static void mccom_store(bool copy, int *error) noexcept
 	 	messagePtr = move(newMessagePtr);
 	} catch (exception& e) {
 		*error = 1;
+		logMsg(LogError(e.what()).func(__func__));
 	}
 }
 
@@ -175,6 +181,7 @@ static void mccom_restore(int *error) noexcept
 		messageStack.pop();
 	} catch (exception& e) {
 		*error = 1;
+		logMsg(LogError(e.what()).func(__func__));
 	}
 }
 
@@ -204,6 +211,7 @@ static void mccom_extract(SYS_STRING* path, int *error) noexcept
 		messagePtr.reset(new Message(messagePtr->get_child_with(amcsGetString(path))));
 	} catch (exception& e) {
 		*error = 1;
+		logMsg(LogError(e.what()).func(__func__));
 	}
 }
 
@@ -217,6 +225,7 @@ static void mccom_compact(SYS_STRING* path, int *error) noexcept
 		messagePtr.swap(newMessage);
 	} catch (exception& e) {
 		*error = 1;
+		logMsg(LogError(e.what()).func(__func__));
 	}
 }
 
@@ -228,6 +237,7 @@ static void mccom_receive_string(SYS_STRING* str, int *error) noexcept
 		messagePtr.reset(new Message(amcsGetString(str)));
 	} catch (exception& e) {
 		*error = 1;
+		logMsg(LogError(e.what()).func(__func__));
 	}
 }
 
@@ -239,6 +249,7 @@ static string mccom_send_string(int *error) noexcept
 		str = messagePtr->toString();
 	} catch (exception& e) {
 		*error = 1;
+		logMsg(LogError(e.what()).func(__func__));
 	}
 	return str;
 }
@@ -252,6 +263,7 @@ static Type mccom_get(SYS_STRING* path, int *error) noexcept
 	 	return messagePtr->get_with<Type>(amcsGetString(path));
 	} catch (exception& e) {
 		*error = 1;
+		logMsg(LogError(e.what()).func(__func__));
 	}
 	return Type();
 }
@@ -265,6 +277,7 @@ static void mccom_put(SYS_STRING* path, Type value, int *error) noexcept
 		messagePtr->put_with(amcsGetString(path), value);
 	} catch (exception& e) {
 		*error = 1;
+		logMsg(LogError(e.what()).func(__func__));
 	}
 }
 
@@ -274,6 +287,7 @@ static void mccom_put_string(SYS_STRING* path, SYS_STRING* value, int *error) no
 		mccom_put(path, amcsGetString(value), error);
 	} catch (exception& e) {
 		*error = 1;
+		logMsg(LogError(e.what()).func(__func__));
 	}
 }
 

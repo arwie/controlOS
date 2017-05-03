@@ -85,7 +85,11 @@ public:
 
     	lock_guard<mutex> lock(connectionsMtx);
 		for(auto& con : connections) {
-			wsServer.send(con, msgString, websocketpp::frame::opcode::text);
+			try {
+				wsServer.send(con, msgString, websocketpp::frame::opcode::text);
+			} catch (websocketpp::exception& e) {
+				logMsg(LogWarning(e.what()).func(__func__));
+			}
 		}
 	}
 
