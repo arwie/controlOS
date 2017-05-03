@@ -88,9 +88,6 @@ $(STATEDIR)/system.targetinstall:
 	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/network/10-machine-bridge.network)
 	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/network/20-machine.network)
 	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/network/99-public.network)
-	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/system/hostapd.service)
-	@$(call install_alternative, system, 0, 0, 0644, /etc/hostapd.conf)
-	@$(call install_link,        system, ../hostapd.service, /etc/systemd/system/multi-user.target.wants/hostapd.service)
 	@$(call install_link,        system, ../wpa_supplicant.service, /lib/systemd/system/multi-user.target.wants/wpa_supplicant.service)
 	
 	# update

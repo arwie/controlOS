@@ -2,6 +2,7 @@
 # Automatically generated file; DO NOT EDIT.
 # PTXdist 2016.12.0
 #
+PTXCONF_APP=y
 PTXCONF_DEBUG=y
 PTXCONF_GUI=y
 PTXCONF_STX_MC=y
