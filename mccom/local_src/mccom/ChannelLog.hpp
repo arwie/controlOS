@@ -45,7 +45,7 @@ public:
 
 	void open() override
 	{
-		if (channelLog) throw exception();
+		if (channelLog) throw runtime_error("log channel already open");
 		channelLog = shared_from_this();
 
 		QueuingChannel::open();

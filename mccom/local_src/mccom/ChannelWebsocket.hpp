@@ -37,7 +37,6 @@ public:
 
 		wsServer.init_asio();
 		wsServer.set_reuse_addr(true);
-		wsServer.clear_access_channels(websocketpp::log::alevel::frame_header | websocketpp::log::alevel::frame_payload);
 
 		wsServer.set_open_handler([this](websocketpp::connection_hdl hdl)
 		{
@@ -62,6 +61,20 @@ public:
 				pushMessage(make_unique<Message>(msg->get_payload()));
 			});
 		}
+		
+		wsServer.get_elog().handler = [this](websocketpp::log::level l, const string& msg) {
+			switch (l) {
+				case websocketpp::log::elevel::fatal:
+				case websocketpp::log::elevel::rerror:
+					logMsg(LogError(msg));		break;
+				case websocketpp::log::elevel::warn:
+					logMsg(LogWarning(msg));	break;
+				case websocketpp::log::elevel::info:
+					logMsg(LogNotice(msg));		break;
+				default:
+					logMsg(LogDebug(msg));		break;
+			}
+		};
 	}
 
 	void open() override
@@ -74,16 +87,16 @@ public:
 
 	bool needsRunner() override { return true; }
 	void run() override
-    {
-        wsServer.run();
-    }
+	{
+		wsServer.run();
+	}
 
 
 	void send(const Message& message) override
 	{
-    	auto msgString = message.toString();
+		auto msgString = message.toString();
 
-    	lock_guard<mutex> lock(connectionsMtx);
+		lock_guard<mutex> lock(connectionsMtx);
 		for(auto& con : connections) {
 			try {
 				wsServer.send(con, msgString, websocketpp::frame::opcode::text);
@@ -102,8 +115,57 @@ public:
 
 
 private:
+	template <typename concurrency, typename names>
+	class WebsocketLogger : public websocketpp::log::basic<concurrency, names> {
+	public:
+		_WEBSOCKETPP_CONSTEXPR_TOKEN_ WebsocketLogger(websocketpp::log::level l, websocketpp::log::channel_type_hint::value h)
+			: websocketpp::log::basic<concurrency, names>(l, h) {}
 
-	using WsServer = websocketpp::server<websocketpp::config::asio>;
+		void write(websocketpp::log::level l, const char* msg) { write(l, string(msg)); }
+		void write(websocketpp::log::level l, const string& msg) {
+			if (this->dynamic_test(l) && handler) {
+				handler(l, msg);
+			}
+		}
+		
+		function<void(websocketpp::log::level, const string&)> handler;
+	};
+
+	struct WebsocketConfig : public websocketpp::config::core {
+		typedef WebsocketConfig				type;
+		typedef websocketpp::config::core	base;
+
+		typedef base::concurrency_type concurrency_type;
+
+		typedef base::request_type request_type;
+		typedef base::response_type response_type;
+
+		typedef base::message_type message_type;
+		typedef base::con_msg_manager_type con_msg_manager_type;
+		typedef base::endpoint_msg_manager_type endpoint_msg_manager_type;
+
+		typedef WebsocketLogger<concurrency_type, websocketpp::log::alevel> alog_type;
+		typedef WebsocketLogger<concurrency_type, websocketpp::log::elevel> elog_type;
+
+		typedef base::rng_type rng_type;
+
+		struct transport_config : public base::transport_config {
+			typedef type::concurrency_type concurrency_type;
+			typedef type::alog_type alog_type;
+			typedef type::elog_type elog_type;
+			typedef type::request_type request_type;
+			typedef type::response_type response_type;
+			typedef websocketpp::transport::asio::basic_socket::endpoint
+				socket_type;
+		};
+
+		typedef websocketpp::transport::asio::endpoint<transport_config>
+			transport_type;
+
+		static const websocketpp::log::level alog_level = websocketpp::log::alevel::none;
+	};
+
+	using WsServer = websocketpp::server<WebsocketConfig>;
 
 	int port;
 	WsServer wsServer;

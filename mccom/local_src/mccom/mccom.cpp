@@ -32,8 +32,6 @@
 
 using namespace std;
 
-#define DEBUG(x)	if (true) { cout << x << endl; }
-
 
 class Message; using MessagePtr = unique_ptr<Message>;
 class Channel; using ChannelPtr = shared_ptr<Channel>;
@@ -68,7 +66,7 @@ static int mccom_open(int channelType, int *error) noexcept
 			case  2: return manager.openChannel(make_shared<ChannelState>			(*messagePtr));
 			case  3: return manager.openChannel(make_shared<ChannelFifo>			(*messagePtr));
 			case  4: return manager.openChannel(make_shared<ChannelWebsocket>		(*messagePtr));
-			default: throw exception();
+			default: throw runtime_error("unknown channel type");
 		}
 	} catch (exception& e) {
 		*error = 1;
@@ -115,21 +113,27 @@ static void mccom_reset(int channelId) noexcept
 {
 	try {
 		manager.getChannel(channelId)->reset();
-	} catch (exception& e) {}
+	} catch (exception& e) {
+		logMsg(LogError(e.what()).func(__func__));
+	}
 }
 
 static void mccom_close(int channelId) noexcept
 {
 	try {
 		manager.closeChannel(channelId);
-	} catch (exception& e) {}
+	} catch (exception& e) {
+		logMsg(LogError(e.what()).func(__func__));
+	}
 }
 
 static void mccom_close_all() noexcept
 {
 	try {
 		manager.closeAllChannels();
-	} catch (exception& e) {}
+	} catch (exception& e) {
+		logMsg(LogError(e.what()).func(__func__));
+	}
 }
 
 
@@ -162,7 +166,7 @@ static void mccom_store(bool copy, int *error) noexcept
 	*error = 0;
 	try {
 		if (messageStack.size() >= 5)
-			throw exception();
+			throw runtime_error("message stack full");
 
 		MessagePtr newMessagePtr(copy ? new Message(*messagePtr) : new Message());
 	 	messageStack.emplace(move(messagePtr));
@@ -191,7 +195,9 @@ static void mccom_delete(SYS_STRING* path) noexcept
 	try {
 		messagePtr->erase_with(amcsGetString(path));
 	}
-	catch (exception& e) {}
+	catch (exception& e) {
+		logMsg(LogError(e.what()).func(__func__));
+	}
 }
 
 
@@ -200,7 +206,9 @@ static void mccom_with(SYS_STRING* path) noexcept
 	try {
 		messagePtr->with(amcsGetString(path));
 	}
-	catch (exception& e) {}
+	catch (exception& e) {
+		logMsg(LogError(e.what()).func(__func__));
+	}
 }
 
 

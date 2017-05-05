@@ -22,16 +22,16 @@
 class Channel : public enable_shared_from_this<Channel>
 {
 public:
-	virtual void send(const Message& message)		{ throw exception(); }
-	virtual void sendSelf(const Message& message)	{ throw exception(); }
+	virtual void send(const Message& message)		{ throw logic_error("send() not implemented"); }
+	virtual void sendSelf(const Message& message)	{ throw logic_error("sendSelf() not implemented"); }
 
-	virtual int receive(MessagePtr& message, chrono::milliseconds timeout)	{ throw exception(); }
+	virtual int receive(MessagePtr& message, chrono::milliseconds timeout)	{ throw logic_error("receive() not implemented"); }
 
 	virtual void run()			{}
     virtual bool needsRunner()	{ return false; }
 
-	virtual void open()		{ logMsg(LogInfo("channel opened")); }
-	virtual void reset()	{ logMsg(LogInfo("channel reset")); }
+	virtual void open()		{ logMsg(LogDebug("channel opened")); }
+	virtual void reset()	{ logMsg(LogDebug("channel reset")); }
 	virtual ~Channel()		{ logMsg(LogDebug("channel destroyed")); }
 
 	virtual void close()
@@ -40,7 +40,7 @@ public:
 			closed = true;
 		}
 		blockCond.notify_all();
-		logMsg(LogInfo("channel closed"));
+		logMsg(LogDebug("channel closed"));
 	}
 
 	virtual void logMsg(Log&& msg)
