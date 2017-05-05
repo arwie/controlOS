@@ -6,5 +6,5 @@ ExecStartPre=/bin/sleep 10
 ExecStart=/usr/bin/python3 -B -u /usr/sbin/mc-state mc 33000
 
 Restart=always
-RestartSec=30
+RestartSec=10
 StartLimitInterval=0
