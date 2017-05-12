@@ -10,6 +10,8 @@ add_library(mccom SHARED
 	${SRC_FILES}
 )
 
+include_directories(include)
+
 
 
 find_library(BOOST_SYSTEM_PATH libboost_system-mt.a)

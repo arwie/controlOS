@@ -1,7 +1,0 @@
-## SECTION=project_specific
-
-config WEBSOCKETPP
-	bool
-	prompt "websocketpp"
-	help
-	  FIXME

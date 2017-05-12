@@ -3,7 +3,6 @@
 # PTXdist 2016.12.0
 #
 PTXCONF_MCCOM=y
-PTXCONF_WEBSOCKETPP=y
 
 #
 # ------------------------------------

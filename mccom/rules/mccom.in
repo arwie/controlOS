@@ -5,6 +5,5 @@ config MCCOM
 	prompt "mccom"
 	select HOST_CMAKE
 	select BOOST
-	select WEBSOCKETPP
 	help
 	  FIXME
