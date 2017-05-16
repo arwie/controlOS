@@ -148,29 +148,16 @@ static void mccom_clear(int *error) noexcept
 	}
 }
 
-static int mccom_empty(int *error) noexcept
-{
-	*error = 0;
-	try {
-	 	return messagePtr->empty();
-	} catch (exception& e) {
-		*error = 1;
-		logMsg(LogError(e.what()).func(__func__));
-	}
-	return true;
-}
 
-
-static void mccom_store(bool copy, int *error) noexcept
+static void mccom_store(int *error) noexcept
 {
 	*error = 0;
 	try {
 		if (messageStack.size() >= 5)
 			throw runtime_error("message stack full");
 
-		MessagePtr newMessagePtr(copy ? new Message(*messagePtr) : new Message());
 	 	messageStack.emplace(move(messagePtr));
-	 	messagePtr = move(newMessagePtr);
+		messagePtr.reset(new Message());
 	} catch (exception& e) {
 		*error = 1;
 		logMsg(LogError(e.what()).func(__func__));
@@ -190,17 +177,6 @@ static void mccom_restore(int *error) noexcept
 }
 
 
-static void mccom_delete(SYS_STRING* path) noexcept
-{
-	try {
-		messagePtr->erase(messagePtr->withPath(amcsGetString(path)));
-	}
-	catch (exception& e) {
-		logMsg(LogError(e.what()).func(__func__));
-	}
-}
-
-
 static void mccom_with(SYS_STRING* path) noexcept
 {
 	try {
@@ -212,54 +188,15 @@ static void mccom_with(SYS_STRING* path) noexcept
 }
 
 
-static void mccom_extract(SYS_STRING* path, int *error) noexcept
+
+static int mccom_size(SYS_STRING* path) noexcept
 {
-	*error = 0;
 	try {
-		//messagePtr.reset(new Message(messagePtr->get_child_with(amcsGetString(path))));
+	 	return (*messagePtr)[messagePtr->withPath(amcsGetString(path))].size();
 	} catch (exception& e) {
-		*error = 1;
 		logMsg(LogError(e.what()).func(__func__));
 	}
-}
-
-
-static void mccom_compact(SYS_STRING* path, int *error) noexcept
-{
-	*error = 0;
-	try {
-		MessagePtr newMessage = make_unique<Message>();
-		//newMessage->put_child_with(amcsGetString(path), *messagePtr);
-		messagePtr.swap(newMessage);
-	} catch (exception& e) {
-		*error = 1;
-		logMsg(LogError(e.what()).func(__func__));
-	}
-}
-
-
-static void mccom_receive_string(SYS_STRING* str, int *error) noexcept
-{
-	*error = 0;
-	try {
-		messagePtr.reset(new Message(amcsGetString(str)));
-	} catch (exception& e) {
-		*error = 1;
-		logMsg(LogError(e.what()).func(__func__));
-	}
-}
-
-static string mccom_send_string(int *error) noexcept
-{
-	*error = 0;
-	string str;
-	try {
-		str = messagePtr->dump();
-	} catch (exception& e) {
-		*error = 1;
-		logMsg(LogError(e.what()).func(__func__));
-	}
-	return str;
+	return 0;
 }
 
 
@@ -274,6 +211,18 @@ static Type mccom_get(SYS_STRING* path, int *error) noexcept
 		logMsg(LogError(e.what()).func(__func__));
 	}
 	return Type();
+}
+
+static string mccom_get_json(SYS_STRING* path, int *error) noexcept
+{
+	*error = 0;
+	try {
+		return (*messagePtr)[messagePtr->withPath(amcsGetString(path))].dump();
+	} catch (exception& e) {
+		*error = 1;
+		logMsg(LogError(e.what()).func(__func__));
+	}
+	return string();
 }
 
 
@@ -292,7 +241,18 @@ static void mccom_put(SYS_STRING* path, Type value, int *error) noexcept
 static void mccom_put_string(SYS_STRING* path, SYS_STRING* value, int *error) noexcept
 {
 	try {
-		mccom_put(path, amcsGetString(value), error);
+		(*messagePtr)[messagePtr->withPath(amcsGetString(path))] = amcsGetString(value);
+	} catch (exception& e) {
+		*error = 1;
+		logMsg(LogError(e.what()).func(__func__));
+	}
+}
+
+static void mccom_put_json(SYS_STRING* path, SYS_STRING* value, int *error) noexcept
+{
+	*error = 0;
+	try {
+		(*messagePtr)[messagePtr->withPath(amcsGetString(path))] = json::parse(amcsGetString(value));
 	} catch (exception& e) {
 		*error = 1;
 		logMsg(LogError(e.what()).func(__func__));
@@ -337,41 +297,24 @@ extern "C" {
 		mccom_clear(error);
 	}
 
-	int MCCOM_EMPTY(int *error) {
-		return mccom_empty(error);
-	}
-
-	void MCCOM_STORE(int copy, int *error) {
-		mccom_store(copy, error);
+	void MCCOM_STORE(int *error) {
+		mccom_store(error);
 	}
 
 	void MCCOM_RESTORE(int *error) {
 		mccom_restore(error);
 	}
 
-	void MCCOM_DELETE(SYS_STRING** path) {
-		mccom_delete(*path);
-	}
-
 	void MCCOM_WITH(SYS_STRING** path) {
 		mccom_with(*path);
 	}
 
-	void MCCOM_EXTRACT(SYS_STRING** path, int *error) {
-		mccom_extract(*path, error);
+	int MCCOM_SIZE(SYS_STRING** path) {
+		return mccom_size(*path);
 	}
 
-	void MCCOM_COMPACT(SYS_STRING** path, int *error) {
-		mccom_compact(*path, error);
-	}
-
-	void MCCOM_RECEIVE_STRING(SYS_STRING** str, int *error) {
-		mccom_receive_string(*str, error);
-	}
-
-	SYS_STRING* MCCOM_SEND_STRING(int *error) {
-		auto str = mccom_send_string(error);
-		return str_GetString((unsigned char*)str.c_str(), str.length(), ASCII8_STRING_TYPE);
+	int MCCOM_GET_BOOL(SYS_STRING** path, int *error) {
+		return mccom_get<bool>(*path, error);
 	}
 
 	int MCCOM_GET_LONG(SYS_STRING** path, int *error) {
@@ -388,6 +331,15 @@ extern "C" {
 		return str_GetString((unsigned char*)str.c_str(), str.length(), ASCII8_STRING_TYPE);
 	}
 
+	SYS_STRING* MCCOM_GET_JSON(SYS_STRING** path, int *error) {
+		auto str = mccom_get_json(*path, error);
+		return str_GetString((unsigned char*)str.c_str(), str.length(), ASCII8_STRING_TYPE);
+	}
+
+	void MCCOM_PUT_BOOL(SYS_STRING** path, int value, int *error) {
+		mccom_put<bool>(*path, value, error);
+	}
+
 	void MCCOM_PUT_LONG(SYS_STRING** path, int value, int *error) {
 		mccom_put(*path, value, error);
 	}
@@ -398,6 +350,10 @@ extern "C" {
 
 	void MCCOM_PUT_STRING(SYS_STRING** path, SYS_STRING** value, int *error) {
 		mccom_put_string(*path, *value, error);
+	}
+
+	void MCCOM_PUT_JSON(SYS_STRING** path, SYS_STRING** value, int *error) {
+		mccom_put_json(*path, *value, error);
 	}
 
 }

@@ -25,7 +25,7 @@ public:
 	template<class Type>
 	Log&& log(const string& key, const Type& value)
 	{
-		self[key] = value;
+		(*this)[key] = value;
 		return move(*this);
 	}
 
@@ -43,7 +43,7 @@ protected:
 
 	Log(const int prio)
 	{
-		self["priority"] = prio;
+		(*this)["priority"] = prio;
 	}
 
 	Log(const int prio, const string& msg)

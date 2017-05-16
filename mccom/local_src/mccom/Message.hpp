@@ -56,7 +56,7 @@ public:
 
 	void merge(const Message& other) {
 		for (json::const_iterator it = other.begin(); it != other.end(); ++it)
-			self[it.key()] = it.value();
+			(*this)[it.key()] = it.value();
 	}
 
 
@@ -64,8 +64,6 @@ public:
 
 protected:
 	string prefix;
-
-	Message& self = *this;
 };
 
 #endif /* MESSAGE_HPP_ */

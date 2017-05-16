@@ -37,21 +37,20 @@ import_c MCCOM_RESET(byval as long)
 import_c MCCOM_CLOSE(byval as long)
 import_c MCCOM_CLOSE_ALL()
 import_c MCCOM_CLEAR(as long)
-import_c MCCOM_EMPTY(as long) as long
-import_c MCCOM_STORE(byval as long, as long)
+import_c MCCOM_STORE(as long)
 import_c MCCOM_RESTORE(as long)
-import_c MCCOM_DELETE(as string)
 import_c MCCOM_WITH(as string)
-import_c MCCOM_EXTRACT(as string, as long)
-import_c MCCOM_COMPACT(as string, as long)
-import_c MCCOM_RECEIVE_STRING(as string, as long)
-import_c MCCOM_SEND_STRING(as long) as string
+import_c MCCOM_SIZE(as string) as long
+import_c MCCOM_GET_BOOL(as string, as long) as long
 import_c MCCOM_GET_LONG(as string, as long) as long
 import_c MCCOM_GET_DOUBLE(as string, as long) as double
 import_c MCCOM_GET_STRING(as string, as long) as string
+import_c MCCOM_GET_JSON(as string, as long) as string
+import_c MCCOM_PUT_BOOL(as string, byval as long, as long)
 import_c MCCOM_PUT_LONG(as string, byval as long, as long)
 import_c MCCOM_PUT_DOUBLE(as string, byval as double, as long)
 import_c MCCOM_PUT_STRING(as string, as string, as long)
+import_c MCCOM_PUT_JSON(as string, as string, as long)
 
 
 
@@ -115,27 +114,9 @@ public sub com_clear
 end sub
 
 
-public function com_empty as long
-  dim err as long
-  com_empty = MCCOM_EMPTY(err)
-  if err then
-    throw com_error
-  end if
-end function
-
-
 public sub com_store
   dim err as long
-  MCCOM_STORE(false, err)
-  if err then
-    throw com_error
-  end if
-end sub
-
-
-public sub com_storeCopy
-  dim err as long
-  MCCOM_STORE(true, err)
+  MCCOM_STORE(err)
   if err then
     throw com_error
   end if
@@ -151,46 +132,19 @@ public sub com_restore
 end sub
 
 
-public sub com_delete(byval path as string)
-  MCCOM_DELETE(path)
-end sub
-
-
 public sub com_with(byval path as string)
   MCCOM_WITH(path)
 end sub
 
 
-public sub com_extract(byval path as string)
+public function com_size(byval path as string) as long
+  com_size = MCCOM_SIZE(path)
+end function
+
+
+public function com_getBool(byval path as string) as long
   dim err as long
-  MCCOM_EXTRACT(path, err)
-  if err then
-    throw com_error
-  end if
-end sub
-
-
-public sub com_compact(byval path as string)
-  dim err as long
-  MCCOM_COMPACT(path, err)
-  if err then
-    throw com_error
-  end if
-end sub
-
-
-public sub com_receiveString(byval str as string)
-  dim err as long
-  MCCOM_RECEIVE_STRING(str, err)
-  if err then
-    throw com_error
-  end if
-end sub
-
-
-public function com_sendString as string
-  dim err as long
-  com_sendString = MCCOM_SEND_STRING(err)
+  com_getBool = MCCOM_GET_BOOL(path, err)
   if err then
     throw com_error
   end if
@@ -224,19 +178,37 @@ public function com_getString(byval path as string) as string
 end function
 
 
+public function com_getJson(byval path as string) as string
+  dim err as long
+  com_getJson = MCCOM_GET_JSON(path, err)
+  if err then
+    throw com_error
+  end if
+end function
+
+
 public function com_getLocationXy(byval path as string) as location of xy
-  com_getLocationXy = #{com_getDouble(path+".x"), com_getDouble(path+".y")} 
+  com_getLocationXy = #{com_getDouble(path+"/x"), com_getDouble(path+"/y")} 
 end function
 
 
 public function com_getLocationXyzr(byval path as string) as location of xyzr
-  com_getLocationXyzr = #{com_getDouble(path+".x"), com_getDouble(path+".y"), com_getDouble(path+".z"), com_getDouble(path+".r")} 
+  com_getLocationXyzr = #{com_getDouble(path+"/x"), com_getDouble(path+"/y"), com_getDouble(path+"/z"), com_getDouble(path+"/r")} 
 end function
 
 
 public function com_getJointXyzr(byval path as string) as joint of xyzr
-  com_getJointXyzr = {com_getDouble(path+".1"), com_getDouble(path+".2"), com_getDouble(path+".3"), com_getDouble(path+".4")} 
+  com_getJointXyzr = {com_getDouble(path+"/1"), com_getDouble(path+"/2"), com_getDouble(path+"/3"), com_getDouble(path+"/4")} 
 end function
+
+
+public sub com_putBool(byval path as string, byval boolValue as long)
+  dim err as long
+  MCCOM_PUT_BOOL(path, boolValue, err)
+  if err then
+    throw com_error
+  end if
+end sub
 
 
 public sub com_putLong(byval path as string, byval longValue as long)
@@ -274,23 +246,32 @@ public sub com_putStringRef(byval path as string, stringValue as string)
 end sub
 
 
+public sub com_putJson(byval path as string, byval jsonValue as string)
+  dim err as long
+  MCCOM_PUT_JSON(path, jsonValue, err)
+  if err then
+    throw com_error
+  end if
+end sub
+
+
 public sub com_putLocationXy(byval path as string, byval pos as location of xy)
-  call com_putDouble(path+".x", pos{1})
-  call com_putDouble(path+".y", pos{2})
+  call com_putDouble(path+"/x", pos{1})
+  call com_putDouble(path+"/y", pos{2})
 end sub
 
 
 public sub com_putLocationXyzr(byval path as string, byval pos as location of xyzr)
-  call com_putDouble(path+".x", pos{1})
-  call com_putDouble(path+".y", pos{2})
-  call com_putDouble(path+".z", pos{3})
-  call com_putDouble(path+".r", pos{4})
+  call com_putDouble(path+"/x", pos{1})
+  call com_putDouble(path+"/y", pos{2})
+  call com_putDouble(path+"/z", pos{3})
+  call com_putDouble(path+"/r", pos{4})
 end sub
 
 
 public sub com_putJointXyzr(byval path as string, byval jnt as joint of xyzr)
-  call com_putDouble(path+".1", jnt{1})
-  call com_putDouble(path+".2", jnt{2})
-  call com_putDouble(path+".3", jnt{3})
-  call com_putDouble(path+".4", jnt{4})
+  call com_putDouble(path+"/1", jnt{1})
+  call com_putDouble(path+"/2", jnt{2})
+  call com_putDouble(path+"/3", jnt{3})
+  call com_putDouble(path+"/4", jnt{4})
 end sub
