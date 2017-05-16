@@ -18,11 +18,11 @@
 #ifndef MESSAGE_HPP_
 #define MESSAGE_HPP_
 
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
+#include <json.hpp>
+using json = nlohmann::json;
 
 
-class Message : public boost::property_tree::ptree
+class Message : public json
 {
 public:
 	enum Event {
@@ -33,73 +33,39 @@ public:
 
 
 	Message() {}
+	Message(const string& str) : json(json::parse(str)) {}
 	Message(const Event event) : event(event) {}
-	Message(const boost::property_tree::ptree& rhs) : boost::property_tree::ptree(rhs) {}
+	Message(const json& rhs) : json(rhs) {}
 
-	Message(const string& json)
-	{
-		stringstream ss(json);
-		boost::property_tree::read_json(ss, *static_cast<boost::property_tree::ptree*>(this));
-	}
-
-	string toString() const
-	{
-		stringstream ss;
-		boost::property_tree::write_json(ss, *static_cast<const boost::property_tree::ptree*>(this), false);
-
-		string json;
-		getline(ss, json);
-
-		return json;
-	}
 
 	void with(const string& with)
 	{
 		if (with.empty())
 			prefix.clear();
 		else
-			prefix = with + ".";
+			prefix = with + "/";
 	}
 
-	template<class Type>
-	void put_with(const string& path, const Type& value)
-	{
-		put(prefix+path, value);
-	}
-
-	template<class Type>
-	Type get_with(const string& path) const
-	{
-		return get<Type>(prefix+path);
-	}
-
-	void erase_with(string path)
-	{
-    	path = prefix+path;
-		auto lastDot = path.rfind(".");
-
-		if (lastDot != string::npos)
-			get_child(path.substr(0, lastDot)).erase(path.substr(lastDot+1));
+	json::json_pointer withPath(const string& path) const {
+		if (path[0] == '/' || path.empty())
+			return json::json_pointer(path);
 		else
-			erase(path);
-	}
-
-	const boost::property_tree::ptree& get_child_with(const string& path) const
-	{
-		return get_child(prefix+path);
-	}
-
-	void put_child_with(const string& path, const boost::property_tree::ptree& child)
-	{
-		put_child(prefix+path, child);
+			return json::json_pointer(prefix + path);
 	}
 
 
-	Event event = Event::message;
+	void merge(const Message& other) {
+		for (json::const_iterator it = other.begin(); it != other.end(); ++it)
+			self[it.key()] = it.value();
+	}
 
 
-private:
+	const Event event = Event::message;
+
+protected:
 	string prefix;
+
+	Message& self = *this;
 };
 
 #endif /* MESSAGE_HPP_ */

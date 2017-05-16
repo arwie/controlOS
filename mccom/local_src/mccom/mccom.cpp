@@ -193,7 +193,7 @@ static void mccom_restore(int *error) noexcept
 static void mccom_delete(SYS_STRING* path) noexcept
 {
 	try {
-		messagePtr->erase_with(amcsGetString(path));
+		messagePtr->erase(messagePtr->withPath(amcsGetString(path)));
 	}
 	catch (exception& e) {
 		logMsg(LogError(e.what()).func(__func__));
@@ -216,7 +216,7 @@ static void mccom_extract(SYS_STRING* path, int *error) noexcept
 {
 	*error = 0;
 	try {
-		messagePtr.reset(new Message(messagePtr->get_child_with(amcsGetString(path))));
+		//messagePtr.reset(new Message(messagePtr->get_child_with(amcsGetString(path))));
 	} catch (exception& e) {
 		*error = 1;
 		logMsg(LogError(e.what()).func(__func__));
@@ -229,7 +229,7 @@ static void mccom_compact(SYS_STRING* path, int *error) noexcept
 	*error = 0;
 	try {
 		MessagePtr newMessage = make_unique<Message>();
-		newMessage->put_child_with(amcsGetString(path), *messagePtr);
+		//newMessage->put_child_with(amcsGetString(path), *messagePtr);
 		messagePtr.swap(newMessage);
 	} catch (exception& e) {
 		*error = 1;
@@ -254,7 +254,7 @@ static string mccom_send_string(int *error) noexcept
 	*error = 0;
 	string str;
 	try {
-		str = messagePtr->toString();
+		str = messagePtr->dump();
 	} catch (exception& e) {
 		*error = 1;
 		logMsg(LogError(e.what()).func(__func__));
@@ -268,7 +268,7 @@ static Type mccom_get(SYS_STRING* path, int *error) noexcept
 {
 	*error = 0;
 	try {
-	 	return messagePtr->get_with<Type>(amcsGetString(path));
+	 	return (*messagePtr)[messagePtr->withPath(amcsGetString(path))];
 	} catch (exception& e) {
 		*error = 1;
 		logMsg(LogError(e.what()).func(__func__));
@@ -282,7 +282,7 @@ static void mccom_put(SYS_STRING* path, Type value, int *error) noexcept
 {
 	*error = 0;
 	try {
-		messagePtr->put_with(amcsGetString(path), value);
+		(*messagePtr)[messagePtr->withPath(amcsGetString(path))] = value;
 	} catch (exception& e) {
 		*error = 1;
 		logMsg(LogError(e.what()).func(__func__));

@@ -45,17 +45,15 @@ public:
 
 	virtual void logMsg(Log&& msg)
 	{
-		for (auto& kv : log)
-			msg.put_child(kv.first, kv.second);
-
+		msg.merge(log);
 		::logMsg(move(msg));
 	}
 
 protected:
 	Channel(const string& channelName, const Message& args)
-		: log(args.get_child("log", Message()))
+		: log(args.value("log", Message()))
 	{
-		log.put("channel", channelName);
+		log["channel"] = channelName;
 	}
 
 	bool closed = false;

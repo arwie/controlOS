@@ -18,6 +18,7 @@
 #ifndef CHANNELLOG_HPP_
 #define CHANNELLOG_HPP_
 
+#include <unistd.h>
 #include <sys/syscall.h>
 
 
@@ -39,8 +40,8 @@ class ChannelLog : public QueuingChannel
 public:
 	ChannelLog(const Message& args)
 		: Channel("log", args), QueuingChannel(args),
-		  base(args.get_child("base", Message())),
-		  priority(args.get<int>("priority", LogInfo::priority))
+		  base(args.value("base", Message())),
+		  priority(args.value("priority", LogInfo::priority))
 	{}
 
 	void open() override
@@ -54,22 +55,22 @@ public:
 	void send(const Message& message) override
 	{
 		thread_local pid_t  tid = syscall(SYS_gettid);	// cache tid (reduce syscalls)
-		thread_local string prg = message.get<string>("prg", string());
+		thread_local string prg = message.value("prg", string());
 
-		if (message.get<int>("priority", LogDebug::priority) > priority)
+		if (message.value("priority", LogDebug::priority) > priority)
 			return;
 
 		auto messagePtr = make_unique<Message>(message);
 
-		for (auto& kv : base)
-			messagePtr->put_child(kv.first, kv.second);
+
+		messagePtr->merge(base);
 
 		//messagePtr->put("timestamp", chrono::steady_clock::now().time_since_epoch());
 
-		messagePtr->put("tid", tid);
+		(*messagePtr)["tid"] = tid;
 
 		if (!prg.empty())
-			messagePtr->put("prg", prg);
+			(*messagePtr)["prg"] = prg;
 
 		pushMessage(move(messagePtr));
 	}

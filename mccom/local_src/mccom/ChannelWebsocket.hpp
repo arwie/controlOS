@@ -29,11 +29,11 @@ public:
 	ChannelWebsocket(const Message& args)
 		: Channel("websocket", args), QueuingChannel(args)
 	{
-		port				= args.get<int>("port");
-		auto receive		= args.get<bool>("receive", true);
+		port				= args["port"];
+		auto receive		= args.value("receive", true);
 
-		log.put("port", port);
-		log.put("receive", receive);
+		log["port"] = port;
+		log["receive"] = receive;
 
 		wsServer.init_asio();
 		wsServer.set_reuse_addr(true);
@@ -94,7 +94,7 @@ public:
 
 	void send(const Message& message) override
 	{
-		auto msgString = message.toString();
+		auto msgString = message.dump();
 
 		lock_guard<mutex> lock(connectionsMtx);
 		for(auto& con : connections) {

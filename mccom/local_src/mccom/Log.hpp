@@ -23,9 +23,9 @@ class Log : public Message
 public:
 
 	template<class Type>
-	Log&& log(const string& path, const Type& value)
+	Log&& log(const string& key, const Type& value)
 	{
-		put(path, value);
+		self[key] = value;
 		return move(*this);
 	}
 
@@ -43,7 +43,7 @@ protected:
 
 	Log(const int prio)
 	{
-		put("priority", prio);
+		self["priority"] = prio;
 	}
 
 	Log(const int prio, const string& msg)
