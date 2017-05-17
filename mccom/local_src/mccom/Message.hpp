@@ -32,10 +32,16 @@ public:
 	};
 
 
-	Message() {}
-	Message(const string& str) : json(json::parse(str)) {}
-	Message(const Event event) : event(event) {}
-	Message(const json& rhs) : json(rhs) {}
+	Message()									{}
+
+	explicit Message(const json& rhs)
+		:json(rhs)								{}
+
+	explicit Message(const Event event)
+		:event(event)							{}
+
+	explicit Message(const string& str)
+		:json(json::parse(str))					{}
 
 
 	void with(const string& with)

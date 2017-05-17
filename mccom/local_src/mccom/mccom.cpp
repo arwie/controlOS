@@ -32,6 +32,8 @@
 
 using namespace std;
 
+#define DEBUG(x)	if (true) { cout << x << endl; }
+
 
 class Message; using MessagePtr = unique_ptr<Message>;
 class Channel; using ChannelPtr = shared_ptr<Channel>;
@@ -71,6 +73,7 @@ static int mccom_open(int channelType, int *error) noexcept
 	} catch (exception& e) {
 		*error = 1;
 		logMsg(LogError(e.what()).func(__func__));
+		DEBUG("mccom_open: " << e.what());
 	}
 	return -1;
 }

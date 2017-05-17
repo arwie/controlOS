@@ -51,7 +51,7 @@ public:
 
 protected:
 	Channel(const string& channelName, const Message& args)
-		: log(args.value("log", Message()))
+		: log(args.value("log", json::object()))
 	{
 		log["channel"] = channelName;
 	}

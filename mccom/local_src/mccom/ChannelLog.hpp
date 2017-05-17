@@ -40,7 +40,7 @@ class ChannelLog : public QueuingChannel
 public:
 	ChannelLog(const Message& args)
 		: Channel("log", args), QueuingChannel(args),
-		  base(args.value("base", Message())),
+		  base(args.value("base", json::object())),
 		  priority(args.value("priority", LogInfo::priority))
 	{}
 
