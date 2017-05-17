@@ -198,7 +198,7 @@ end function
 
 
 public function com_getJointXyzr(byval path as string) as joint of xyzr
-  com_getJointXyzr = {com_getDouble(path+"/1"), com_getDouble(path+"/2"), com_getDouble(path+"/3"), com_getDouble(path+"/4")} 
+  com_getJointXyzr = {com_getDouble(path+"/0"), com_getDouble(path+"/1"), com_getDouble(path+"/2"), com_getDouble(path+"/3")} 
 end function
 
 
@@ -270,8 +270,8 @@ end sub
 
 
 public sub com_putJointXyzr(byval path as string, byval jnt as joint of xyzr)
-  call com_putDouble(path+"/1", jnt{1})
-  call com_putDouble(path+"/2", jnt{2})
-  call com_putDouble(path+"/3", jnt{3})
-  call com_putDouble(path+"/4", jnt{4})
+  call com_putDouble(path+"/0", jnt{1})
+  call com_putDouble(path+"/1", jnt{2})
+  call com_putDouble(path+"/2", jnt{3})
+  call com_putDouble(path+"/3", jnt{4})
 end sub
