@@ -82,7 +82,9 @@ try
 catch else
 	call logPrgError
 	call logSend
+<?if(!$sim) {?>
 	print sh("reboot")
+<?}?>
 end try
 
 end sub

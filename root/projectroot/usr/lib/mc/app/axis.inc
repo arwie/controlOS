@@ -112,7 +112,7 @@ function defaultAxisSetup(&$ax) { global $drive;
 	}
 	ll($ax['name'].'.smoothFactor				= -1');
 	if ($ax['simulated']) {
-		ll($ax['name'].'.positionerrordelay			= 1');
+		ll($ax['name'].'.positionerrordelay			= 4');
 	}
 }
 
