@@ -61,7 +61,7 @@ sub pollData
 	}
 
 	foreach($robot as $rbt) {
-		ll('call com_putBool("/'.$rbt['name'].'/enable", '.$rbt['name'].'enable)');
+		ll('call com_putBool("/'.$rbt['name'].'/enable", '.$rbt['name'].'.enable)');
 		ll('call com_putJoint'.ucfirst($rbt['type']).'("/'.$rbt['name'].'/positionFeedback", '.$rbt['name'].'.positionFeedback)');
 	}
 
