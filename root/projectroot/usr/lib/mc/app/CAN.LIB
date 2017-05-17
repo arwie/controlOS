@@ -79,12 +79,12 @@ end function
 	lll($cmd);
 	ll('catch else');
 	lll('call logLibError(scope+": "+error)');
-	lll('call com_putLong("error", errornumber)');
+	lll('call com_putLong("/error", errornumber)');
 	lll('call log_putCodeFunc(scope)');
-	lll('call com_putLong("slave", slave_)');
-	lll('call com_putString("index", hex$(index_)+"h")');
-	lll('call com_putLong("subindex", subindex_)');
-	if ($valueType) lll('call com_put'.ucfirst($valueType).'("value", value_)');
+	lll('call com_putLong("/slave", slave_)');
+	lll('call com_putString("/index", hex$(index_)+"h")');
+	lll('call com_putLong("/subindex", subindex_)');
+	if ($valueType) lll('call com_put'.ucfirst($valueType).'("/value", value_)');
 	lll('call logSend');
 	ll('finally');
 	lll('throw');

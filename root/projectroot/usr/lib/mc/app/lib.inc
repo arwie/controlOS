@@ -27,13 +27,13 @@ function libBegin($file, $type='app') { global $lib;
 }
 
 
-function libComOpenServerWebsocket($name, $port, $args=[])	{ libComOpen($name, 'websocket', array_merge(['long("port", '.$port.')'], $args)); }
+function libComOpenServerWebsocket($name, $port, $args=[])	{ libComOpen($name, 'websocket', array_merge(['long("/port", '.$port.')'], $args)); }
 function libComOpenFifo($name, $args=[])					{ libComOpen($name, 'fifo', $args); }
 
 function libComOpen($name, $type, $args=[]) { global $lib;
 	ll('call com_clear');
-	ll('call com_putString("log.lib",  "'.$lib['name'].'")');
-	ll('call com_putString("log.name", "'.$name.'")');
+	ll('call com_putString("/log/lib",  "'.$lib['name'].'")');
+	ll('call com_putString("/log/name", "'.$name.'")');
 	foreach ($args as $arg) {
 		ll('call com_put'.ucfirst($arg)); 
 	}
@@ -162,13 +162,13 @@ function libEnd() { global $lib, $libs, $out;
 	l('sub logLib(byval prio as long, message as string)');
 	ll('call com_store');
 	ll('call log_messageRef(prio, message)');
-	ll('call com_putString("lib", "'.$lib['name'].'")');
+	ll('call com_putString("/lib", "'.$lib['name'].'")');
 	l('end sub');
 
 	if ($lib['prg']) {
 		l('sub logPrgError');
 		ll('call logLibError('.$lib['prg']['file'].'.error)');
-		ll('call com_putLong("error", '.$lib['prg']['file'].'.errornumber)');
+		ll('call com_putLong("/error", '.$lib['prg']['file'].'.errornumber)');
 		l('end sub');
 	}
 

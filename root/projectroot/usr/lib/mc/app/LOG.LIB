@@ -37,22 +37,22 @@ end sub
 
 public sub log_messageRef(byval prio_ as long, message_ as string)
 	call com_clear
-	call com_putLong("priority", prio_)
-	call com_putStringRef("message", message_)
+	call com_putLong("/priority", prio_)
+	call com_putStringRef("/message", message_)
 end sub
 
 
 public sub log_putMessageId(byval messageId_ as string)
-	call com_putStringRef("message_id", messageId_)
+	call com_putStringRef("/message_id", messageId_)
 end sub
 
 public sub log_putCodeFunc(byval codeFunc_ as string)
-	call com_putStringRef("code_func", codeFunc_)
+	call com_putStringRef("/code_func", codeFunc_)
 end sub
 
 public sub log_putReport(byval report_ as string)
-	call com_putStringRef("report", report_)
-	call com_putLong("reports", true)
+	call com_putStringRef("/report", report_)
+	call com_putLong("/reports", true)
 end sub
 
 
@@ -67,12 +67,12 @@ end sub
 
 
 <?lib_init()?>
-<?	libComOpen('comLogChannel', 'log', ['long("priority", log_priority)'])?> 
+<?	libComOpen('comLogChannel', 'log', ['long("/priority", log_priority)'])?> 
 end sub
 
 
 <?lib_start()?>
-<?	libComOpenServerWebsocket('comLogServer', 5600, ['long("receive", false)'])?>
+<?	libComOpenServerWebsocket('comLogServer', 5600, ['bool("/receive", false)'])?>
 end sub
 
 
@@ -100,7 +100,7 @@ end sub
 sub printLog
 	dim prio as long
 	try
-		prio = com_getLong("priority")
+		prio = com_getLong("/priority")
 		if prio <= log_priorityPrint then
 			select case prio
 			case log_prioCritical
@@ -116,7 +116,7 @@ sub printLog
 			case log_prioDebug
 				print "   debug: ";
 			end select
-			print com_getString("message")
+			print com_getString("/message")
 		end if
 	catch else
 	end try

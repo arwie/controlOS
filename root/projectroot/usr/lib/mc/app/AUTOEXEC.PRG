@@ -27,7 +27,7 @@ program continue
 	onSystemError
 		catch else
 			call log_message(log_prioError, system.error)
-			call com_putLong("error", system.errornumber)
+			call com_putLong("/error", system.errornumber)
 			call log_putCodeFunc("onSystemError")
 			call log_send
 	end onSystemError
@@ -56,9 +56,9 @@ terminate program
 
 sub logSystemStart
 	call log_message(log_prioInfo, "mc system start")
-	call com_putString("version", version)
-	call com_putString("sn",  system.serialNumber)
-	call com_putString("uac", system.userAuthorizationCode)
+	call com_putString("/version", version)
+	call com_putString("/sn",  system.serialNumber)
+	call com_putString("/uac", system.userAuthorizationCode)
 	call log_putMessageId("94cb9b9f452e4309a1265c857c5321a2")
 	call log_send
 end sub

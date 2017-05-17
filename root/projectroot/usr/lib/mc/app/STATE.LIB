@@ -20,7 +20,7 @@ dim shared stateWatchdogIntervalMs as const long	= 1000
 
 
 <?lib_init()?>
-<?	libComOpenServerWebsocket('state_comStateServer', 33000, ['long("receive", false)'])?>
+<?	libComOpenServerWebsocket('state_comStateServer', 33000, ['bool("/receive", false)'])?>
 end sub
 
 
@@ -40,6 +40,6 @@ end sub
 sub putState
 <?
 	foreach ($libs['all'] as $l) 
-		ll('call com_putLong("'.$l['name'].'", '.$l['name'].'_started)')
+		ll('call com_putBool("/'.$l['name'].'", '.$l['name'].'_started)')
 ?>
 end sub

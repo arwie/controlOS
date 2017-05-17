@@ -56,7 +56,7 @@ end sub
 sub logStatusChange(byval name_ as string, byval statusword_ as long, byval errorcode_ as long)
 	if errorcode_ then
 		call logLibError(name_+" drive error: "+errorString(errorcode_))
-		call com_putString("error", hex$(errorcode_)+"h")
+		call com_putString("/error", hex$(errorcode_)+"h")
 	else
 		if (statusword_ band 0x4) then
 			call logLibInfo(name_+" drive enabled")
@@ -64,8 +64,8 @@ sub logStatusChange(byval name_ as string, byval statusword_ as long, byval erro
 			call logLibInfo(name_+" drive idle")
 		end if
 	end if
-	call com_putString("status", hex$(statusword_)+"h")
-	call com_putString("axis", name_)
+	call com_putString("/status", hex$(statusword_)+"h")
+	call com_putString("/axis", name_)
 	call log_putMessageId("f6c6e5c79dc340eb94211a577fd61e0b")
 	call logSend
 end sub
@@ -78,9 +78,9 @@ end sub
 	call logLibInfo("<?=$ax['name']?> drive information")
 	
 	' reading strings not supported yet
-	call com_putString("version", "123")	
+	call com_putString("/version", "123")	
 	
-	call com_putString("axis", "<?=$ax['name']?>")
+	call com_putString("/axis", "<?=$ax['name']?>")
 	call log_putMessageId("866facc307854a73bdf1483e90ae4171")
 	call logSend
 
@@ -99,7 +99,7 @@ end sub
 	call logLibInfo("<?=$ax['name']?> drive health")
 	
 	statusword_ = <?=$ax['name']?>_deviceRead(0x6041, 0)
-	call com_putString("status", hex$(statusword_)+"h")
+	call com_putString("/status", hex$(statusword_)+"h")
 
 	if (statusword_ band 0x80) then 'drive warnings
 <?if ($ax['device']=='cdhd') {?>
@@ -109,25 +109,25 @@ end sub
 		warningsUpper_ = bin$(<?=$ax['name']?>_deviceRead(0x2011, 2))
 		warningsUpper_ = string$(32-len(warningsUpper_), "0") + warningsUpper_
 		
-		call com_putString("warnings", warningsUpper_ + warningsLower_)
+		call com_putString("/warnings", warningsUpper_ + warningsLower_)
 <?}?>
 <?if ($ax['device']=='stepim') {?>
-		call com_putString("warnings", bin$(<?=$ax['name']?>_deviceRead(0x2011, 0)))
+		call com_putString("/warnings", bin$(<?=$ax['name']?>_deviceRead(0x2011, 0)))
 <?}?>
 	end if
 
 <?if ($ax['device']=='cdhd') {?>
-	call com_putLong("temp_control",	<?=$ax['name']?>_deviceRead(0x2044, 1))
-	call com_putLong("temp_power",		<?=$ax['name']?>_deviceRead(0x2044, 2))
-	call com_putLong("temp_motor",		<?=$ax['name']?>_deviceRead(0x20C7, 0))
+	call com_putLong("/temp_control",	<?=$ax['name']?>_deviceRead(0x2044, 1))
+	call com_putLong("/temp_power",		<?=$ax['name']?>_deviceRead(0x2044, 2))
+	call com_putLong("/temp_motor",		<?=$ax['name']?>_deviceRead(0x20C7, 0))
 <?}?>
 <?if ($ax['device']=='stepim') {?>
-	call com_putLong("temp_drive",		<?=$ax['name']?>_deviceRead(0x2044, 0))
+	call com_putLong("/temp_drive",		<?=$ax['name']?>_deviceRead(0x2044, 0))
 <?}?>
 
-	call com_putDouble("bus_voltage",	<?=$ax['name']?>_deviceRead(0x6079, 0)/1000.0)
+	call com_putDouble("/bus_voltage",	<?=$ax['name']?>_deviceRead(0x6079, 0)/1000.0)
 	
-	call com_putString("axis", "<?=$ax['name']?>")
+	call com_putString("/axis", "<?=$ax['name']?>")
 	call log_putMessageId("9e9d13be4cfe4f95a1ddcfde91facd7f")
 	call logSend
 

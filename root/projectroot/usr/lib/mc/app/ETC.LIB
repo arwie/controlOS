@@ -28,9 +28,9 @@ try
 
 	call logLibInfo("ethercat init with "+str$(slaveCount_)+" slaves")
 	call log_putMessageId("af06a2c1696f46b18b948283b249a04e")
-	call com_putLong("slavecount", slaveCount_)
+	call com_putLong("/slavecount", slaveCount_)
 	for slave_ = 1 to slaveCount_
-		call com_with("slave"+str$(slave_))
+		call com_with("/slave"+str$(slave_))
 		call com_putLong("position",		EC_SLAVES_INFO[slave_]->position)
 		call com_putLong("vendor",			EC_SLAVES_INFO[slave_]->vendor_id)
 		call com_putLong("product",			EC_SLAVES_INFO[slave_]->product_code)
@@ -112,12 +112,12 @@ end function
 	lll($cmd);
 	ll('catch else');
 	lll('call logLibError(scope+": "+error)');
-	lll('call com_putLong("error", errornumber)');
+	lll('call com_putLong("/error", errornumber)');
 	lll('call log_putCodeFunc(scope)');
-	lll('call com_putLong("slave", slave_)');
-	lll('call com_putString("index", hex$(index_)+"h")');
-	lll('call com_putLong("subindex", subindex_)');
-	if ($valueType) lll('call com_put'.ucfirst($valueType).'("value", value_)');
+	lll('call com_putLong("/slave", slave_)');
+	lll('call com_putString("/index", hex$(index_)+"h")');
+	lll('call com_putLong("/subindex", subindex_)');
+	if ($valueType) lll('call com_put'.ucfirst($valueType).'("/value", value_)');
 	lll('call logSend');
 	ll('finally');
 	lll('throw');

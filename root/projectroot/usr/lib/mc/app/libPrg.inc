@@ -18,8 +18,8 @@
 
 program
 	call log_message(log_prioDebug, "<?=$lib['name']?> prg started")
-	call com_putString("prg", "<?=$lib['name']?>")
-	call com_putString("lib", "<?=$lib['name']?>")
+	call com_putString("/prg", "<?=$lib['name']?>")
+	call com_putString("/lib", "<?=$lib['name']?>")
 	call log_send
 	
 	onError
@@ -73,7 +73,7 @@ program
 <?}?>
 	
 	call log_message(log_prioDebug, "<?=$lib['name']?> prg stopped")
-	call com_putString("lib", "<?=$lib['name']?>")
+	call com_putString("/lib", "<?=$lib['name']?>")
 	call log_send
 end program
 
@@ -81,9 +81,9 @@ end program
 
 sub logErrorFunction(byval func_ as string)	
 	call log_message(log_prioError, <?=$lib['prg']['file']?>.error)
-	call com_putLong("error", <?=$lib['prg']['file']?>.errornumber)
+	call com_putLong("/error", <?=$lib['prg']['file']?>.errornumber)
 	call log_putCodeFunc(func_)
-	call com_putString("prg", "<?=$lib['name']?>")
-	call com_putString("lib", "<?=$lib['name']?>")
+	call com_putString("/prg", "<?=$lib['name']?>")
+	call com_putString("/lib", "<?=$lib['name']?>")
 	call log_send
 end sub

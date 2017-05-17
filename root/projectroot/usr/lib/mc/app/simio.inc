@@ -49,7 +49,7 @@ function output($name, $type, $sim=false, $default=null) {
 
 
 function simio($dir, $name, $type, $sim, $default) { global $simio, $lib, $out;
-	static $id = 1;
+	static $id = 0;
 	
 	$name = $lib['name'].'_'.$name;
 	

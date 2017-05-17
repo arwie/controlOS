@@ -58,8 +58,8 @@
 function Io(io, send) {
 	let self = this;
 	
-	self.id		= parseInt(io.id);
-	self.sim	= parseInt(io.sim);
+	self.id		= io.id;
+	self.sim	= io.sim;
 	self.name	= io.name;
 	self.dir	= io.dir;
 	self.type	= io.type;
@@ -74,18 +74,18 @@ function Io(io, send) {
 	
 	self.ordSendValue = function(d, e) {
 		if (e.keyCode != 13) return true;
-		send({id:self.id, ord:2, io:e.target.value});
+		send({id:self.id, ord:2, io:self.parseType(e.target.value)});
 		e.target.value = '';
 	}
 	
 	self.ordSendPreset = function(d, e) {
-		send({id:self.id, ord:2, io:e.target.value});
+		send({id:self.id, ord:2, io:self.parseType(e.target.value)});
 	}
 	
 	self.update	= function(io) {
-		self.app(self.parseType(io.app));
-		self.io(self.parseType(io.io));
-		self.ord(parseInt(io.ord));
+		self.app(io.app);
+		self.io(io.io);
+		self.ord(io.ord);
 	}
 	
 	self.parseType = function(value) {
@@ -93,7 +93,7 @@ function Io(io, send) {
 			case 'long':
 				return parseInt(value);
 			case 'double':
-				return parseFloat(value).toFixed(2);
+				return parseFloat(value);
 		}
 		return value;
 	}
@@ -113,23 +113,23 @@ gui.simio = new function() {
 	
 	self.start = function()
 	{
-		self.mc = new WebSocket('ws://192.168.173.100:6002');
+		self.mc = new WebSocket('ws://'+hosts.mc+':6002');
 		
 		self.mc.onmessage = function (e) {
 			let msg = JSON.parse(e.data);
 			
 			if ($.isEmptyObject(self.ios)) {
-				for (let id of Object.keys(msg)) {
-					self.ios[id] = new Io(msg[id], self.send);
-					if (msg[id].dir == 'in')
-						self.inputs.push(self.ios[id]);
+				for (let io of msg) {
+					self.ios[io.id] = new Io(io, self.send);
+					if (io.dir == 'in')
+						self.inputs.push(self.ios[io.id]);
 					else
-						self.outputs.push(self.ios[id]);
+						self.outputs.push(self.ios[io.id]);
 				}
-			}
-
-			for (let id of Object.keys(msg)) {
-				self.ios[id].update(msg[id]);
+			} else {
+				for (let io of msg) {
+					self.ios[io.id].update(io);
+				}
 			}
 		}
 	}

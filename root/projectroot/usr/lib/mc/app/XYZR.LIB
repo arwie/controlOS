@@ -80,11 +80,11 @@ end function
 
 public function xyzr_comGetPos(byval path as string) as xyzr_posType
 	xyzr_comGetPos->xyzr = com_getLocationXyzr(path)
-	xyzr_comGetPos->arm  = com_getLong(path+".arm")
+	xyzr_comGetPos->arm  = com_getLong(path+"/arm")
 end function
 
 
 public sub xyzr_comPutPos(byval path as string, byval pos as xyzr_posType)
 	call com_putLocationXyzr(path, pos->xyzr)
-	call com_putLong(path+".arm", pos->arm)
+	call com_putLong(path+"/arm", pos->arm)
 end sub

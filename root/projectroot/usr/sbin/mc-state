@@ -34,7 +34,7 @@ args = parser.parse_args()
 
 def process(msg):
 	for k, v in msg.items():
-		subprocess.run(['/bin/systemctl', '--no-block', 'start' if int(v) else 'stop', 'mc-state@{}.target'.format(k)])
+		subprocess.run(['/bin/systemctl', '--no-block', 'start' if v else 'stop', 'mc-state@{}.target'.format(k)])
 
 
 @gen.coroutine

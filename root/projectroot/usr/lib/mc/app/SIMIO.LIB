@@ -38,8 +38,7 @@ end sub
 	select case com_receive(simioWebsocket, pollIntervalMs)
 	case com_receiveConnect
 		simioWebsocketConnected = true
-		call com_clear
-		call putList
+		call sendList
 	case com_receiveMessage
 		try
 			call handleOverride
@@ -47,7 +46,6 @@ end sub
 			call logPrgError
 			call logSend
 		end try
-		call com_clear
 	case com_receiveDisconnect
 		simioWebsocketConnected = false
 	end select
@@ -59,19 +57,18 @@ end sub
 			call logPrgError
 			call logSend
 		end try
-		call putUpdate
-		call com_send(simioWebsocket)
+		call sendUpdate
 	end if
 end sub
 
 
 
 sub handleOverride
-	select case com_getLong("id")
+	select case com_getLong("/id")
 <?
 	foreach($simio as $io) {
 		ll('case '.$io['id']);
-		lll('select case com_getLong("ord")');
+		lll('select case com_getLong("/ord")');
 		
 		lll('case 0');
 		if (!$io['sim']) {
@@ -79,19 +76,19 @@ sub handleOverride
 				llll($io['io'].' = '.$io['app']);
 				llll('call '.$io['set'].'('.$io['io'].')');
 			}
-			llll($io['ord'].' = 0');
+			llll($io['ord'].' = false');
 		}
 		
 		lll('case 1');
-		llll($io['ord'].' = 1');
+		llll($io['ord'].' = true');
 		
 		lll('case 2');
 		if ($io['dir'] == 'in') {
-			llll($io['app'].' = com_get'.ucfirst($io['type']).'("io")');
-			llll($io['ord'].' = 1');
+			llll($io['app'].' = com_get'.ucfirst($io['type']).'("/io")');
+			llll($io['ord'].' = true');
 		} else if (!$io['sim']) {
-			llll($io['ord'].' = 1');
-			llll($io['io'].'  = com_get'.ucfirst($io['type']).'("io")');
+			llll($io['ord'].' = true');
+			llll($io['io'].'  = com_get'.ucfirst($io['type']).'("/io")');
 			llll('call '.$io['set'].'('.$io['io'].')');
 		}
 		
@@ -116,22 +113,26 @@ sub updateInputs
 end sub
 
 
-sub putUpdate
+sub sendUpdate
+	call com_clear
 <?
 	foreach($simio as $io) {
-		ll('call com_with("'.$io['id'].'")');
+		ll('call com_with("/'.$io['id'].'")');
+		lll('call com_putLong("id",  '.$io['id'].')');
 		lll('call com_putLong("ord", '.$io['ord'].')');
 		lll('call com_put'.ucfirst($io['type']).'("app", '.$io['app'].')');
 		lll('call com_put'.ucfirst($io['type']).'("io",  '.$io['io'].')');
 	}
 ?>
+	call com_send(simioWebsocket)
 end sub
 
 
-sub putList
+sub sendList
+	call com_clear
 <?
 	foreach($simio as $io) {
-		ll('call com_with("'.$io['id'].'")');
+		ll('call com_with("/'.$io['id'].'")');
 		lll('call com_putLong("id",  '.$io['id'].')');
 		lll('call com_putLong("sim", '.$io['sim'].')');
 		lll('call com_putString("dir",  "'.$io['dir'].'")');
@@ -139,4 +140,5 @@ sub putList
 		lll('call com_putString("type", "'.$io['type'].'")');
 	}
 ?>
+	call com_send(simioWebsocket)
 end sub

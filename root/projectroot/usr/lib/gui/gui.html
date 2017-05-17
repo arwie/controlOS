@@ -26,6 +26,11 @@
 	<meta name="defaultLanguage" content="en">	
 </head>
 <script>
+{% import socket %}
+var hosts = {
+	mc:		'{{ socket.gethostbyname('mc') }}'
+}
+
 gui = new function() {
 	let self = this;
 
@@ -81,7 +86,7 @@ $(document).ready(function()
 		}
 		
 		gui.stateConnection.onmessage = function (e) {
-			let msg = JSON.parse(e.data, function(k, v) { return (typeof v === "object" || isNaN(v)) ? v : parseInt(v); });
+			let msg = JSON.parse(e.data);
 
 			if (!$.isEmptyObject(msg))
 				updateState(msg);
