@@ -62,4 +62,8 @@ end if
 		ll('load '.$l['file']);
 ?>
 
+<?	if ($robot)
+		ll('with '.end($robot)['name']);	//make last robot default motion element
+?>
+
 end program
