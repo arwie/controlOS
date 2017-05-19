@@ -79,7 +79,7 @@ end sub
 
 <?lib_prgStart()?>
 	dim websocketConnected_ as long = false
-	while not websocketConnected_ and log_prgActive
+	while not websocketConnected_ and log_active
 		select case com_receive(comLogServer, 100)
 		case com_receiveConnect
 			websocketConnected_ = true

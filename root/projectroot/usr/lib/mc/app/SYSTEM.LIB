@@ -24,8 +24,8 @@
 <?	if (!empty(get('can')))
 		ll('call can_start')?>
 
-	call etc_waitWhile(system_prgActive)
-	call can_waitWhile(system_prgActive)
+	call etc_waitWhile(system_active)
+	call can_waitWhile(system_active)
 
 <?	foreach($axis as $ax) 
 		ll('call '.$ax['name'].'_axisSetup')?>

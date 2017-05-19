@@ -48,7 +48,7 @@ program
 		eventon <?=$lib['name']?>_prgEvent
 <?}?>
 <?if ($lib['prg']['loop']) {?>
-		while <?=$lib['name']?>_prgActive
+		while <?=$lib['name']?>_active
 			call <?=$lib['name']?>_prg
 		end while
 <?} else {?>

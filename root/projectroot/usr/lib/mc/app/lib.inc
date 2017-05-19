@@ -23,7 +23,7 @@ function libBegin($file, $type='app') { global $lib;
 	];
 
 	l('common shared '.$lib['name'].'_started   as long');
-	l('common shared '.$lib['name'].'_prgActive as long');
+	l('common shared '.$lib['name'].'_active as long');
 	l('dim shared libActiveNotify as long');
 }
 
@@ -111,7 +111,7 @@ function libEnd() { global $lib, $libs, $out;
 	if ($lib['start']) lll('call libStart');
 	lll($lib['name'].'_started = true');
 	lll('call com_sendSelf(state_comStateServer)');
-	lll($lib['name'].'_prgActive = true');
+	lll($lib['name'].'_active = true');
 	lll('call com_reset(libActiveNotify)');
 	if ($lib['prg']) {
 		lll('starttask '.$lib['prg']['file']);
@@ -122,7 +122,7 @@ function libEnd() { global $lib, $libs, $out;
 	l('end sub');
 
 	l('public sub '.$lib['name'].'_stopTrigger');
-	ll($lib['name'].'_prgActive = false');
+	ll($lib['name'].'_active = false');
 	lll('com_send(libActiveNotify)');
 	if ($lib['stopTrigger']) ll('call libStopTrigger');
 	l('end sub');
