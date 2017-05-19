@@ -29,6 +29,7 @@ public:
 		message			= 1,
 		connect			= 10,
 		disconnect		= 11,
+		notify			= 20,
 	};
 
 

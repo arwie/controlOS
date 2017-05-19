@@ -46,6 +46,7 @@ static void logMsg(Log&&);
 #include "Log.hpp"
 #include "Channel.hpp"
 #include "ChannelLog.hpp"
+#include "ChannelNotify.hpp"
 #include "ChannelState.hpp"
 #include "ChannelFifo.hpp"
 #include "ChannelWebsocket.hpp"
@@ -65,9 +66,10 @@ static int mccom_open(int channelType, int *error) noexcept
 	try {
 		switch(channelType) {
 			case  1: return manager.openChannel(make_shared<ChannelLog>				(*messagePtr));
-			case  2: return manager.openChannel(make_shared<ChannelState>			(*messagePtr));
-			case  3: return manager.openChannel(make_shared<ChannelFifo>			(*messagePtr));
-			case  4: return manager.openChannel(make_shared<ChannelWebsocket>		(*messagePtr));
+			case  2: return manager.openChannel(make_shared<ChannelNotify>			(*messagePtr));
+			case  3: return manager.openChannel(make_shared<ChannelState>			(*messagePtr));
+			case  4: return manager.openChannel(make_shared<ChannelFifo>			(*messagePtr));
+			case  5: return manager.openChannel(make_shared<ChannelWebsocket>		(*messagePtr));
 			default: throw runtime_error("unknown channel type");
 		}
 	} catch (exception& e) {

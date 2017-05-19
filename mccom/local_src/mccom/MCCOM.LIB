@@ -16,14 +16,16 @@
 
 
 common shared com_channelLog				as const long		= 1
-common shared com_channelState				as const long		= 2
-common shared com_channelFifo				as const long		= 3
-common shared com_channelWebsocket			as const long		= 4
+common shared com_channelNotify				as const long		= 2
+common shared com_channelState				as const long		= 3
+common shared com_channelFifo				as const long		= 4
+common shared com_channelWebsocket			as const long		= 5
 
 common shared com_receiveTimeout			as const long		= 0
 common shared com_receiveMessage			as const long		= 1
 common shared com_receiveConnect			as const long		= 10
 common shared com_receiveDisconnect			as const long		= 11
+common shared com_receiveNotify				as const long		= 20
 
 common shared com_error						as error	"error in module mccom"		20800
 

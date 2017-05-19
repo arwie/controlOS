@@ -15,14 +15,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-#ifndef CHANNELSTATE_HPP_
-#define CHANNELSTATE_HPP_
+#ifndef CHANNELNOTIFY_HPP_
+#define CHANNELNOTIFY_HPP_
 
 
-class ChannelState : public Channel
+class ChannelNotify : public Channel
 {
 public:
-	ChannelState(const Message& args) : Channel("state", args)	{}
+	ChannelNotify(const Message& args) : Channel("notify", args)	{}
 
 	int receive(MessagePtr& message, chrono::milliseconds timeout) override
 	{
@@ -32,19 +32,14 @@ public:
 			blockCond.wait_for(lock, timeout, [this]() { return state || closed; });
 		}
 
-		if (!state || closed)
-			return false;
-
-		message.reset(new Message(*state));
-
-		return message->event;
+		return (state ? Message::Event::notify : false);
 	}
 
 
 	void send(const Message& message) override
 	{
 		{ lock_guard<mutex> lock(blockMtx);
-			state.reset(new Message(message));
+			state = true;
 		}
 		blockCond.notify_all();
 	}
@@ -53,14 +48,14 @@ public:
 	void reset() override
 	{
 		{ lock_guard<mutex> lock(blockMtx);
-			state.reset();
+			state = false;
 		}
 		Channel::reset();
 	}
 
 
 private:
-	MessagePtr state;
+	bool state = false;
 };
 
-#endif /* CHANNELSTATE_HPP_ */
+#endif /* CHANNELNOTIFY_HPP_ */
