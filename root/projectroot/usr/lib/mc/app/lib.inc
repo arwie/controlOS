@@ -24,6 +24,7 @@ function libBegin($file, $type='app') { global $lib;
 
 	l('common shared '.$lib['name'].'_started   as long');
 	l('common shared '.$lib['name'].'_prgActive as long');
+	l('dim shared libActiveNotify as long');
 }
 
 
@@ -98,6 +99,7 @@ function lib_prgEvent($scantime=1) { global $lib;
 
 function libEnd() { global $lib, $libs, $out;
 	l('public sub '.$lib['name'].'_init');
+	libComOpen('libActiveNotify', 'notify');
 	if ($lib['init']) ll('call libInit');
 	if ($lib['prg']) {
 		ll('load '.$lib['prg']['file'].' priority = '.$lib['prg']['prio']);
@@ -110,6 +112,7 @@ function libEnd() { global $lib, $libs, $out;
 	lll($lib['name'].'_started = true');
 	lll('call com_sendSelf(state_comStateServer)');
 	lll($lib['name'].'_prgActive = true');
+	lll('call com_reset(libActiveNotify)');
 	if ($lib['prg']) {
 		lll('starttask '.$lib['prg']['file']);
 	}
@@ -120,32 +123,24 @@ function libEnd() { global $lib, $libs, $out;
 
 	l('public sub '.$lib['name'].'_stopTrigger');
 	ll($lib['name'].'_prgActive = false');
+	lll('com_send(libActiveNotify)');
 	if ($lib['stopTrigger']) ll('call libStopTrigger');
 	l('end sub');
 
-	l('public function '.$lib['name'].'_isRunning as long');
-	if ($lib['prg']) {
-		ll($lib['name'].'_isRunning = '.$lib['name'].'_prgActive or not ('.$lib['prg']['file'].'.state = TASK_KILLED or '.$lib['prg']['file'].'.state = TASK_READY)');
-	} else {
-		ll($lib['name'].'_isRunning = '.$lib['name'].'_prgActive');
-	}
-	l('end function');
-
-	l('public sub '.$lib['name'].'_wait');
-	ll('dim true_ as long = true');
-	ll('call '.$lib['name'].'_waitWhile(true_)');
-	l('end sub');
-
 	l('public sub '.$lib['name'].'_waitWhile(while_ as long)');
-	ll('while '.$lib['name'].'_isRunning and while_');
-	lll('sleep 10');
+	ll('while not com_receive(libActiveNotify, 100) and while_');
 	ll('end while');
 	l('end sub');
 
 	l('public sub '.$lib['name'].'_stop');
 	ll('if '.$lib['name'].'_started then');
 	lll('call '.$lib['name'].'_stopTrigger');
-	lll('call '.$lib['name'].'_wait');
+	if ($lib['prg']) {
+		lll('while '.$lib['prg']['file'].'.state = TASK_RUNNING');
+		llll('sleep 1');
+		lll('end while');
+		lll('killtask '.$lib['prg']['file']);
+	}
 	lll($lib['name'].'_started = false');
 	lll('call com_sendSelf(state_comStateServer)');
 	if ($lib['stop']) lll('call libStop');
@@ -175,6 +170,10 @@ function libEnd() { global $lib, $libs, $out;
 	l('sub logSend');
 	ll('call log_send');
 	ll('call com_restore');
+	l('end sub');
+
+	l('sub sleepActive(byval milliseconds_ as long)');
+	ll('dim dummy_ as long = com_receive(libActiveNotify, milliseconds_)');
 	l('end sub');
 
 	if ($lib['device'])

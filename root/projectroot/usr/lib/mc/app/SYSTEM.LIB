@@ -24,8 +24,8 @@
 <?	if (!empty(get('can')))
 		ll('call can_start')?>
 
-	call etc_wait
-	call can_wait
+	call etc_waitWhile(system_prgActive)
+	call can_waitWhile(system_prgActive)
 
 <?	foreach($axis as $ax) 
 		ll('call '.$ax['name'].'_axisSetup')?>
@@ -58,7 +58,7 @@ end sub
 
 
 <?lib_prgLoop()?>
-	sleep 500
+	call sleepActive(5000)
 end sub
 
 

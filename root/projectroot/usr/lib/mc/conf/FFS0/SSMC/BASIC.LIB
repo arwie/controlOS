@@ -26,6 +26,14 @@ IMPORT_C SHELL(byval as string) as string
 
 
 
+public sub dropLong(byval dummy_ as long)
+end sub
+public sub dropDouble(byval dummy_ as double)
+end sub
+public sub dropString(byval dummy_ as string)
+end sub
+
+
 public function sh(byval cmd_ as string) as string
 	sh = SHELL(cmd_)
 end function

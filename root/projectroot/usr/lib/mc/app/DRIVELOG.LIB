@@ -16,7 +16,7 @@
 
 
 dim shared errorQueryIntervalMs		as const long	= 1000
-dim shared healthQueryIntervalMS	as const long	= 60*1000
+dim shared healthQueryIntervalMS	as const long	= 10*60*1000
 
 dim shared lastStatusword[<?=count($axis)?>]	as long
 dim shared lastErrorcode[<?=count($axis)?>]		as long
@@ -133,7 +133,7 @@ end sub
 
 <?}?>
 
-	sleep healthQueryIntervalMS
+	call sleepActive(healthQueryIntervalMS)
 end sub
 
 

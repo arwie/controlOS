@@ -24,7 +24,7 @@ program
 	
 	onError
 		catch else
-			<?=$lib['name']?>_prgActive = false
+			call <?=$lib['name']?>_stopTrigger
 			call logErrorFunction("onError")
 	end onError
 
@@ -33,7 +33,7 @@ program
 		try
 			call <?=$lib['name']?>_prgEvent
 		catch else
-			<?=$lib['name']?>_prgActive = false
+			call <?=$lib['name']?>_stopTrigger
 			eventoff <?=$lib['name']?>_prgEvent
 			call logErrorFunction("onEvent")
 		end try
@@ -58,7 +58,7 @@ program
 		call logErrorFunction("prg")
 	end try
 
-	<?=$lib['name']?>_prgActive = false
+	call <?=$lib['name']?>_stopTrigger
 
 <?if ($lib['prg']['event']) {?>
 	eventoff <?=$lib['name']?>_prgEvent

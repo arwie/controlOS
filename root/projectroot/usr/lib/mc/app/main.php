@@ -64,7 +64,6 @@ function includeLib($file, $type='app') { global $out, $libs, $simio, $axis, $ro
 ob_start();
 
 includeLib('LOG.LIB', 'system');
-includeLib('BASIC.LIB', 'system');
 includeLib('ETC.LIB', 'system');
 includeLib('CAN.LIB', 'system');
 

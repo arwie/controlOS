@@ -56,6 +56,8 @@ end if
 	
 	oload MCCOM.O
 	load  MCCOM.LIB
+	
+	load BASIC.LIB
 
 <?
 	foreach ($libs['all'] as $l)

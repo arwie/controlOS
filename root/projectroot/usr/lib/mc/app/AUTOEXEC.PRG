@@ -36,7 +36,7 @@ program continue
 	call system_init
 	call system_start
 
-	while system_isRunning and system.enable
+	while system_prgActive and system.enable
 		sleep 500
 	end while
 
