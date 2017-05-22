@@ -27,9 +27,6 @@ public:
 	{
 		channel->open();
 
-		if (channel->needsRunner())
-			thread(channelRunner, channel).detach();
-
 		lock_guard<mutex> lock(channelsMtx);
 		auto channelId = nextChannelId++;
 		channels.emplace(channelId, move(channel));
@@ -66,19 +63,6 @@ public:
 	}
 
 private:
-
-	static void channelRunner(ChannelPtr channel) noexcept
-	{
-		channel->logMsg(LogDebug("com runner started").prg("comRunner"));
-		try {
-			channel->run();
-		}
-		catch (exception& e) {
-			channel->logMsg(LogError("exception in com runner: "+string(e.what())));
-		}
-		channel->logMsg(LogDebug("com runner finished"));
-	}
-
 
 	map<int, ChannelPtr> channels;
 	mutex channelsMtx;

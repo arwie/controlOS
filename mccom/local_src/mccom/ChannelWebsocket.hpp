@@ -81,14 +81,11 @@ public:
 	{
 		wsServer.listen(websocketpp::lib::asio::ip::tcp::v4(), port);
 		wsServer.start_accept();
+		runner = thread([this](){
+			logMsg(LogDebug("websocket runner started"));
+			wsServer.run();
+		});
 		QueuingChannel::open();
-	}
-
-
-	bool needsRunner() override { return true; }
-	void run() override
-	{
-		wsServer.run();
 	}
 
 
@@ -110,6 +107,7 @@ public:
 	void close() override
 	{
 		wsServer.stop();
+		runner.join();
 		QueuingChannel::close();
 	}
 
@@ -169,6 +167,7 @@ private:
 
 	int port;
 	WsServer wsServer;
+	thread runner;
 	set<websocketpp::connection_hdl, std::owner_less<websocketpp::connection_hdl>> connections;
 	mutex connectionsMtx;
 };
