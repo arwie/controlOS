@@ -213,7 +213,7 @@ static Type mccom_get(SYS_STRING* path, int *error) noexcept
 	 	return (*messagePtr)[messagePtr->withPath(amcsGetString(path))];
 	} catch (exception& e) {
 		*error = 1;
-		logMsg(LogError(e.what()).func(__func__));
+		logMsg(LogError(e.what()).func(__func__).log("/path", amcsGetString(path)));
 	}
 	return Type();
 }
@@ -225,7 +225,7 @@ static string mccom_get_json(SYS_STRING* path, int *error) noexcept
 		return (*messagePtr)[messagePtr->withPath(amcsGetString(path))].dump();
 	} catch (exception& e) {
 		*error = 1;
-		logMsg(LogError(e.what()).func(__func__));
+		logMsg(LogError(e.what()).func(__func__).log("/path", amcsGetString(path)));
 	}
 	return string();
 }
@@ -239,7 +239,7 @@ static void mccom_put(SYS_STRING* path, Type value, int *error) noexcept
 		(*messagePtr)[messagePtr->withPath(amcsGetString(path))] = value;
 	} catch (exception& e) {
 		*error = 1;
-		logMsg(LogError(e.what()).func(__func__));
+		logMsg(LogError(e.what()).func(__func__).log("/path", amcsGetString(path)));
 	}
 }
 
@@ -249,7 +249,7 @@ static void mccom_put_string(SYS_STRING* path, SYS_STRING* value, int *error) no
 		(*messagePtr)[messagePtr->withPath(amcsGetString(path))] = amcsGetString(value);
 	} catch (exception& e) {
 		*error = 1;
-		logMsg(LogError(e.what()).func(__func__));
+		logMsg(LogError(e.what()).func(__func__).log("/path", amcsGetString(path)));
 	}
 }
 
@@ -260,7 +260,7 @@ static void mccom_put_json(SYS_STRING* path, SYS_STRING* value, int *error) noex
 		(*messagePtr)[messagePtr->withPath(amcsGetString(path))] = json::parse(amcsGetString(value));
 	} catch (exception& e) {
 		*error = 1;
-		logMsg(LogError(e.what()).func(__func__));
+		logMsg(LogError(e.what()).func(__func__).log("/path", amcsGetString(path)));
 	}
 }
 
