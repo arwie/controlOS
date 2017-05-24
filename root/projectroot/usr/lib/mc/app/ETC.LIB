@@ -51,7 +51,7 @@ try
 ?>
 
 	dummy_ = EC_RESCAN_SLAVES
-	sleep 500
+	call sleepActive(500)
 	dummy_ = CHECK_TOPOLOGY
 
 	call EC_CREATE_MASTER

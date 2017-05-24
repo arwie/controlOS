@@ -23,7 +23,7 @@ common shared can_busnumber as const long = 1
 	bus[can_busnumber].cycletime = 4000
 	
 	bus[can_busnumber].phase = 0
-	sleep 300
+	call sleepActive(300)
 
 <?
 	foreach(get('can') as $dev) {
@@ -43,7 +43,7 @@ common shared can_busnumber as const long = 1
 ?>
 
 	bus[can_busnumber].phase = 4
-	sleep 100
+	call sleepActive(100)
 end sub
 
 
