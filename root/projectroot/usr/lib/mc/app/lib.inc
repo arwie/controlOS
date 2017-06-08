@@ -127,6 +127,9 @@ function libEnd() { global $lib, $libs, $out;
 	if ($lib['stopTrigger']) ll('call libStopTrigger');
 	l('end sub');
 
+	l('public function '.$lib['name'].'_wait(byval timeout_ as long) as long');
+	ll($lib['name'].'_wait = com_receive(libActiveNotify, timeout_)');
+	l('end function');
 	l('public sub '.$lib['name'].'_waitWhile(while_ as long)');
 	ll('while not com_receive(libActiveNotify, 100) and while_');
 	ll('end while');
