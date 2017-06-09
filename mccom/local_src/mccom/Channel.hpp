@@ -79,7 +79,7 @@ public:
 		message = move(receiveQueue.front());
 		receiveQueue.pop();
 
-		return message->event;
+		return message->getEvent();
 	}
 
 

@@ -37,7 +37,7 @@ public:
 
 		message.reset(new Message(*state));
 
-		return message->event;
+		return message->getEvent();
 	}
 
 

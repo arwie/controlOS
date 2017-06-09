@@ -26,6 +26,7 @@ class Message : public json
 {
 public:
 	enum Event {
+		timeout			= 0,
 		message			= 1,
 		connect			= 10,
 		disconnect		= 11,
@@ -67,9 +68,13 @@ public:
 	}
 
 
-	const Event event = Event::message;
+	Event getEvent() const {
+		return empty() ? event : Event::message;
+	}
 
-protected:
+
+private:
+	const Event event = Event::notify;
 	string prefix;
 };
 
