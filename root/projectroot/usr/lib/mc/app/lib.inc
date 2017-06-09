@@ -145,7 +145,7 @@ function libEnd() { global $lib, $libs, $out;
 	ll('if '.$lib['name'].'_started then');
 	lll('call '.$lib['name'].'_stopTrigger');
 	if ($lib['prg']) {
-		lll('while '.$lib['prg']['file'].'.state = TASK_RUNNING');
+		lll('while prgRunning');
 		llll('sleep 1');
 		lll('end while');
 		lll('killtask '.$lib['prg']['file']);
@@ -169,13 +169,6 @@ function libEnd() { global $lib, $libs, $out;
 	ll('call com_putString("/lib", "'.$lib['name'].'")');
 	l('end sub');
 
-	if ($lib['prg']) {
-		l('sub logPrgError');
-		ll('call logLibError('.$lib['prg']['file'].'.error)');
-		ll('call com_putLong("/error", '.$lib['prg']['file'].'.errornumber)');
-		l('end sub');
-	}
-
 	l('sub logSend');
 	ll('call log_send');
 	ll('call com_restore');
@@ -184,6 +177,17 @@ function libEnd() { global $lib, $libs, $out;
 	l('sub sleepActive(byval milliseconds_ as long)');
 	ll('dim dummy_ as long = com_receive(libActiveNotify, milliseconds_)');
 	l('end sub');
+
+	if ($lib['prg']) {
+		l('sub logPrgError');
+		ll('call logLibError('.$lib['prg']['file'].'.error)');
+		ll('call com_putLong("/error", '.$lib['prg']['file'].'.errornumber)');
+		l('end sub');
+
+		l('function prgRunning as long');
+		ll('prgRunning = ('.$lib['prg']['file'].'.state = TASK_RUNNING)');
+		l('end function');
+	}
 
 	if ($lib['device'])
 		deviceLibEnd($lib['device']);
