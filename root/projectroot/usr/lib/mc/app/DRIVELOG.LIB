@@ -137,6 +137,10 @@ end sub
 end sub
 
 
+<?lib_prgError()?>
+end sub
+
+
 
 function errorString(byval error_ as long) as string
 	select case error_

@@ -22,22 +22,18 @@ dim shared debugWebsocketConnected as long
 
 
 
-<? lib_init() ?>
-<?	libComOpenServerWebsocket('debugWebsocket', 5610, ['bool("/receive", false)']) ?>
+<?lib_init()?>
+<?	libComOpenServerWebsocket('debugWebsocket', 5610, ['bool("/receive", false)'])?>
 end sub
 
 
-<? lib_start() ?>
+<?lib_start()?>
 	debugWebsocketConnected = false
 end sub
 
 
-<? lib_stop() ?>
-end sub
 
-
-
-<? lib_prgLoop(16) ?>
+<?lib_prgLoop(16)?>
 	select case com_receive(debugWebsocket, pollIntervalMs)
 	case com_receiveConnect
 		debugWebsocketConnected = true
@@ -50,6 +46,10 @@ end sub
 		call pollData
 		call com_send(debugWebsocket)
 	end if
+end sub
+
+
+<?lib_prgError()?>
 end sub
 
 

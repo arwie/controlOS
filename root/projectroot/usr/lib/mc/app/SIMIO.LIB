@@ -51,14 +51,13 @@ end sub
 	end select
 
 	if simioWebsocketConnected then
-		try
-			call updateInputs
-		catch else
-			call logPrgError
-			call logSend
-		end try
+		call updateInputs
 		call sendUpdate
 	end if
+end sub
+
+
+<?lib_prgError()?>
 end sub
 
 
