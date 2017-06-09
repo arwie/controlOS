@@ -21,69 +21,56 @@ program
 	call com_putString("/prg", "<?=$lib['name']?>")
 	call com_putString("/lib", "<?=$lib['name']?>")
 	call log_send
-	
+
 	onError
 		catch else
-			call <?=$lib['name']?>_stopTrigger
-			call logErrorFunction("onError")
+			call log_message(<?=$lib['prg']['error']?'log_prioError':'log_prioCritical'?>, <?=$lib['prg']['file']?>.error)
+			call com_putLong("/error", <?=$lib['prg']['file']?>.errornumber)
+			call com_putString("/trace", backtrace$("<?=$lib['prg']['file']?>"))
+			call log_putCodeFunc("onError")
+			call com_putString("/prg", "<?=$lib['name']?>")
+			call com_putString("/lib", "<?=$lib['name']?>")
+			call log_send
+<?if ($lib['prg']['error']) {?>
+			call <?=$lib['name']?>_prgError
+<?} elseif (!$sim) {?>
+			system.enable = off
+<?}?>
 	end onError
 
 <?if ($lib['prg']['event']) {?>
 	onevent <?=$lib['name']?>_prgEvent scantime=<?=$lib['prg']['event']?> 
-		try
-			call <?=$lib['name']?>_prgEvent
-		catch else
-			call <?=$lib['name']?>_stopTrigger
-			eventoff <?=$lib['name']?>_prgEvent
-			call logErrorFunction("onEvent")
-		end try
+		call <?=$lib['name']?>_prgEvent
 	end onevent
 <?}?>
 
-	try
 <?if ($lib['prg']['start']) {?>
-		call <?=$lib['name']?>_prgStart
+	call <?=$lib['name']?>_prgStart
 <?}?>
-<?if ($lib['prg']['event']) {?>
-		eventon <?=$lib['name']?>_prgEvent
-<?}?>
-<?if ($lib['prg']['loop']) {?>
-		while <?=$lib['name']?>_active
-			call <?=$lib['name']?>_prg
-		end while
-<?} else {?>
-		call <?=$lib['name']?>_prg
-<?}?>
-	catch else
-		call logErrorFunction("prg")
-	end try
 
+<?if ($lib['prg']['event']) {?>
+	eventon <?=$lib['name']?>_prgEvent
+<?}?>
+
+<?if ($lib['prg']['loop']) {?>
+	while <?=$lib['name']?>_active
+		call <?=$lib['name']?>_prg
+	end while
+<?} else {?>
+	call <?=$lib['name']?>_prg
 	call <?=$lib['name']?>_stopTrigger
+<?}?>
+
 
 <?if ($lib['prg']['event']) {?>
 	eventoff <?=$lib['name']?>_prgEvent
 <?}?>
 
 <?if ($lib['prg']['stop']) {?>
-	try
-		call <?=$lib['name']?>_prgStop
-	catch else
-		call logErrorFunction("prgStop")
-	end try
+	call <?=$lib['name']?>_prgStop
 <?}?>
-	
+
 	call log_message(log_prioDebug, "<?=$lib['name']?> prg stopped")
 	call com_putString("/lib", "<?=$lib['name']?>")
 	call log_send
 end program
-
-
-
-sub logErrorFunction(byval func_ as string)	
-	call log_message(log_prioError, <?=$lib['prg']['file']?>.error)
-	call com_putLong("/error", <?=$lib['prg']['file']?>.errornumber)
-	call log_putCodeFunc(func_)
-	call com_putString("/prg", "<?=$lib['name']?>")
-	call com_putString("/lib", "<?=$lib['name']?>")
-	call log_send
-end sub

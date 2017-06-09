@@ -23,7 +23,6 @@ common shared etc_busnumber as const long = 0
 	dim slaveCount_ as long
 	dim slave_ as long
 
-try
 	slaveCount_ = EC_ETHERCAT_INIT
 
 	call logLibInfo("ethercat init with "+str$(slaveCount_)+" slaves")
@@ -79,14 +78,6 @@ try
 ?>
 
 	call EC_STARTMASTER
-catch else
-	call logPrgError
-	call logSend
-<?if(!$sim) {?>
-	print sh("reboot")
-<?}?>
-end try
-
 end sub
 
 

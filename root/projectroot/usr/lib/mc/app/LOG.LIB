@@ -76,23 +76,27 @@ end sub
 end sub
 
 
+public sub log_waitDrain
+	call com_clear
+	call com_sendSelf(comLogChannel)
+	call log_waitWhile(log_active)
+end sub
+
+
 
 <?lib_prgStart()?>
-	dim websocketConnected_ as long = false
-	while not websocketConnected_ and log_active
-		select case com_receive(comLogServer, 100)
-		case com_receiveConnect
-			websocketConnected_ = true
-		end select
-	end while
+	call dropLong(com_receive(comLogServer, 60000))	'wait for log client connection
 end sub
 
 
 <?lib_prgLoop(16)?>
-	if com_receive(comLogChannel, 250) then
+	select case com_receive(comLogChannel, 250)
+	case com_receiveMessage
 		call com_send(comLogServer)
 		call printLog
-	end if
+	case com_receiveNotify
+		call log_stopTrigger
+	end select
 end sub
 
 

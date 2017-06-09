@@ -37,19 +37,14 @@ program continue
 	call system_start
 
 	while system_active and system.enable
-		sleep 500
+		sleep 100
 	end while
 
 
 	call logSystemStop
-	sleep 1000	'let all log messages go out
-'	call log_stop
-'	call state_stop
+	call log_waitDrain
+	call dropString(sh("reboot"))
 
-
-'	call com_closeAll
-'	print sh("reboot")
-	
 terminate program
 
 

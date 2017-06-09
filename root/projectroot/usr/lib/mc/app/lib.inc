@@ -22,8 +22,8 @@ function libBegin($file, $type='app') { global $lib;
 		'type'	=> $type,
 	];
 
-	l('common shared '.$lib['name'].'_started   as long');
-	l('common shared '.$lib['name'].'_active as long');
+	l('common shared '.$lib['name'].'_started as long');
+	l('common shared '.$lib['name'].'_active  as long');
 	l('dim shared libActiveNotify as long');
 }
 
@@ -93,6 +93,12 @@ function lib_prgStop() { global $lib;
 function lib_prgEvent($scantime=1) { global $lib;
 	$lib['prg']['event'] = $scantime;
 	l('public sub '.$lib['name'].'_prgEvent');
+}
+
+
+function lib_prgError() { global $lib;
+	$lib['prg']['error'] = true;
+	l('public sub '.$lib['name'].'_prgError');
 }
 
 
