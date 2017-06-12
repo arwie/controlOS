@@ -17,7 +17,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-import logging, argparse, time, json
+import logging, argparse, time, json, struct, sys
 from systemd import journal
 from tornado import ioloop, gen, websocket
 
@@ -34,9 +34,16 @@ args = parser.parse_args()
 
 def export(msg):
 	for key, value in msg.items():
-		if not isinstance(value, str) or '\n' in value:
+		if not isinstance(value, str):
 			value = json.dumps(value)
-		print('{}={}'.format(key.upper(), value))
+		if '\n' in value:
+			print(key.upper())
+			value = value.encode()
+			sys.stdout.buffer.write(struct.pack('<Q', len(value)))
+			sys.stdout.buffer.write(value)
+			print()
+		else:
+			print('{}={}'.format(key.upper(), value))
 	print()
 
 
