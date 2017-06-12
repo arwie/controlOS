@@ -62,7 +62,7 @@ function robotLibEnd($rbt) { global $lib;
 	l('end sub');
 
 	l('public sub '.$lib['name'].'_disable');
-	ll('while '.$rbt['name'].'.isMoving');
+	ll('while '.$rbt['name'].'.isMoving > 0');
 	lll('sleep bus[0].cycletime/1000');
 	ll('end while');
 	ll('while '.$rbt['name'].'.enable');
