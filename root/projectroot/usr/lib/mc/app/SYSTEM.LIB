@@ -15,17 +15,34 @@
 ' OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-<?lib_prgStart()?>
-	call etc_init
-	call can_init
-	
-<?	if (!empty(get('etc')))
-		ll('call etc_start')?>
-<?	if (!empty(get('can')))
-		ll('call can_start')?>
+<?lib_stopTrigger()?>
+	system.enable = off
+end sub
 
-	call etc_waitWhile(system_active)
-	call can_waitWhile(system_active)
+
+public sub system_stopTimeout(byval timeout_ as long)
+	call system_stopTrigger
+	
+	timeout_ = system.clock + timeout_
+	while prgRunning and (system.clock < timeout_)
+		sleep 100
+	end while
+	
+	if not prgRunning then
+		call system_stop
+	else
+		call logLibError("system not stopped in time")
+		call logSend
+	end if
+end sub
+
+
+
+<?lib_prgStart()?>
+<?	if (!empty(get('etc')))
+		ll('call etc_init')?>
+<?	if (!empty(get('can')))
+		ll('call can_init')?>
 
 <?	foreach($axis as $ax) 
 		ll('call '.$ax['name'].'_axisSetup')?>
@@ -69,9 +86,4 @@ end sub
 	call debug_stop
 	call simio_stop
 	call drivelog_stop
-
-<?	if (!empty($can))
-		ll('call can_stop')?>
-<?	if (!empty($etc))
-		ll('call etc_stop')?>
 end sub

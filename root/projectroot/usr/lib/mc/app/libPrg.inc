@@ -34,7 +34,7 @@ program
 <?if ($lib['prg']['error']) {?>
 			call <?=$lib['name']?>_prgError
 <?} elseif (!$sim) {?>
-			system.enable = off
+			call system_stopTrigger
 <?}?>
 	end onError
 

@@ -22,13 +22,14 @@ dim shared debugWebsocketConnected as long
 
 
 
-<?lib_init()?>
+<?lib_start()?>
 <?	libComOpenServerWebsocket('debugWebsocket', 5610, ['bool("/receive", false)'])?>
+	debugWebsocketConnected = false
 end sub
 
 
-<?lib_start()?>
-	debugWebsocketConnected = false
+<?lib_stop()?>
+	call com_close(debugWebsocket)
 end sub
 
 

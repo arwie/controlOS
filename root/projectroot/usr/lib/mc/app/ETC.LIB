@@ -18,7 +18,7 @@
 common shared etc_busnumber as const long = 0
 
 
-<?lib_prg()?>
+<?lib_init()?>
 	dim dummy_ as long
 	dim slaveCount_ as long
 	dim slave_ as long

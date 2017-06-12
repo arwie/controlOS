@@ -24,22 +24,35 @@ dim shared stateWatchdogIntervalMs as const long	= 1000
 end sub
 
 
-
-<?lib_prgLoop(14)?>
-	select case com_receive(state_comStateServer, stateWatchdogIntervalMs)
-	case com_receiveConnect, com_receiveMessage
-		call com_clear
-		call putState
-	case else
-		call com_clear
-	end select
-	call com_send(state_comStateServer)
+<?lib_stop()?>
+	call sendState
+	sleep 500
 end sub
 
 
-sub putState
+
+<?lib_prgLoop(14)?>
+	select case com_receive(state_comStateServer, stateWatchdogIntervalMs)
+	case com_receiveTimeout
+		call sendWatchdog
+	case else
+		call sendState
+	end select
+end sub
+
+
+
+sub sendState
+	call com_clear
 <?
 	foreach ($libs['all'] as $l) 
 		ll('call com_putBool("/'.$l['name'].'", '.$l['name'].'_started)')
 ?>
+	call com_send(state_comStateServer)
+end sub
+
+
+sub sendWatchdog
+	call com_clear
+	call com_send(state_comStateServer)
 end sub

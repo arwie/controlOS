@@ -35,16 +35,16 @@ program continue
 
 	call system_init
 	call system_start
-
-	while system_active and system.enable
-		sleep 100
-	end while
+	call system_waitWhile(system_active)
+	call system_stopTimeout(10000)
 
 
 	call logSystemStop
 	call log_waitDrain
-	call dropString(sh("reboot"))
+	call log_stop
+	call state_stop
 
+	call dropString(sh("reboot"))
 terminate program
 
 

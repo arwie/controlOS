@@ -19,7 +19,7 @@ common shared can_busnumber as const long = 1
 
 
 
-<?lib_prg()?>
+<?lib_init()?>
 	bus[can_busnumber].cycletime = 4000
 	
 	bus[can_busnumber].phase = 0

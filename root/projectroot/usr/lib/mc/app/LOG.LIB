@@ -76,6 +76,11 @@ end sub
 end sub
 
 
+<?lib_stop()?>
+	call com_close(comLogServer)
+end sub
+
+
 public sub log_waitDrain
 	call com_clear
 	call com_sendSelf(comLogChannel)
@@ -101,6 +106,12 @@ end sub
 
 
 <?lib_prgError()?>
+	call log_stopTrigger
+end sub
+
+
+<?lib_prgStop()?>
+	sleep 500	'let messages arrive at journal
 end sub
 
 
