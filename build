@@ -5,9 +5,11 @@ BASEDIR=$(dirname $SCRIPT)
 
 
 cd $BASEDIR/root
+ptxdist -q clean	|| exit 1
 ptxdist images		|| exit 1
 
 cd $BASEDIR/boot
+ptxdist -q clean	|| exit 1
 ptxdist images		|| exit 1
 
 exit 0

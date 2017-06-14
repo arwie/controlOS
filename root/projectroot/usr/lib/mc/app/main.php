@@ -33,7 +33,7 @@ function get($what)  { global $real;
 
 
 if (file_exists('/etc/app/sim.conf'))
-	$sim = parse_ini_file('/etc/app/sim.conf');
+	$sim = parse_ini_file('/etc/app/sim.conf') ?: true;
 
 
 function l($basic)		{ echo $basic."\n"; }
