@@ -43,6 +43,21 @@ function libComOpen($name, $type, $args=[]) { global $lib;
 
 
 
+function end_try($finally=false) {
+	l('catch else');
+	lll('call logLibError(error)');
+	lll('call com_putLong("/error", errornumber)');
+	lll('call log_putCodeFunc(scope)');
+	lll('call logSend');
+	if ($finally) {
+		ll('finally');
+		lll($finally);
+	}
+	ll('end try');
+}
+
+
+
 function lib_init() { global $lib;
 	$lib['init'] = true;
 	l('sub libInit');
@@ -179,11 +194,6 @@ function libEnd() { global $lib, $libs, $out;
 	l('end sub');
 
 	if ($lib['prg']) {
-		l('sub logPrgError');
-		ll('call logLibError('.$lib['prg']['file'].'.error)');
-		ll('call com_putLong("/error", '.$lib['prg']['file'].'.errornumber)');
-		l('end sub');
-
 		l('function prgRunning as long');
 		ll('prgRunning = ('.$lib['prg']['file'].'.state = TASK_RUNNING)');
 		l('end function');

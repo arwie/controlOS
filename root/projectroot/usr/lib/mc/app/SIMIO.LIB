@@ -40,12 +40,7 @@ end sub
 		simioWebsocketConnected = true
 		call sendList
 	case com_receiveMessage
-		try
-			call handleOverride
-		catch else
-			call logPrgError
-			call logSend
-		end try
+		call handleOverride
 	case com_receiveDisconnect
 		simioWebsocketConnected = false
 	end select
@@ -63,38 +58,40 @@ end sub
 
 
 sub handleOverride
-	select case com_getLong("/id")
+	try
+		select case com_getLong("/id")
 <?
 	foreach($simio as $io) {
-		ll('case '.$io['id']);
-		lll('select case com_getLong("/ord")');
+		lll('case '.$io['id']);
+		llll('select case com_getLong("/ord")');
 		
-		lll('case 0');
+		llll('case 0');
 		if (!$io['sim']) {
 			if ($io['dir'] == 'out') {
-				llll($io['io'].' = '.$io['app']);
-				llll('call '.$io['set'].'('.$io['io'].')');
+				lllll($io['io'].' = '.$io['app']);
+				lllll('call '.$io['set'].'('.$io['io'].')');
 			}
-			llll($io['ord'].' = false');
+			lllll($io['ord'].' = false');
 		}
 		
-		lll('case 1');
-		llll($io['ord'].' = true');
+		llll('case 1');
+		lllll($io['ord'].' = true');
 		
-		lll('case 2');
+		llll('case 2');
 		if ($io['dir'] == 'in') {
-			llll($io['app'].' = com_get'.ucfirst($io['type']).'("/io")');
-			llll($io['ord'].' = true');
+			lllll($io['app'].' = com_get'.ucfirst($io['type']).'("/io")');
+			lllll($io['ord'].' = true');
 		} else if (!$io['sim']) {
-			llll($io['ord'].' = true');
-			llll($io['io'].'  = com_get'.ucfirst($io['type']).'("/io")');
-			llll('call '.$io['set'].'('.$io['io'].')');
+			lllll($io['ord'].' = true');
+			lllll($io['io'].'  = com_get'.ucfirst($io['type']).'("/io")');
+			lllll('call '.$io['set'].'('.$io['io'].')');
 		}
 		
-		lll('end select');
+		llll('end select');
 	}
 ?>
-	end select
+		end select
+	<?end_try()?>
 end sub
 
 
