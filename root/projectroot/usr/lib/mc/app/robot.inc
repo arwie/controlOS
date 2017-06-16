@@ -60,6 +60,10 @@ function robotLibEnd($rbt) { global $lib;
 	ll('end while');
 	ll('sleep 5*bus[0].cycletime/1000');	#bug in MC
 	l('end sub');
+	l('public sub '.$lib['name'].'_enableAttach');
+	ll('call '.$lib['name'].'_enable');
+	ll('attach '.$rbt['name']);
+	l('end sub');
 
 	l('public sub '.$lib['name'].'_disable');
 	ll('while '.$rbt['name'].'.isMoving > 0');
@@ -69,6 +73,10 @@ function robotLibEnd($rbt) { global $lib;
 	lll($rbt['name'].'.enable = false');
 	lll('sleep bus[0].cycletime/1000');
 	ll('end while');
+	l('end sub');
+	l('public sub '.$lib['name'].'_disableDetach');
+	ll('detach '.$rbt['name']);
+	ll('call '.$lib['name'].'_disable');
 	l('end sub');
 }
 

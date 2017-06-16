@@ -70,6 +70,10 @@ function axisLibEnd($ax) { global $lib;
 	ll('end while');
 	ll('sleep 5*bus[0].cycletime/1000');	#bug in MC
 	l('end sub');
+	l('public sub '.$lib['name'].'_enableAttach');
+	ll('call '.$lib['name'].'_enable');
+	ll('attach '.$ax['name']);
+	l('end sub');
 
 	l('public sub '.$lib['name'].'_disable');
 	ll('while '.$ax['name'].'.isMoving > 0');
@@ -79,6 +83,10 @@ function axisLibEnd($ax) { global $lib;
 	lll($ax['name'].'.enable = false');
 	lll('sleep bus[0].cycletime/1000');
 	ll('end while');
+	l('end sub');
+	l('public sub '.$lib['name'].'_disableDetach');
+	ll('detach '.$ax['name']);
+	ll('call '.$lib['name'].'_disable');
 	l('end sub');
 }
 
