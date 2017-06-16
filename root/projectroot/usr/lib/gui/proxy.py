@@ -24,16 +24,18 @@ class WebsocketJsonProxy(websocket.WebSocketHandler):
 
 	def initialize(self, url):
 		self.url = url
+		self.closed = False
 
 
 	@gen.coroutine
 	def receiveFromClient(self):
 		try:
-			while True:
+			while not self.closed:
 				msg = yield self.clientConn.read_message()
 				if msg is None: break
 				self.write_message(msg)
 		except websocket.WebSocketClosedError: pass
+		self.clientConn.close()
 		self.close()
 
 
@@ -53,6 +55,7 @@ class WebsocketJsonProxy(websocket.WebSocketHandler):
 
 
 	def on_close(self):
+		self.closed = True
 		try:
 			self.clientConn.close()
 		except: pass
@@ -86,6 +89,4 @@ class HttpWebsocketJsonProxy(web.RequestHandler):
 
 
 	def on_finish(self):
-		try:
-			self.clientConn.close()
-		except: pass
+		self.clientConn.close()
