@@ -144,7 +144,7 @@ function libEnd() { global $lib, $libs, $out;
 
 	l('public sub '.$lib['name'].'_stopTrigger');
 	ll($lib['name'].'_active = false');
-	lll('com_send(libActiveNotify)');
+	ll('call com_send(libActiveNotify)');
 	if ($lib['stopTrigger']) ll('call libStopTrigger');
 	l('end sub');
 
