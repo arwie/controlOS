@@ -38,7 +38,8 @@ common shared state_comStateServer as long
 
 program
 
-	system.doubleformat	= 1
+	system.errorhandlermode		= 0
+	system.doubleformat			= 1
 
 <?
 	foreach($axis as $ax)
