@@ -100,6 +100,8 @@ $(STATEDIR)/system.targetinstall:
 	@$(call install_alternative, system, 0, 0, 0600, /root/.ssh/authorized_keys)
 	@$(call install_alternative, system, 0, 0, 0600, /root/.ssh/id_rsa)
 	@$(call install_alternative, system, 0, 0, 0644, /root/.ssh/id_rsa.pub)
+	@$(call install_alternative, system, 0, 0, 0600, /etc/ssh/ssh_host_rsa_key)
+	@$(call install_alternative, system, 0, 0, 0644, /etc/ssh/ssh_host_rsa_key.pub)
 	
 	# central syslog
 	@$(call install_alternative, system, 0, 0, 0644, /etc/tmpfiles.d/persistent-journal.conf)

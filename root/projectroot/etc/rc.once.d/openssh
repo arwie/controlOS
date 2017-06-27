@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# we use a static host keys -> do nothing here
+exit 0
