@@ -1,8 +1,0 @@
-[Unit]
-StopWhenUnneeded=true
-
-[Service]
-Type=oneshot
-RemainAfterExit=yes
-ExecStart=/bin/mount -o remount,rw /
-ExecStop=/bin/mount -o remount,ro /
