@@ -69,6 +69,9 @@ mount /mnt/data
 echo "initializing data fs ..."
 tar -C /mnt/data -x -f /mnt/init/data
 
+sync
+fstrim -v /mnt/data
+
 umount /mnt/data
 rm -f /mnt/init/data
 sync
@@ -81,7 +84,7 @@ init_mount()
 {
 echo "check and mount init partition"
 
-dosfsck -av $INITDEV
+fsck.fat -pv $INITDEV
 mount /mnt/init
 
 # delete all stubs created by fsck
@@ -107,6 +110,9 @@ mount /mnt/root
 
 echo "updating root fs ..."
 tar -C /mnt/root -x -f /mnt/init/update
+
+sync
+fstrim -v /mnt/root
 
 umount /mnt/root
 rm -f /mnt/init/update
@@ -180,7 +186,7 @@ init_mount
 if [ -f /mnt/init/data ]; then
 	data_init
 else
-	e2fsck -pv $DATADEV
+	fsck.ext4 -pv $DATADEV
 fi
 
 if [ -f /mnt/init/update ]; then

@@ -91,7 +91,7 @@ $(STATEDIR)/usbip.targetinstall:
 	@$(call install_copy, usbip, 0, 0, 755, -, /usr/sbin/usbipd)
 	@$(call install_copy, usbip, 0, 0, 755, -, /usr/sbin/usbip)
 	
-	@$(call install_alternative, usbip, 0, 0, 0644, /lib/systemd/system/usbipd.service)
+	@$(call install_alternative, usbip, 0, 0, 0644, /usr/lib/systemd/system/usbipd.service)
 
 	@$(call install_finish, usbip)
 	@$(call touch)

@@ -2,6 +2,7 @@
 
 menuconfig SYSTEMD
 	tristate
+	depends on INITMETHOD_SYSTEMD
 	select HOST_GPERF
 	select HOST_CHRPATH
 	# for 'ln --relative'
@@ -14,22 +15,21 @@ menuconfig SYSTEMD
 	select LIBCAP
 	select LIBKMOD
 	select LIBKMOD_TOOLS
-	select UDEV		if RUNTIME
-	select UDEV_LIBUDEV
 	select UTIL_LINUX_NG
 	select UTIL_LINUX_NG_LIBMOUNT
 	select MACHINE_ID	if RUNTIME
 	select XZ		if SYSTEMD_XZ
 	select LZ4		if SYSTEMD_LZ4
-	select LIBMICROHTTPD	if SYSTEMD_MICROHTTPD
+	select LIBMICROHTTPD
 	select LIBSECCOMP	if SYSTEMD_SECCOMP
 	select LIBSELINUX	if GLOBAL_SELINUX
 	select IPTABLES		if SYSTEMD_IPMASQUERADE
+	select LIBELF		if SYSTEMD_COREDUMP
+	select LIBELF_LIBDW	if SYSTEMD_COREDUMP
 	# for udev:
 	select ROOTFS_DEV
 	select LIBBLKID
-	select GLIB		if UDEV_LIBGUDEV
-	select HOST_SYSTEMD	if UDEV_HWDB
+	select HOST_SYSTEMD	if SYSTEMD_UDEV_HWDB
 	prompt "systemd                       "
 	help
 	  systemd is a system and session manager for Linux, compatible with SysV
@@ -58,6 +58,14 @@ config SYSTEMD_LOCALES
 config SYSTEMD_VCONSOLE
 	bool
 	prompt "virtual console support"
+
+config SYSTEMD_XZ
+	bool
+	prompt "XZ compressed journal support"
+
+config SYSTEMD_LZ4
+	bool
+	prompt "LZ4 compressed journal support"
 
 config SYSTEMD_DISABLE_RANDOM_SEED
 	bool
@@ -106,22 +114,69 @@ config SYSTEMD_SECCOMP
 	  Enable this if you want to use SystemCallFilter in service files
 
 
-menu "journald                      "
+menu "udev                        "
 
-config SYSTEMD_XZ
-	bool
-	prompt "XZ compressed journal support"
+menu "install options               "
 
-config SYSTEMD_LZ4
+config SYSTEMD_UDEV_DRIVERS_RULES
 	bool
-	prompt "LZ4 compressed journal support"
-
-config SYSTEMD_MICROHTTPD
-	bool
-	prompt "Journald gateway and remote support"
+	prompt "install udev driver rules"
 	help
-	  Build systemd with libmicrohttpd support
-	
+	  This will install the generic udev drivers rules files from the udev package
+	  under '/usr/lib/udev/rules.d/',
+	  These rules are required to automatically load kernel modules on
+	  udev start.
+	  If unsure say Y.
+
+config SYSTEMD_UDEV_HWDB
+	bool
+	prompt "install hardware database"
+
+config SYSTEMD_UDEV_CUST_RULES
+	bool
+	prompt "install customized udev rules"
+	help
+	  This will install the customized udev rules files from
+	  'projectroot/usr/lib/udev/rules.d' into '/usr/lib/udev/rules.d'
+
+endmenu
+
+menu "persistent device node links  "
+
+config SYSTEMD_UDEV_PERSISTENT_ATA
+	bool
+	prompt "ata"
+
+config SYSTEMD_UDEV_PERSISTENT_CDROM
+	bool
+	prompt "cdrom"
+
+config SYSTEMD_UDEV_PERSISTENT_SCSI
+	bool
+	prompt "scsi"
+
+config SYSTEMD_UDEV_PERSISTENT_V4L
+	bool
+	prompt "v4l"
+
+endmenu
+
+menu "misc helper                   "
+
+config SYSTEMD_UDEV_COLLECT
+	bool
+	prompt "collect"
+	help
+	  Collect variables across events
+
+config SYSTEMD_UDEV_MTD_PROBE
+	bool
+	prompt "mtd_probe"
+	help
+	  autoloads FTL module for mtd devices
+
+endmenu
+
 endmenu
 
 endif

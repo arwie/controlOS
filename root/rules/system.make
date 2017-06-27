@@ -71,7 +71,7 @@ $(STATEDIR)/system.targetinstall:
 	@$(call install_alternative, system, 0, 0, 0444, /etc/machine-id)
 	
 	# firmware blobs
-	@$(call install_alternative_tree, system, 0, 0, /lib/firmware)
+	@$(call install_alternative_tree, system, 0, 0, /usr/lib/firmware)
 
 	# boot configuration
 	@$(call install_alternative, system, 0, 0, 0644, /boot/boot.conf)
@@ -81,18 +81,19 @@ $(STATEDIR)/system.targetinstall:
 	@$(call install_copy,        system, 0, 0, 0755, /mnt/root)
 	@$(call install_copy,        system, 0, 0, 0755, /mnt/init)
 	@$(call install_copy,        system, 0, 0, 0755, /mnt/usb)
-	@$(call install_alternative, system, 0, 0, 0644, /lib/systemd/system/var-etc.service)
+	@$(call install_alternative, system, 0, 0, 0644, /usr/lib/systemd/system/var-etc.service)
 
 	# networking
 	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/network/machine-bridge.netdev)
 	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/network/10-machine-bridge.network)
 	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/network/20-machine.network)
 	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/network/99-public.network)
-	@$(call install_link,        system, ../wpa_supplicant.service, /lib/systemd/system/multi-user.target.wants/wpa_supplicant.service)
+	@$(call install_link,        system, ../wpa_supplicant.service, /usr/lib/systemd/system/multi-user.target.wants/wpa_supplicant.service)
 	
 	# update
 	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/system/update-apply.service)
-	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/system/mnt-init.mount.wants/update-apply.path)
+	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/system/update-apply.path)
+	@$(call install_link,        system, ../update-apply.path, /etc/systemd/system/mnt-init.mount.wants/update-apply.path)
 
 	# sshd root key
 	@$(call install_copy,        system, 0, 0, 0700, /root/.ssh)

@@ -70,7 +70,7 @@ $(STATEDIR)/debug.targetinstall:
 	$(call install_alternative, debug, 0, 0, 0644, /etc/systemd/system/mount-root-rw.service)
 
 	$(call install_alternative, debug, 0, 0, 0644, /etc/systemd/system/debug.target)
-	$(call install_link,        debug, ../debug.target, /lib/systemd/system/sshd@.service.wants/debug.target)
+	$(call install_link,        debug, ../debug.target, /usr/lib/systemd/system/sshd@.service.wants/debug.target)
 
 	$(call install_alternative, debug, 0, 0, 0644, /etc/systemd/system/remote.service)
 

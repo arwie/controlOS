@@ -66,13 +66,13 @@ $(STATEDIR)/stx-mc.targetinstall:
 	@$(call install_link,        stx-mc, ../mc-update.service, /etc/systemd/system/multi-user.target.wants/mc-update.service)
 	
 	@$(call install_alternative, stx-mc, 0, 0, 0755, /usr/sbin/mc-state)
-	@$(call install_alternative, stx-mc, 0, 0, 0644, /lib/systemd/system/mc-state@.target)
-	@$(call install_alternative, stx-mc, 0, 0, 0644, /lib/systemd/system/mc-state.service)
-	@$(call install_link,        stx-mc, ../mc-state.service, /lib/systemd/system/multi-user.target.wants/mc-state.service)
+	@$(call install_alternative, stx-mc, 0, 0, 0644, /usr/lib/systemd/system/mc-state@.target)
+	@$(call install_alternative, stx-mc, 0, 0, 0644, /usr/lib/systemd/system/mc-state.service)
+	@$(call install_link,        stx-mc, ../mc-state.service, /usr/lib/systemd/system/multi-user.target.wants/mc-state.service)
 	
 	@$(call install_alternative, stx-mc, 0, 0, 0755, /usr/sbin/mc-log)
-	@$(call install_alternative, stx-mc, 0, 0, 0644, /lib/systemd/system/mc-log.service)
-	@$(call install_link,        stx-mc, ../mc-log.service, /lib/systemd/system/mc-state@log.target.wants/mc-log.service)
+	@$(call install_alternative, stx-mc, 0, 0, 0644, /usr/lib/systemd/system/mc-log.service)
+	@$(call install_link,        stx-mc, ../mc-log.service, /usr/lib/systemd/system/mc-state@log.target.wants/mc-log.service)
 
 	@$(call install_finish, stx-mc)
 	@$(call touch)

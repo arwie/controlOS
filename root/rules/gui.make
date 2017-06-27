@@ -69,8 +69,8 @@ $(STATEDIR)/gui.targetinstall:
 
 	@$(call install_alternative_tree, gui, 0, 0, /usr/lib/gui)
 	
-	@$(call install_alternative, gui, 0, 0, 0644, /lib/systemd/system/gui.service)
-	@$(call install_link,        gui, ../gui.service, /lib/systemd/system/multi-user.target.wants/gui.service)
+	@$(call install_alternative, gui, 0, 0, 0644, /usr/lib/systemd/system/gui.service)
+	@$(call install_link,        gui, ../gui.service, /usr/lib/systemd/system/multi-user.target.wants/gui.service)
 	
 	@$(call install_finish,gui)
 	@$(call touch)
