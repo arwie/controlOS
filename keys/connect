@@ -1,6 +1,6 @@
 #!/bin/sh
 
-HOST=${1-192.168.173.1}
+HOST=${1-sys}
 PORT=${2-22}
 
 SCRIPT=$(readlink -f $0)
@@ -9,7 +9,7 @@ BASEDIR=$(dirname $SCRIPT)
 cd $BASEDIR
 
 
-if [ "$HOST" = "192.168.173.1" ]; then 
+if [ "$HOST" = "sys" ]; then 
 
   ssh \
     -i ssh/id_rsa \

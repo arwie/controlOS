@@ -1,6 +1,6 @@
 #!/bin/sh
 
-HOST=${1-192.168.173.1}
+HOST=sys
 
 SCRIPT=$0
 BASEDIR=$(dirname $SCRIPT)
