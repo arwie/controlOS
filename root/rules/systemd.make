@@ -91,7 +91,7 @@ SYSTEMD_CONF_OPT	:= \
 	--disable-libcryptsetup \
 	--disable-qrencode \
 	--disable-gnutls \
-	--enable-microhttpd \
+	--$(call ptx/endis,PTXCONF_SYSTEMD_MICROHTTPD)-microhttpd \
 	--disable-libcurl \
 	--disable-libidn \
 	--$(call ptx/endis,PTXCONF_SYSTEMD_IPMASQUERADE)-libiptc \
@@ -190,7 +190,7 @@ SYSTEMD_HELPER := \
 	systemd-hostnamed \
 	systemd-initctl \
 	systemd-journald \
-	systemd-journal-remote \
+	$(call ptx/ifdef, PTXCONF_SYSTEMD_JOURNAL_REMOTE,systemd-journal-remote,) \
 	$(call ptx/ifdef, PTXCONF_SYSTEMD_LOCALES,systemd-localed,) \
 	$(call ptx/ifdef, PTXCONF_SYSTEMD_LOGIND,systemd-logind,) \
 	systemd-modules-load \
@@ -327,8 +327,6 @@ endif
 		/etc/systemd/system.conf)
 	@$(call install_alternative, systemd, 0, 0, 0644, \
 		/etc/systemd/journald.conf)
-	@$(call install_alternative, systemd, 0, 0, 0644, \
-		/etc/systemd/journal-remote.conf)
 ifdef PTXCONF_SYSTEMD_LOGIND
 	@$(call install_alternative, systemd, 0, 0, 0644, \
 		/etc/systemd/logind.conf)
@@ -342,6 +340,10 @@ ifdef PTXCONF_SYSTEMD_NETWORK
 	@$(call install_copy, systemd, 0, 0, 0644, -, /usr/lib/systemd/resolv.conf)
 	@$(call install_alternative, systemd, 0, 0, 0644, \
 		/etc/systemd/resolved.conf)
+endif
+ifdef PTXCONF_SYSTEMD_JOURNAL_REMOTE
+	@$(call install_alternative, systemd, 0, 0, 0644, \
+		/etc/systemd/journal-remote.conf)
 endif
 	@$(call install_tree, systemd, 0, 0, -, /etc/systemd/system/)
 	@$(call install_tree, systemd, 0, 0, -, /usr/share/dbus-1/system.d/)
