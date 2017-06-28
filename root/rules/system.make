@@ -109,6 +109,7 @@ $(STATEDIR)/system.targetinstall:
 	
 	# central syslog
 	@$(call install_alternative, system, 0, 0, 0644, /etc/tmpfiles.d/persistent-journal.conf)
+	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/system/systemd-journald.service.d/persistent-journal.conf)
 
 	@$(call install_copy,        system, 0, 0, 0755, /etc/app)
 

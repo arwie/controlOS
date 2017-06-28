@@ -2,6 +2,6 @@ LABEL=BOOT        /mnt/boot      vfat     noauto,x-systemd.automount,ro         
 LABEL=INIT        /mnt/init      vfat     noauto,x-systemd.automount,x-systemd.idle-timeout=10,defaults                                0 0
 LABEL=ROOT        /mnt/root      ext4     noauto,x-systemd.automount,ro                                                                0 0
 
-LABEL=DATA        /var           ext4     auto,defaults,nofail                                                                         0 0
-overlay           /etc           overlay  auto,x-systemd.requires=var-etc.service,lowerdir=/etc,upperdir=/var/etc,workdir=/var/.etc    0 0
+LABEL=DATA        /var           ext4     auto,defaults,nofail                                                                                                      0 0
+overlay           /etc           overlay  auto,x-systemd.requires=var.mount,x-systemd.requires=var-etc.service,lowerdir=/etc,upperdir=/var/etc,workdir=/var/.etc    0 0
 
