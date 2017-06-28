@@ -93,6 +93,8 @@ $(STATEDIR)/system.targetinstall:
 	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/network/99-public.network)
 	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/network/sys.netdev)
 	@$(call install_link,        system, ../wpa_supplicant.service, /usr/lib/systemd/system/multi-user.target.wants/wpa_supplicant.service)
+	@$(call install_alternative, system, 0, 0, 0644, /usr/lib/systemd/system/hostapd.service)
+	@$(call install_link,        system, ../hostapd.service, /usr/lib/systemd/system/multi-user.target.wants/hostapd.service)
 	
 	# update
 	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/system/update-apply.service)
