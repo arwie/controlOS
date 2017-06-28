@@ -84,10 +84,14 @@ $(STATEDIR)/system.targetinstall:
 	@$(call install_alternative, system, 0, 0, 0644, /usr/lib/systemd/system/var-etc.service)
 
 	# networking
-	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/network/machine-bridge.netdev)
-	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/network/10-machine-bridge.network)
-	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/network/20-machine.network)
+	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/network/05-sys-lan.link)
+	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/network/05-sys-wlan.link)
+	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/network/06-wlan.link)
+	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/network/10-sys-bridge.network)
+	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/network/10-sys.network)
+	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/network/10-sys.network.d/address.conf)
 	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/network/99-public.network)
+	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/network/sys.netdev)
 	@$(call install_link,        system, ../wpa_supplicant.service, /usr/lib/systemd/system/multi-user.target.wants/wpa_supplicant.service)
 	
 	# update

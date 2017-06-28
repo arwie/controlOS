@@ -1,7 +1,5 @@
 [Match]
-
-#SolidRun
-Name=enp3s0
+Name=sys-lan
 
 #iEi
 Name=enp1s0
@@ -14,4 +12,4 @@ Name=tap*
 
 
 [Network]
-Bridge=machine
+Bridge=sys

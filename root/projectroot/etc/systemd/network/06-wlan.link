@@ -1,0 +1,8 @@
+[Match]
+Type=wlan
+
+#     >SolidPC:USB1-1               >iEi:USB4
+Path= pci-0000:00:14.0-usb-0:1:1.0  
+
+[Link]
+Name=wlan
