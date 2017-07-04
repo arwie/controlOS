@@ -20,8 +20,8 @@
 MC="mc@mc"
 MCROOT="root@mc"
 
-CONF=/usr/lib/mc/conf
-APPSRC=/usr/lib/mc/app
+SRC=/usr/lib/mc
+CONF=$SRC/conf
 APP=/tmp/mc-app
 
 PHP="php5 -n -d display_errors=stderr"
@@ -55,7 +55,7 @@ fi
 
 # build application php files
 mkdir -p $APP															|| errexit "mkdir $APP"
-cd $APPSRC
+cd $SRC
 $PHP main.php $APP														|| errexit "build application files"
 
 
