@@ -29,7 +29,7 @@ SSH="ssh"
 SCP="scp -r -q"
 
 md5hash() {
-	find $1 -type f -exec cat {} + | md5sum | cut -d ' ' -f 1
+	find $1 -type f | sort | xargs cat | md5sum | cut -d ' ' -f 1
 }
 
 debug() { echo "$1" 1>&2; }
