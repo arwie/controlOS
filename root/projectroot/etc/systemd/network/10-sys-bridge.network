@@ -4,9 +4,6 @@ Name=sys-lan
 #iEi
 Name=enp1s0
 
-#VBox
-Name=enp0s3
-
 #remote
 Name=tap*
 
