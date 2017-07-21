@@ -3,7 +3,7 @@ After=network.target
 
 [Service]
 ExecStartPre=/bin/sleep 10
-ExecStart=/usr/bin/python3 -B -u /usr/sbin/mc-state mc 33000
+ExecStart=/usr/bin/python -B -u /usr/sbin/mc-state mc 33000
 
 Restart=always
 RestartSec=10

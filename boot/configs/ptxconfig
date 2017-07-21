@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# PTXdist 2017.06.0
+# PTXdist 2017.07.0
 #
 PTXCONF_SYSTEM=y
 
@@ -60,7 +60,7 @@ PTXCONF_PROJECT_BUILD_DEVEL=y
 PTXCONF_RUNTIME=y
 PTXCONF_BUILDTIME=y
 PTXCONF_VIRTUAL=y
-PTXCONF_CONFIGFILE_VERSION="2017.06.0"
+PTXCONF_CONFIGFILE_VERSION="2017.07.0"
 PTXCONF__ptxconfig_MAGIC__=y
 
 #
@@ -78,9 +78,7 @@ PTXCONF__ptxconfig_MAGIC__=y
 # Host Tools                    
 #
 # PTXCONF_HOST_DFU_UTIL is not set
-# PTXCONF_HOST_PACKAGE_MANAGEMENT_IPKG is not set
 PTXCONF_HOST_PACKAGE_MANAGEMENT_OPKG=y
-PTXCONF_HOST_PACKAGE_MANAGEMENT="opkg"
 # PTXCONF_HOST_QEMU is not set
 PTXCONF_HOST_TESTFRAMEWORK=y
 PTXCONF_HOST_ACL=y
@@ -104,7 +102,6 @@ PTXCONF_HOST_CKERMIT=y
 # PTXCONF_HOST_CYTHON is not set
 # PTXCONF_HOST_DBUS_GLIB is not set
 # PTXCONF_HOST_DBUS is not set
-# PTXCONF_HOST_DIRECTFB is not set
 # PTXCONF_HOST_DOSFSTOOLS is not set
 PTXCONF_HOST_DUMMY_INSTALL_INFO=y
 # PTXCONF_HOST_E2FSPROGS is not set
@@ -129,8 +126,6 @@ PTXCONF_HOST_FAKEROOT=y
 # PTXCONF_HOST_ICU is not set
 # PTXCONF_HOST_IMA_EVM_UTILS is not set
 # PTXCONF_HOST_INTLTOOL is not set
-# PTXCONF_HOST_IPKG_UTILS is not set
-# PTXCONF_HOST_IPKG is not set
 # PTXCONF_HOST_KERNEL_HEADER is not set
 # PTXCONF_HOST_KEYUTILS is not set
 # PTXCONF_HOST_LIBAIO is not set
@@ -164,6 +159,7 @@ PTXCONF_HOST_LRZSZ=y
 # PTXCONF_HOST_LZOP is not set
 PTXCONF_HOST_M4=y
 # PTXCONF_HOST_MAKEDEPEND is not set
+# PTXCONF_HOST_MARIADB is not set
 # PTXCONF_HOST_MESALIB is not set
 # PTXCONF_HOST_MESON is not set
 # PTXCONF_HOST_MKELFIMAGE is not set
@@ -199,7 +195,6 @@ PTXCONF_HOST_SYSTEM_PERL=y
 # PTXCONF_HOST_TZ_DATABASE is not set
 # PTXCONF_HOST_U_BOOT_TOOLS is not set
 PTXCONF_HOST_UNFS3=y
-# PTXCONF_HOST_USPLASH is not set
 # PTXCONF_HOST_USTR is not set
 # PTXCONF_HOST_UTIL_LINUX_NG is not set
 # PTXCONF_HOST_WAYLAND is not set
@@ -238,12 +233,14 @@ PTXCONF_CROSS_PKG_CONFIG_WRAPPER=y
 #
 # Debug Tools                   
 #
+# PTXCONF_DEBUG_PACKAGES is not set
 # PTXCONF_BINUTILS is not set
 
 #
 # BusyBox' bootchartd is selected!
 #
 # PTXCONF_CPPUNIT is not set
+# PTXCONF_DROPWATCH is not set
 # PTXCONF_FAILMALLOC is not set
 
 #
@@ -1612,6 +1609,9 @@ PTXCONF_UTIL_LINUX_NG_SFDISK=y
 #
 # PTXCONF_UTIL_LINUX_NG_WIPEFS is not set
 # PTXCONF_UTIL_LINUX_NG_ZRAMCTL is not set
+# PTXCONF_UTIL_LINUX_NG_LSMEM is not set
+# PTXCONF_UTIL_LINUX_NG_CHMEM is not set
+# PTXCONF_UTIL_LINUX_NG_MKFS is not set
 # PTXCONF_WATCHDOG is not set
 
 #
@@ -1672,12 +1672,14 @@ PTXCONF_UTIL_LINUX_NG_SFDISK=y
 # PTXCONF_PYTHON3_GI is not set
 # PTXCONF_PYTHON3_IPYTHON_GENUTILS is not set
 # PTXCONF_PYTHON3_IPYTHON is not set
+# PTXCONF_PYTHON3_MAKO is not set
 # PTXCONF_PYTHON3_MSGPACK is not set
 # PTXCONF_PYTHON3_PATH_PY is not set
 # PTXCONF_PYTHON3_PEXPECT is not set
 # PTXCONF_PYTHON3_PICKLESHARE is not set
 # PTXCONF_PYTHON3_PTYPROCESS is not set
 # PTXCONF_PYTHON3_SIMPLEGENERIC is not set
+# PTXCONF_PYTHON3_SIX is not set
 # PTXCONF_PYTHON3_TORNADO is not set
 # PTXCONF_PYTHON3_TRAITLETS is not set
 
@@ -1727,12 +1729,14 @@ PTXCONF_UTIL_LINUX_NG_SFDISK=y
 # PTXCONF_FCGI is not set
 # PTXCONF_GNUTLS is not set
 # PTXCONF_HASERL is not set
+# PTXCONF_HAVEGED is not set
 # PTXCONF_HOSTAPD is not set
 # PTXCONF_HPING is not set
 
 #
 # busybox' ifplugd is selected
 #
+# PTXCONF_IFTOP is not set
 # PTXCONF_INADYN is not set
 # PTXCONF_INETUTILS is not set
 # PTXCONF_IPROUTE2 is not set
@@ -1912,7 +1916,6 @@ PTXCONF_E2FSPROGS_INSTALL_MKFS_EXT4=y
 #
 # BusyBox' hdparm is selected
 #
-# PTXCONF_IPKG is not set
 # PTXCONF_LIBLOCKFILE is not set
 # PTXCONF_LOGROTATE is not set
 # PTXCONF_LVM2 is not set
@@ -1954,7 +1957,7 @@ PTXCONF_E2FSPROGS_INSTALL_MKFS_EXT4=y
 #
 # PTXCONF_GNUPG is not set
 # PTXCONF_LPC21ISP is not set
-# PTXCONF_MYSQL is not set
+# PTXCONF_MYSQLDB is not set
 # PTXCONF_RAUC is not set
 
 #
@@ -2109,6 +2112,7 @@ PTXCONF_LIBUUID=y
 # PTXCONF_SEPOLGEN is not set
 # PTXCONF_EASY_RSA is not set
 # PTXCONF_ECRYPTFS_UTILS is not set
+# PTXCONF_OPTEE_CLIENT is not set
 # PTXCONF_TOMOYO_TOOLS is not set
 
 #
@@ -2151,6 +2155,7 @@ PTXCONF_LIBUUID=y
 # PTXCONF_LMBENCH is not set
 # PTXCONF_MBW is not set
 # PTXCONF_PELTS_TESTS is not set
+# PTXCONF_PIGLIT is not set
 # PTXCONF_RT_TESTS is not set
 # PTXCONF_STRESS is not set
 # PTXCONF_TIOBENCH is not set
@@ -2166,13 +2171,6 @@ PTXCONF_LIBUUID=y
 #
 # Graphics & Multimedia         
 #
-
-#
-# directfb & friends            
-#
-# PTXCONF_DIRECTFB_EXAMPLES is not set
-# PTXCONF_DIRECTFB is not set
-# PTXCONF_LITE is not set
 # PTXCONF_MENU_XORG_FONTS is not set
 
 #
@@ -2183,8 +2181,6 @@ PTXCONF_LIBUUID=y
 # PTXCONF_FBTERM is not set
 # PTXCONF_FBTEST is not set
 # PTXCONF_FBUTILS is not set
-# PTXCONF_FBV is not set
-# PTXCONF_USPLASH is not set
 
 #
 # gstreamer 0.10                
@@ -2283,7 +2279,6 @@ PTXCONF_LIBUUID=y
 # tools                         
 #
 # PTXCONF_FONTCONFIG is not set
-# PTXCONF_I915RESOLUTION is not set
 # PTXCONF_IMAGEMAGICK is not set
 # PTXCONF_INTEL_GPU_TOOLS is not set
 
@@ -2295,6 +2290,7 @@ PTXCONF_LIBUUID=y
 # PTXCONF_FREETYPE is not set
 # PTXCONF_GLMARK2 is not set
 # PTXCONF_GLU is not set
+# PTXCONF_HARFBUZZ is not set
 # PTXCONF_KMSCUBE is not set
 # PTXCONF_LIBAO is not set
 # PTXCONF_LIBCACA is not set
@@ -2327,6 +2323,7 @@ PTXCONF_LIBUUID=y
 # PTXCONF_TSLIB is not set
 # PTXCONF_V4L_UTILS is not set
 # PTXCONF_VO_AACENC is not set
+# PTXCONF_WAFFLE is not set
 # PTXCONF_XKEYBOARD_CONFIG is not set
 # PTXCONF_XORG is not set
 
