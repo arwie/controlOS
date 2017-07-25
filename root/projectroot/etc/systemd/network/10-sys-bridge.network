@@ -1,9 +1,6 @@
 [Match]
 Name=sys-lan
 
-#iEi
-Name=enp1s0
-
 #remote
 Name=tap*
 
