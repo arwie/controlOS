@@ -27,6 +27,7 @@ program
 			call log_message(<?=$lib['prg']['error']?'log_prioError':'log_prioCritical'?>, <?=$lib['prg']['file']?>.error)
 			call com_putLong("/error", <?=$lib['prg']['file']?>.errornumber)
 			'call com_putString("/trace", backtrace$("<?=$lib['prg']['file']?>"))
+			call com_putLong("/state", <?=$lib['prg']['file']?>.state)
 			call log_putCodeFunc("onError")
 			call com_putString("/prg", "<?=$lib['name']?>")
 			call com_putString("/lib", "<?=$lib['name']?>")

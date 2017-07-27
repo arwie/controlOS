@@ -195,7 +195,7 @@ function libEnd() { global $lib, $libs, $out;
 
 	if ($lib['prg']) {
 		l('function prgRunning as long');
-		ll('prgRunning = ('.$lib['prg']['file'].'.state = TASK_RUNNING)');
+		ll('prgRunning = (('.$lib['prg']['file'].'.state band 0xF) = TASK_RUNNING)');
 		l('end function');
 	}
 
