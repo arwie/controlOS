@@ -66,6 +66,12 @@ common shared etc_busnumber as const long = 0
 				ll('call etc_sdoWrite('.$dev['address'].', 0x60C0, 0, 16, 2)');
 				ll('call etc_sdoWrite('.$dev['address'].', 0x6040, 0, 16, 128)');
 				break;
+			case 'stepim':
+				ll('call EC_CDHD_SET_PDOS('.$dev['address'].', etc_busnumber, 0, CDHD_OPMODE_SYNC_POSITION)');
+				ll('call EC_USE_SLAVE('.$dev['address'].', EC_SLAVES_INFO['.$dev['address'].']->vendor_id, EC_SLAVES_INFO['.$dev['address'].']->product_code, "ECAT_AXIS_SLAVE", true)');
+				ll('call etc_sdoWrite('.$dev['address'].', 0x6060, 0, 8,  CDHD_OPMODE_SYNC_POSITION)');
+				ll('call etc_sdoWrite('.$dev['address'].', 0x6040, 0, 16, 128)');
+				break;
 			case 'wago':
 			case 'pilz':
 			case 'hilscher':
