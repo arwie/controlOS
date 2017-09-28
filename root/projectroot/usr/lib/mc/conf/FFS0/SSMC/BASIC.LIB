@@ -73,6 +73,29 @@ public function minl(byval a as long, byval b as long) as long
 end function
 
 
+public function bound(byval value_ as double, byval min_ as double, byval max_ as double) as double
+	select case value_
+	case is < min_
+		bound = min_
+	case is > max_
+		bound = max_
+	case else
+		bound = value_
+	end select
+end function
+
+public function boundl(byval value_ as long, byval min_ as long, byval max_ as long) as long
+	select case value_
+	case is < min_
+		boundl = min_
+	case is > max_
+		boundl = max_
+	case else
+		boundl = value_
+	end select
+end function
+
+
 
 public function sinDeg(byval angle_ as double) as double
 	sinDeg = sin(angle_*PI/180)
