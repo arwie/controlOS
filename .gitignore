@@ -3,4 +3,5 @@
 /**/configs/**/*.old
 /boot/platform-*/
 /root/platform-*/
+/initramfs/platform-*/
 /mccom/platform-*/

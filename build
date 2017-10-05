@@ -3,29 +3,50 @@
 SCRIPT=$(readlink -f $0)
 BASEDIR=$(dirname $SCRIPT)
 
+NP=$(nproc)
+
+
+
+errexit() {
+	echo "#############################################"
+	echo "Build failed!"
+	echo "$1"
+	exit 1
+}
+
+
+ptxdist_clean()
+{
+	cd $BASEDIR/$1
+	
+	ptxdist -q clean					|| errexit "Error while cleaning $1"
+}
+
+
+ptxdist_build()
+{
+	cd $BASEDIR/$1
+	
+	if ! ptxdist images -j$NP; then
+		ptxdist images					|| errexit "Error while building $1"
+	fi
+}
+
+
 
 # Clean everything first
-
-cd $BASEDIR/initramfs
-ptxdist -q clean		|| exit 1
-
-cd $BASEDIR/root
-ptxdist -q clean		|| exit 1
-
-cd $BASEDIR/boot
-ptxdist -q clean		|| exit 1
+ptxdist_clean initramfs
+ptxdist_clean root
+ptxdist_clean boot
 
 
 # Now build all images
+ptxdist_build initramfs
+ptxdist_build root
+ptxdist_build boot
 
-cd $BASEDIR/initramfs
-ptxdist images			|| exit 1
 
-cd $BASEDIR/root
-ptxdist images			|| exit 1
-
-cd $BASEDIR/boot
-ptxdist images			|| exit 1
-
+echo "#############################################"
+echo "Build completed successfully!"
 
 exit 0
