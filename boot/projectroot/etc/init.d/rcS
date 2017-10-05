@@ -21,7 +21,7 @@ waitfs()
 {
 while ! findfs LABEL=$1 > /dev/null; do
 	echo "waiting for $1 device ..."
-	sleep 1; 
+	sleep 0.1; 
 done
 }
 
@@ -129,7 +129,7 @@ echo "starting root system"
 mount -r /mnt/root
 
 . /mnt/root/boot/boot.conf
-kexec --load /mnt/root/boot/$IMAGE --command-line="root=$ROOTDEV $BOOTARGS"
+kexec --load /mnt/root/boot/$IMAGE --command-line="$BOOTARGS"
 kexec --exec
 }
 

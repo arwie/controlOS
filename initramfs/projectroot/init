@@ -1,0 +1,22 @@
+#!/usr/bin/sh
+
+
+mount /dev
+
+
+while ! findfs LABEL=BOOT > /dev/null; do
+	echo "waiting for BOOT device ..."
+	sleep 0.1
+done
+
+
+mount /mnt
+mount /mnt/var
+
+mkdir -p /mnt/var/etc /mnt/var/.etc
+mount /mnt/etc
+
+
+umount /dev
+
+exec switch_root /mnt /sbin/init

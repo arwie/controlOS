@@ -76,13 +76,6 @@ $(STATEDIR)/system.targetinstall:
 	# boot configuration
 	@$(call install_alternative, system, 0, 0, 0644, /boot/boot.conf)
 
-	# mountpoints
-	@$(call install_copy,        system, 0, 0, 0755, /mnt/boot)
-	@$(call install_copy,        system, 0, 0, 0755, /mnt/root)
-	@$(call install_copy,        system, 0, 0, 0755, /mnt/init)
-	@$(call install_copy,        system, 0, 0, 0755, /mnt/usb)
-	@$(call install_alternative, system, 0, 0, 0644, /usr/lib/systemd/system/var-etc.service)
-
 	# networking
 	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/network/05-sys-lan.link)
 	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/network/05-sys-wlan.link)
@@ -97,6 +90,7 @@ $(STATEDIR)/system.targetinstall:
 	@$(call install_link,        system, ../hostapd.service, /usr/lib/systemd/system/multi-user.target.wants/hostapd.service)
 	
 	# update
+	@$(call install_copy,        system, 0, 0, 0755, /mnt/init)
 	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/system/update-apply.service)
 	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/system/update-apply.path)
 	@$(call install_link,        system, ../update-apply.path, /etc/systemd/system/mnt-init.mount.wants/update-apply.path)

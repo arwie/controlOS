@@ -4,12 +4,28 @@ SCRIPT=$(readlink -f $0)
 BASEDIR=$(dirname $SCRIPT)
 
 
+# Clean everything first
+
+cd $BASEDIR/initramfs
+ptxdist -q clean		|| exit 1
+
 cd $BASEDIR/root
-ptxdist -q clean	|| exit 1
-ptxdist images		|| exit 1
+ptxdist -q clean		|| exit 1
 
 cd $BASEDIR/boot
-ptxdist -q clean	|| exit 1
-ptxdist images		|| exit 1
+ptxdist -q clean		|| exit 1
+
+
+# Now build all images
+
+cd $BASEDIR/initramfs
+ptxdist images			|| exit 1
+
+cd $BASEDIR/root
+ptxdist images			|| exit 1
+
+cd $BASEDIR/boot
+ptxdist images			|| exit 1
+
 
 exit 0
