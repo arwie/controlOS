@@ -54,7 +54,7 @@ gui.debug = new function() {
 	
 	self.start = function()
 	{
-		self.ws = new WebSocket('ws://'+location.hostname+'/mc/debug');
+		self.ws = new WebSocket('ws://'+hosts.mc+':5610');
 		
 		self.ws.onmessage = function (e) {
 			let msg = JSON.parse(e.data);

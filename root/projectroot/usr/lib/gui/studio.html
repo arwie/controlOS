@@ -23,7 +23,7 @@
 	<script defer src="/static/l20n.js"></script>
 	<link rel="localization" href="locale/{locale}.ftl">
 	<meta name="availableLanguages" content="en,de">
-	<meta name="defaultLanguage" content="en">	
+	<meta name="defaultLanguage" content="en">
 </head>
 <script>
 {% import socket %}
@@ -73,7 +73,7 @@ $(document).ready(function()
 	function reconnectState() {
 		resetWatchdog();
 
-		gui.stateConnection = new WebSocket('ws://'+location.hostname+'/mc/state');
+		gui.stateConnection = new WebSocket('ws://'+location.host+'/state');
 		
 		gui.stateConnection.onopen = function() {
 			if (gui.stateDisconnected)
@@ -127,11 +127,12 @@ function requestFullscreen() {
 			</div>
 			<div class="collapse navbar-collapse" id="navbar-collapse">
 				<ul class="nav navbar-nav">
-					{% include "app/menu.html" %}
+					<li><a href="#log"    data-l10n-id="log"></a></li>
+					<li><a data-bind="visible:isState('simio')" href="#simio"   data-l10n-id="simio"></a></li>
+					<li><a data-bind="visible:isState('sim')"   href="/static/sim/scene.html" target="_blank" data-l10n-id="sim"></a></li>
 				</ul>
 				<ul class="nav navbar-nav navbar-right">
 					{% include "nav-diag.html" %}
-					{% include "nav-studio.html" %}
 					{% include "nav-admin.html" %}
 					{% include "locale.html" %}
 				</ul>
@@ -139,8 +140,6 @@ function requestFullscreen() {
 		</div>
 	</nav>
 	<main class="container-fluid">
-		{% include "app/app.html" %}
-		
 		{% include "report.html" %}
 		{% include "log.html" %}
 		{% include "debug.html" %}

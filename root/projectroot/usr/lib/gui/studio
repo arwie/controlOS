@@ -1,0 +1,27 @@
+import server
+
+from update		import UpdateHandler
+from remote		import RemoteHandler
+from wlan		import WlanHandler
+from backup		import BackupHandler
+from log		import LogHandler, LogFieldHandler
+
+
+
+class StudioHandler(server.RequestHandler):
+	def get(self):
+		self.render('studio.html')
+
+
+
+handlers = [
+	(r"/",						StudioHandler),
+	(r"/log",					LogHandler),
+	(r"/log/(.*)",				LogFieldHandler),
+	(r"/update",				UpdateHandler),
+	(r"/remote",				RemoteHandler),
+	(r"/wlan",					WlanHandler),
+	(r"/backup",				BackupHandler),
+]
+
+server.run(handlers)

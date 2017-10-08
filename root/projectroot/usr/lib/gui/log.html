@@ -154,7 +154,7 @@ gui.log = new function() {
 	self.query = function()	{
 		self.stop();
 		
-		self.connection(new WebSocket('ws://'+location.hostname+'/log?'+$.param({args: self.filter.args()})));
+		self.connection(new WebSocket('ws://'+location.host+'/log?'+$.param({args: self.filter.args()})));
 
 		self.connection().onmessage = function(e) {
 			self.messages.unshift(new Message(JSON.parse(e.data)));

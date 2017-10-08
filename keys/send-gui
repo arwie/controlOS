@@ -7,5 +7,10 @@ BASEDIR=$(dirname $SCRIPT)
 
 cd $BASEDIR
 
-ssh -i ssh/id_rsa root@$HOST mount -o remount,rw /
-scp -i ssh/id_rsa -r ../gui root@$HOST:/usr/lib/  &&  ssh -i ssh/id_rsa root@$HOST systemctl restart gui
+
+ssh -i ssh/id_rsa root@$HOST mount -o remount,rw /					|| exit 1
+
+scp -i ssh/id_rsa -r ../gui root@$HOST:/usr/lib/					|| exit 1
+
+ssh -i ssh/id_rsa root@$HOST systemctl restart gui.service			|| exit 1
+ssh -i ssh/id_rsa root@$HOST systemctl restart studio.service		|| exit 1

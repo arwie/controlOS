@@ -1,9 +1,2 @@
-[Unit]
-After=network.target
-
 [Service]
-ExecStart=/usr/bin/python -B -u /usr/lib/gui/server
-
-Restart=always
-RestartSec=1
-StartLimitInterval=0
+ExecStart=/usr/bin/python -B -u /usr/lib/gui/gui

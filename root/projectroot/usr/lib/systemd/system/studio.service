@@ -1,0 +1,2 @@
+[Service]
+ExecStart=/usr/bin/python -B -u /usr/lib/gui/studio

@@ -16,46 +16,6 @@ PACKAGES-$(PTXCONF_GUI) += gui
 GUI_VERSION	:= 1
 
 # ----------------------------------------------------------------------------
-# Get
-# ----------------------------------------------------------------------------
-
-#$(STATEDIR)/gui.get:
-#	@$(call targetinfo)
-#	@$(call touch)
-
-# ----------------------------------------------------------------------------
-# Extract
-# ----------------------------------------------------------------------------
-
-#$(STATEDIR)/gui.extract:
-#	@$(call targetinfo)
-#	@$(call touch)
-
-# ----------------------------------------------------------------------------
-# Prepare
-# ----------------------------------------------------------------------------
-
-#$(STATEDIR)/gui.prepare:
-#	@$(call targetinfo)
-#	@$(call touch)
-
-# ----------------------------------------------------------------------------
-# Compile
-# ----------------------------------------------------------------------------
-
-#$(STATEDIR)/gui.compile:
-#	@$(call targetinfo)
-#	@$(call touch)
-
-# ----------------------------------------------------------------------------
-# Install
-# ----------------------------------------------------------------------------
-
-$(STATEDIR)/gui.install:
-	@$(call targetinfo)
-	@$(call touch)
-
-# ----------------------------------------------------------------------------
 # Target-Install
 # ----------------------------------------------------------------------------
 
@@ -70,17 +30,14 @@ $(STATEDIR)/gui.targetinstall:
 	@$(call install_alternative_tree, gui, 0, 0, /usr/lib/gui)
 	
 	@$(call install_alternative, gui, 0, 0, 0644, /usr/lib/systemd/system/gui.service)
-	@$(call install_link,        gui, ../gui.service, /usr/lib/systemd/system/multi-user.target.wants/gui.service)
+	@$(call install_alternative, gui, 0, 0, 0644, /usr/lib/systemd/system/gui.socket)
+	@$(call install_link,        gui, ../gui.socket, /usr/lib/systemd/system/sockets.target.wants/gui.socket)
+	
+	@$(call install_alternative, gui, 0, 0, 0644, /usr/lib/systemd/system/studio.service)
+	@$(call install_alternative, gui, 0, 0, 0644, /usr/lib/systemd/system/studio.socket)
 	
 	@$(call install_finish,gui)
 	@$(call touch)
 
-# ----------------------------------------------------------------------------
-# Clean
-# ----------------------------------------------------------------------------
-
-#$(STATEDIR)/gui.clean:
-#	@$(call targetinfo)
-#	@$(call clean_pkg, GUI)
 
 # vim: syntax=make

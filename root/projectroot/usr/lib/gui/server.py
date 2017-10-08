@@ -15,8 +15,20 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-import logging, json
-from tornado import web, websocket, gen
+import os, socket, json, logging, base64
+from systemd import journal
+from tornado import web, httpserver, ioloop, gen, websocket
+
+
+logging.root.addHandler(journal.JournalHandler())
+logging.root.setLevel(logging.DEBUG)
+logging.getLogger('tornado.access').setLevel(logging.WARNING)
+
+
+
+class RequestHandler(web.RequestHandler):
+	pass
+
 
 
 
@@ -25,7 +37,6 @@ class WebsocketJsonProxy(websocket.WebSocketHandler):
 	def initialize(self, url):
 		self.url = url
 		self.closed = False
-
 
 	@gen.coroutine
 	def receiveFromClient(self):
@@ -38,7 +49,6 @@ class WebsocketJsonProxy(websocket.WebSocketHandler):
 		self.clientConn.close()
 		self.close()
 
-
 	@gen.coroutine
 	def open(self):
 		self.set_nodelay(True)
@@ -49,10 +59,8 @@ class WebsocketJsonProxy(websocket.WebSocketHandler):
 			logging.debug(e)
 			self.close()
 
-
 #	def on_message(self, message):
 #		self.client_conn.write_message(message)
-
 
 	def on_close(self):
 		self.closed = True
@@ -62,31 +70,53 @@ class WebsocketJsonProxy(websocket.WebSocketHandler):
 
 
 
-
 class HttpWebsocketJsonProxy(web.RequestHandler):
 
 	def initialize(self, url):
 		self.url = url
 
-
 	@gen.coroutine
 	def prepare(self):
 		self.clientConn = yield websocket.websocket_connect(self.url)
 
-		
 	@gen.coroutine
 	def post(self):
 		rx = json.loads(self.request.body.decode('utf8'))
 		self.clientConn.write_message(json.dumps(rx).encode('utf8'))
 		yield self.get()
 
-		
 	@gen.coroutine
 	def get(self):
 		tx = yield self.clientConn.read_message()
 		if tx is not None:
 			self.write(tx)
 
-
 	def on_finish(self):
 		self.clientConn.close()
+
+
+
+
+class LocaleHandler(web.RequestHandler):
+	def get(self, locale):
+		self.render('locale/'+locale+'.ftl')
+
+
+defaultHandlers = [
+	(r"/locale/(.*).ftl",		LocaleHandler),
+	(r"/state",					WebsocketJsonProxy,		{'url': 'ws://mc:33000'}),
+]
+
+settings = {
+	'static_path':		os.path.dirname(__file__)+'/static',
+	'cookie_secret':	base64.b64encode(os.urandom(64)).decode('ascii'),
+}
+
+
+def run(handlers):
+	application = web.Application(defaultHandlers+handlers, **settings)
+	server = httpserver.HTTPServer(application, max_buffer_size=128*1024*1024)
+	systemdSocket = socket.fromfd(3, socket.AF_INET6, socket.SOCK_STREAM)
+	systemdSocket.setblocking(False)
+	server.add_socket(systemdSocket)
+	ioloop.IOLoop.current().start()
