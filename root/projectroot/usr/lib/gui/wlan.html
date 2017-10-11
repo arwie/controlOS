@@ -1,21 +1,21 @@
 <div data-bind="page: {id: 'wlan', with: wlan, beforeShow: wlan.start, afterHide: wlan.stop}">
 	
 	<ol class="breadcrumb">
-		<li class="active" data-l10n-id="wlan"></li>
+		<li class="breadcrumb-item active" data-l10n-id="wlan"></li>
 	</ol>
 	<hr>
 	
-	<form class="form-horizontal">
+	<form>
 		
-		<div class="form-group">
-			<label class="col-md-2 control-label" data-l10n-id="wlan-ssid"></label>
+		<div class="form-group row">
+			<label class="col-md-2 col-form-label" data-l10n-id="wlan-ssid"></label>
 			<div class="col-md-8">
 				<input data-bind="value: ssid" type="text" class="form-control">
 			</div>
 		</div>
 		
-		<div class="form-group">
-			<label class="col-md-2 control-label" data-l10n-id="wlan-psk"></label>
+		<div class="form-group row">
+			<label class="col-md-2 col-form-label" data-l10n-id="wlan-psk"></label>
 			<div class="col-md-8">
 				<input data-bind="value: psk" type="text" class="form-control">
 			</div>
@@ -24,9 +24,9 @@
 	</form>
 	<hr>
 
-	<div class="btn-group btn-group-justified">
-		<a data-bind="click: remove"	class="btn btn-warning" data-l10n-id="remove"></a>
-		<a data-bind="click: set"		class="btn btn-primary" data-l10n-id="set"></a>
+	<div class="btn-group d-flex">
+		<a data-bind="click: remove"	class="btn btn-warning w-100" data-l10n-id="remove"></a>
+		<a data-bind="click: set"		class="btn btn-primary w-100" data-l10n-id="set"></a>
 	</div>
 	
 </div>

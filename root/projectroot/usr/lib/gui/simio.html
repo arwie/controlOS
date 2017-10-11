@@ -1,12 +1,7 @@
 <div data-bind="page: {id: 'simio', with: simio, beforeShow: simio.start, afterHide: simio.stop, guard: $root.stateGuard('simio')}" class="row">
 	
-	<ol class="breadcrumb">
-		<li class="active" data-l10n-id="simio"></li>
-	</ol>
-	<hr>
-	
 	<script type="text/html" id="simio-io">
-		<table class="table table-condensed table-hover">
+		<table class="table table-sm table-hover">
 		<thead>
 			<tr>
 				<th data-l10n-id="name"></th>
@@ -18,14 +13,14 @@
 		</thead>
 		<tbody data-bind="foreach: $data">
 			<tr>
-				<th><p data-bind="text:name" class="form-control-static"></p></th>
-				<td><p data-bind="text:dir+'&nbsp;/&nbsp;'+type" class="form-control-static"></p></td>
+				<th><p data-bind="text:name" class="form-control-plaintext"></p></th>
+				<td><p data-bind="text:dir+'&nbsp;/&nbsp;'+type" class="form-control-plaintext"></p></td>
 				<td  style="width:30%">
-					<p data-bind="text:app" class="form-control-static"></p>
+					<p data-bind="text:app" class="form-control-plaintext"></p>
 				</td>
 				<td  style="width:30%">
-					<!-- ko if:!sim--><p data-bind="text:io" class="form-control-static"></p><!-- /ko -->
-					<!-- ko if: sim--><p class="form-control-static"><span class="glyphicon glyphicon-ban-circle"></span></p><!-- /ko -->
+					<!-- ko if:!sim--><p data-bind="text:io" class="form-control-plaintext"></p><!-- /ko -->
+					<!-- ko if: sim--><p class="form-control-plaintext"><i class="fa fa-ban"></i></p><!-- /ko -->
 				</td>
 				<td style="min-width:200px">
 					<div class="input-group">
@@ -35,8 +30,8 @@
 						<input data-bind="event:{keypress:ordSendValue}" type="text" class="form-control">
 						<!-- ko if:type=='long'-->
 						<div class="input-group-btn">
-							<button data-bind="click:ordSendPreset" class="btn btn-default" type="button" value="1">1</button>
-							<button data-bind="click:ordSendPreset" class="btn btn-default" type="button" value="0">0</button>
+							<button data-bind="click:ordSendPreset" class="btn" type="button" value="1">1</button>
+							<button data-bind="click:ordSendPreset" class="btn" type="button" value="0">0</button>
 						</div>
 						<!-- /ko -->
 					</div>
@@ -46,8 +41,8 @@
 		</table>
 	</script>
 	
-	<div data-bind="template: { name:'simio-io', data:inputs }"  class="col-md-6"></div>
-	<div data-bind="template: { name:'simio-io', data:outputs }" class="col-md-6"></div>
+	<div data-bind="template: { name:'simio-io', data:inputs }"  class="col"></div>
+	<div data-bind="template: { name:'simio-io', data:outputs }" class="col"></div>
 	
 </div>
 

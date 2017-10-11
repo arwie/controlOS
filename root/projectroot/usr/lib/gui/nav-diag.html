@@ -1,12 +1,11 @@
-<li class="dropdown">
-	<a href="#" class="dropdown-toggle" data-toggle="dropdown">
-		<span class="glyphicon glyphicon-eye-open"></span>
+<li class="nav-item dropdown">
+	<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+		<i class="fa fa-eye"></i>
 		<span data-l10n-id="diag"></span>
-		<span class="caret"></span>
 	</a>
-	<ul class="dropdown-menu">
-		<li><a href="#report" data-l10n-id="report"></a></li>
-		<li><a href="#log"    data-l10n-id="log"></a></li>
-		<li><a data-bind="visible:isState('debug')" href="#debug" data-l10n-id="debug"></a></li>
-	</ul>
+	<div class="dropdown-menu">
+		<a class="dropdown-item" href="#report" data-l10n-id="report"></a>
+		<a class="dropdown-item" href="#log"    data-l10n-id="log"></a>
+		<a class="dropdown-item" data-bind="visible:isState('debug')" href="#debug" data-l10n-id="debug"></a>
+	</div>
 </li>

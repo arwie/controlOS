@@ -1,13 +1,13 @@
 <div data-bind="page: {id: 'backup', with: backup, beforeShow: backup.start, afterHide: backup.stop}">
 	
 	<ol class="breadcrumb">
-		<li class="active" data-l10n-id="backup"></li>
+		<li class="breadcrumb-item active" data-l10n-id="backup"></li>
 	</ol>
 	<hr>
 	
-	<div class="btn-group btn-group-justified">
-		<a href="/backup" class="btn btn-primary" data-l10n-id="backup-download"></a>
-		<label class="btn btn-warning btn-file btn-block">
+	<div class="btn-group d-flex">
+		<a href="/backup" class="btn btn-primary w-100" data-l10n-id="backup-download"></a>
+		<label class="btn btn-warning btn-file w-100">
 			<span data-l10n-id="backup-restore"></span> 
 			<input type="file" data-bind="event: {change: function() { upload($element.files[0]) }}" style="display: none;">
 		</label>

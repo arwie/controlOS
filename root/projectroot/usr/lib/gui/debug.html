@@ -9,13 +9,13 @@
 		</div>
 	</div>
 	
-	<div class="col-md-10">
-		<table data-bind="foreach: {data: sections, as: 'section'}" class="table table-condensed table-hover">
+	<div class="col">
+		<table data-bind="foreach: {data: sections, as: 'section'}" class="table table-sm table-hover">
 			<tbody data-bind="foreach: {data: keys(), as: 'key'}, visible: section.show">
 				<tr>
 					<th class="col-md-2" data-bind="text: section.name"></th>
 					<td class="col-md-3" data-bind="text: key"></td>
-					<td class="col-md-5" data-bind="text: section.value(key)"></td>
+					<td class="col" data-bind="text: section.value(key)"></td>
 				</tr>
 			</tbody>
 		</table>

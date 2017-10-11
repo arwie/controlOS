@@ -1,19 +1,23 @@
 <div data-bind="page: {id: 'update', with: update, beforeShow: update.start, afterHide: update.stop}">
 
-	<div class="panel panel-default">
-		<div class="panel-heading" data-l10n-id="update-current"></div>
-		<div class="panel-body">
+	<p>
+	<div class="card">
+		<div class="card-header" data-l10n-id="update-current"></div>
+		<div class="card-body">
 			<dl>
 				<dt data-l10n-id="update-version-id"></dt>
 				<dd data-bind="text: versionId"></dd>
 			</dl>
 		</div>
 	</div>
+	</p>
 	
-	<label class="btn btn-primary btn-file btn-block">
+	<p>
+	<label class="btn btn-primary btn-block">
 		<span data-l10n-id="update-file"></span> 
 		<input type="file" data-bind="event: {change: function() { upload($element.files[0]) }}" style="display: none;">
 	</label>
+	</p>
 	
 </div>
 
