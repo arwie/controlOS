@@ -30,7 +30,7 @@ common shared can_busnumber as const long = 1
 		switch ($dev['device']) {
 			case 'stepim':
 				ll('call can_sdoWrite('.$dev['address'].', 0x6040, 0, 16, 128)');
-				ll('call can_sdoWrite('.$dev['address'].', 0x262C, 0, 32, 25000)');									#262Ch – Sync Allowed Window (250µs)
+				ll('call can_sdoWrite('.$dev['address'].', 0x262C, 0, 32, 50000)');									#262Ch – Sync Allowed Window (500µs)
 				ll('call can_sdoWrite('.$dev['address'].', 0x1017, 0, 16, 0)');
 				ll('call can_sdoWrite('.$dev['address'].', 0x1006, 0, 32, bus[can_busnumber].cycletime)');
 				ll('call can_sdoWrite('.$dev['address'].', 0x60C2, 1, 8,  bus[can_busnumber].cycletime/1000)');
