@@ -3,15 +3,20 @@
 
 
 <script>(function(){
+	let model = null;
 	
-{% block script %}
-{% end %}
+	{% block script %}
+	{% end %}
 	
 gui.{{uuid}} = new GuiPage(
-		{% block model %}
-		class {}
-		{% end %}
-	,
+	function() {
+		model = new (
+			{% block model %}
+			class {}
+			{% end %}
+		);
+		return model;
+	},
 	function() {
 		{% block guard %}
 		return true;
@@ -23,7 +28,6 @@ gui.{{uuid}} = new GuiPage(
 		{% end %}
 	}
 );
-
 })();</script>
 
 

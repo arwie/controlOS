@@ -53,7 +53,7 @@
 
 
 {% block script %}
-function Io(io, model) {
+function Io(io) {
 	let self = this;
 	
 	self.id		= io.id;
@@ -120,7 +120,7 @@ class {
 			
 			if ($.isEmptyObject(this.ios)) {
 				for (let io of msg) {
-					this.ios[io.id] = new Io(io, this);
+					this.ios[io.id] = new Io(io);
 					if (io.dir == 'in')
 						this.inputs.push(this.ios[io.id]);
 					else

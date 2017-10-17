@@ -114,7 +114,7 @@ function GuiPage(pageModel, pageGuard, pageRoute) {
 	let self = this;
 	
 	self.create = function(callback) {
-		self.model = new pageModel;
+		self.model = pageModel();
 		callback(self.model);
 	}
 	
