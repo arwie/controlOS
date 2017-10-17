@@ -1,0 +1,34 @@
+{% import random, string %}
+{% set uuid = ''.join(random.choice(string.ascii_lowercase) for _ in range(8)) %}
+
+
+<script>(function(){
+	
+{% block script %}
+{% end %}
+	
+gui.{{uuid}} = new GuiPage(
+		{% block model %}
+		class {}
+		{% end %}
+	,
+	function() {
+		{% block guard %}
+		return true;
+		{% end %}
+	},
+	function() {
+		{% block route %}
+		return false;
+		{% end %}
+	}
+);
+
+})();</script>
+
+
+<div data-bind="page: {id:'{{id}}', sourceCache:true, withOnShow:$root.{{uuid}}.create, beforeShow:$root.{{uuid}}.start, afterHide:$root.{{uuid}}.stop, guard:$root.{{uuid}}.guard, onNoMatch:$root.{{uuid}}.route}">
+	{% block html %}
+	{% end %}
+</div>
+

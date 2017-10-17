@@ -1,5 +1,7 @@
-<div data-bind="page: {id: 'wlan', with: wlan, beforeShow: wlan.start, afterHide: wlan.stop}">
-	
+{% extends "page.html" %}
+
+
+{% block html %}
 	<ol class="breadcrumb">
 		<li class="breadcrumb-item active" data-l10n-id="wlan"></li>
 	</ol>
@@ -28,14 +30,11 @@
 		<a data-bind="click: remove"	class="btn btn-warning w-100" data-l10n-id="remove"></a>
 		<a data-bind="click: set"		class="btn btn-primary w-100" data-l10n-id="set"></a>
 	</div>
-	
-</div>
+{% end %}
 
 
-
-<script>(function(){
-	
-gui.wlan = new function() {
+{% block model %}
+function() {
 	let self = this;
 	
 	self.ssid	= ko.observable();
@@ -56,5 +55,4 @@ gui.wlan = new function() {
 	self.stop = function() {
 	}
 }
-
-})();</script>
+{% end %}

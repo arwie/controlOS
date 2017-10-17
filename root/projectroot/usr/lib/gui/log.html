@@ -1,4 +1,8 @@
-<div data-bind="page: {id: 'log', with: log, beforeShow: log.start, afterHide: log.stop}" class="row">
+{% extends "page.html" %}
+
+
+{% block html %}
+<div class="row">
 	
 	<div class="col-lg-2">
 		<p>
@@ -74,11 +78,10 @@
 	</div>
 
 </div>
+{% end %}
 
 
-
-<script>(function(){
-	
+{% block script %}
 function priorityName(prio) {
 	switch (prio) {
 		case 0: return "Emergency";
@@ -149,9 +152,11 @@ function Message(msg) {
 	self.keys			= function() { return Object.keys(self.msg); }
 	self.value			= function(key) { return self.msg[key]; }
 }
+{% end %}
 
 
-gui.log = new function() {
+{% block model %}
+function() {
 	let self = this;
 	
 	self.query = function()	{
@@ -204,5 +209,4 @@ gui.log = new function() {
 	self.messages		= ko.observableArray();
 	self.messages.extend({ rateLimit: 500 });
 }
-
-})();</script>
+{% end %}

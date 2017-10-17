@@ -1,4 +1,7 @@
-<div data-bind="page: {id: 'remote', with: remote, beforeShow: remote.start, afterHide: remote.stop}">
+{% extends "page.html" %}
+
+
+{% block html %}
 	
 	<ol class="breadcrumb">
 		<li class="breadcrumb-item active" data-l10n-id="remote"></li>
@@ -7,13 +10,11 @@
 
 	<a data-bind="click:activate" class="btn btn-primary btn-block" data-l10n-id="activate"></a>
 	
-</div>
+{% end %}
 
 
-
-<script>(function(){
-	
-gui.remote = new function() {
+{% block model %}
+function() {
 	let self = this;
 	
 	
@@ -27,5 +28,4 @@ gui.remote = new function() {
 	self.stop = function() {
 	}
 }
-
-})();</script>
+{% end %}

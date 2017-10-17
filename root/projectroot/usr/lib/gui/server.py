@@ -97,6 +97,12 @@ class HttpWebsocketJsonProxy(web.RequestHandler):
 
 
 
+class PageModule(web.UIModule):
+	def render(self, page):
+		_id = os.path.splitext(os.path.basename(page))[0]
+		return self.render_string(page, id=_id)
+
+
 class LocaleHandler(web.RequestHandler):
 	def get(self, locale):
 		self.render('locale/'+locale+'.ftl')
@@ -110,6 +116,7 @@ defaultHandlers = [
 settings = {
 	'static_path':		os.path.dirname(__file__)+'/static',
 	'cookie_secret':	base64.b64encode(os.urandom(64)).decode('ascii'),
+	"ui_modules":		{"page": PageModule},
 }
 
 

@@ -1,4 +1,8 @@
-<div data-bind="page: {id: 'debug', with: debug, beforeShow: debug.start, afterHide: debug.stop, guard: $root.stateGuard('debug')}" class="row">
+{% extends "page.html" %}
+
+
+{% block html %}
+<div class="row">
 	
 	<div class="col-md-2">
 		<div data-bind="foreach: sections" class="list-group">
@@ -22,11 +26,10 @@
 	</div>
 	
 </div>
+{% end %}
 
 
-
-<script>(function(){
-
+{% block script %}
 function DebugSection(name, values) {
 	let self = this;
 
@@ -45,9 +48,11 @@ function DebugSection(name, values) {
 		});
 	}
 }
+{% end %}
 
 
-gui.debug = new function() {
+{% block model %}
+function() {
 	let self = this;
 	
 	self.sections = ko.observableArray();
@@ -75,5 +80,9 @@ gui.debug = new function() {
 		self.ws.close();
 	}
 }
+{% end %}
 
-})();</script>
+
+{% block guard %}
+	return gui.isState('debug');
+{% end %}

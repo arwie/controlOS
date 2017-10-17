@@ -1,5 +1,7 @@
-<div data-bind="page: {id: 'update', with: update, beforeShow: update.start, afterHide: update.stop}">
+{% extends "page.html" %}
 
+
+{% block html %}
 	<p>
 	<div class="card">
 		<div class="card-header" data-l10n-id="update-current"></div>
@@ -18,19 +20,20 @@
 		<input type="file" data-bind="event: {change: function() { upload($element.files[0]) }}" style="display: none;">
 	</label>
 	</p>
-	
-</div>
+{% end %}
 
 
-
-<script>(function(){
+{% block model %}
+class {
+	constructor() {
+		this.versionId = ko.observable();
+		
+		$.getJSON('/update', (data) => {
+			this.versionId(data['version-id']);
+		});
+	}
 	
-gui.update = new function() {
-	let self = this;
-	
-	self.versionId = ko.observable();
-	
-	self.upload = function(file) {
+	upload(file) {
 		let formData = new FormData();
 		formData.append('update', file);
 		$.ajax({
@@ -44,16 +47,5 @@ gui.update = new function() {
 			pager.navigate('');
 		});
 	}
-	
-	self.start = function()	{
-		$.getJSON('/update', function(data) {
-			self.versionId(data['version-id']);
-		});
-	}
-	
-	self.stop = function() {
-		self.versionId(null);
-	}
 }
-
-})();</script>
+{% end %}

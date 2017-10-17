@@ -1,4 +1,8 @@
-<div data-bind="page: {id: 'simio', with: simio, beforeShow: simio.start, afterHide: simio.stop, guard: $root.stateGuard('simio')}" class="row">
+{% extends "page.html" %}
+
+
+{% block html %}
+<div class="row">
 	
 	<script type="text/html" id="simio-io">
 		<table class="table table-sm table-hover">
@@ -45,12 +49,11 @@
 	<div data-bind="template: { name:'simio-io', data:outputs }" class="col"></div>
 	
 </div>
+{% end %}
 
 
-
-<script>(function(){
-	
-function Io(io, send) {
+{% block script %}
+function Io(io, model) {
 	let self = this;
 	
 	self.id		= io.id;
@@ -64,17 +67,17 @@ function Io(io, send) {
 	self.io		= ko.observable();
 	
 	self.ordToggle = function() {
-		send({id:self.id, ord:(self.ord()?1:0)});
+		model.send({id:self.id, ord:(self.ord()?1:0)});
 	}
 	
 	self.ordSendValue = function(d, e) {
 		if (e.keyCode != 13) return true;
-		send({id:self.id, ord:2, io:self.parseType(e.target.value)});
+		model.send({id:self.id, ord:2, io:self.parseType(e.target.value)});
 		e.target.value = '';
 	}
 	
 	self.ordSendPreset = function(d, e) {
-		send({id:self.id, ord:2, io:self.parseType(e.target.value)});
+		model.send({id:self.id, ord:2, io:self.parseType(e.target.value)});
 	}
 	
 	self.update	= function(io) {
@@ -93,45 +96,51 @@ function Io(io, send) {
 		return value;
 	}
 }
+{% end %}
 
 
-gui.simio = new function() {
-	let self = this;
-	
-	self.ios		= {};
-	self.inputs		= ko.observableArray();
-	self.outputs	= ko.observableArray();
-	
-	self.send		= function(msg) {
-		self.mc.send(JSON.stringify(msg));
+{% block model %}
+class {
+	constructor() {
+		this.ios		= {};
+		this.inputs		= ko.observableArray();
+		this.outputs	= ko.observableArray();
 	}
 	
-	self.start = function()
+	send(msg) {
+		this.mc.send(JSON.stringify(msg));
+	}
+	
+	start()
 	{
-		self.mc = new WebSocket('ws://'+hosts.mc+':6002');
+		this.mc = new WebSocket('ws://'+hosts.mc+':6002');
 		
-		self.mc.onmessage = function (e) {
+		this.mc.onmessage = (e) => {
 			let msg = JSON.parse(e.data);
 			
-			if ($.isEmptyObject(self.ios)) {
+			if ($.isEmptyObject(this.ios)) {
 				for (let io of msg) {
-					self.ios[io.id] = new Io(io, self.send);
+					this.ios[io.id] = new Io(io, this);
 					if (io.dir == 'in')
-						self.inputs.push(self.ios[io.id]);
+						this.inputs.push(this.ios[io.id]);
 					else
-						self.outputs.push(self.ios[io.id]);
+						this.outputs.push(this.ios[io.id]);
 				}
 			} else {
 				for (let io of msg) {
-					self.ios[io.id].update(io);
+					this.ios[io.id].update(io);
 				}
 			}
 		}
 	}
 	
-	self.stop = function() {
-		self.mc.close();
+	stop() {
+		this.mc.close();
 	}
 }
+{% end %}
 
-})();</script>
+
+{% block guard %}
+	return gui.isState('simio');
+{% end %}

@@ -1,122 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<meta charset="utf-8"/>
-	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	<link rel="shortcut icon" href="/static/favicon.ico">
-	
-	<title data-l10n-id="title"></title>
-	
-	<script src="/static/pep.js"></script>
-	<script src="/static/jquery.js"></script>
-	<script src="/static/popper.js"></script>
-	<script src="/static/bootstrap.js"></script>
-	<link rel="stylesheet" href="/static/bootstrap.css">
-	<link rel="stylesheet" href="/static/font-awesome/css/font-awesome.min.css">
-	
-	<script src="/static/knockout.js"></script>
-	<script src="/static/knockout.mapping.js"></script>
-	<script src="/static/pager.js"></script>
+{% extends "html.html" %}
 
-	<script src="/static/three/three.min.js"></script>
-	<script src="/static/three/STLLoader.js"></script>
-	<script src="/static/three/TrackballControls.js"></script>
-	
-	<script defer src="/static/l20n.js"></script>
-	<link rel="localization" href="locale/{locale}.ftl">
-	<meta name="availableLanguages" content="en,de">
-	<meta name="defaultLanguage" content="en">
-</head>
-<script>
-{% import socket %}
-var hosts = {
-	mc:		'{{ socket.gethostbyname('mc') }}'
-}
-
-gui = new function() {
-	let self = this;
-
-	self.state				= ko.observable(null);
-	self.stateWatchdog;
-	self.stateConnection;
-	self.stateDisconnected	= false;
-	
-	self.isState	= function(state) {
-		return self.state() && (state in self.state()) && self.state()[state]();
-	}
-	
-	self.stateGuard	= function(state) { return function(page, route, callback) {
-		if (self.isState(state))
-			callback();
-		else
-			pager.navigate(page.currentParentPage() ? page.currentParentPage().path() : page.parentPage.path());
-	}}
-}
-
-$(document).ready(function()
-{
-	pager.extendWithPage(gui);
-	ko.applyBindings(gui);
-	pager.start();
-	
-	function updateState(msg) {
-		if (msg) {
-			if (!gui.state())
-				gui.state(ko.mapping.fromJS(msg));
-			else
-				ko.mapping.fromJS(msg, gui.state());
-		} else {
-			gui.state(null);
-		}
-		
-		pager.goTo(pager.activePage$().path());
-	}
-	
-	function reconnectState() {
-		resetWatchdog();
-
-		gui.stateConnection = new WebSocket('ws://'+location.host+'/state');
-		
-		gui.stateConnection.onopen = function() {
-			if (gui.stateDisconnected)
-				location.reload();
-		}
-		
-		gui.stateConnection.onerror = function() {
-			$('#stateDisconnected').modal();
-			gui.stateDisconnected = true;
-		}
-		
-		gui.stateConnection.onmessage = function (e) {
-			let msg = JSON.parse(e.data);
-
-			if (!$.isEmptyObject(msg))
-				updateState(msg);
-
-			resetWatchdog();
-		}
-	}
-	
-	function resetWatchdog() {
-		clearTimeout(gui.stateWatchdog);
-		gui.stateWatchdog = setTimeout(function(){
-			console.log('ERROR: lost connection -> reconnecting...');
-			try {
-				gui.stateConnection.close();
-			} catch(e) {}
-			updateState();
-			reconnectState();
-		}, 5000+1000);
-	}
-	
-	reconnectState();
-});
-
-function requestFullscreen() {
-	(document.documentElement.requestFullScreen || document.documentElement.webkitRequestFullScreen || document.documentElement.mozRequestFullScreen || document.documentElement.msRequestFullScreen).call(document.documentElement);
-}
-</script>
-<body data-bind="visible:true" style="display:none; padding-top:4.5rem;">
+{% block html %}
 	<nav class="navbar navbar-expand-md fixed-top navbar-light bg-light">
 		<a onclick="requestFullscreen()" class="navbar-brand" data-l10n-id="title"></a>
 		<button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
@@ -135,22 +19,14 @@ function requestFullscreen() {
 			</ul>
 		</div>
 	</nav>
-	<main class="container-fluid">
-		{% include "report.html" %}
-		{% include "log.html" %}
-		{% include "debug.html" %}
-		{% include "simio.html" %}
-		{% include "update.html" %}
-		{% include "remote.html" %}
-		{% include "wlan.html" %}
-		{% include "backup.html" %}
+	<main class="container-fluid" style="padding-top:4.5rem">
+		{% module page("report.html") %}
+		{% module page("log.html") %}
+		{% module page("debug.html") %}
+		{% module page("simio.html") %}
+		{% module page("update.html") %}
+		{% module page("remote.html") %}
+		{% module page("wlan.html") %}
+		{% module page("backup.html") %}
 	</main>
-	<div id="stateDisconnected" data-backdrop="static" data-keyboard="false" class="modal">
-		<div class="modal-dialog modal-lg">
-			<div class="alert alert-warning">
-				<p data-l10n-id="disconnected"></p>
-			</div>
-		</div>
-	</div>
-</body>
-</html>
+{% end %}

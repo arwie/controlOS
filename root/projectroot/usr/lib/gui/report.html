@@ -1,24 +1,23 @@
-<div data-bind="page: {id: 'report', with: report, beforeShow: report.start, afterHide: report.stop}">
-	
-	<table class="table table-hover">
-		<tbody data-bind="foreach:messages">
-			<tr data-bind="css: {'table-danger': priority <= 3, 'table-warning': priority == 4, 'table-info': priority == 5}">
-				<td data-bind="text:timestamp"></td>
-				<td width="85%">
-					<strong data-bind="attr:{'data-l10n-id':report}" style="white-space:pre-line"></strong>
-					<p data-bind="attr:{'data-l10n-id':report+'-help'}, visible:help"></p>
-				</td>
-				<td data-bind="click:toggleHelp"><i class="fa fa-question-circle"></i></td>
-			</tr>
-		</tbody>
-	</table>
-
-</div>
+{% extends "page.html" %}
 
 
+{% block html %}
+<table class="table table-hover">
+	<tbody data-bind="foreach:messages">
+		<tr data-bind="css: {'table-danger': priority <= 3, 'table-warning': priority == 4, 'table-info': priority == 5}">
+			<td data-bind="text:timestamp"></td>
+			<td width="85%">
+				<strong data-bind="attr:{'data-l10n-id':report}" style="white-space:pre-line"></strong>
+				<p data-bind="attr:{'data-l10n-id':report+'-help'}, visible:help"></p>
+			</td>
+			<td data-bind="click:toggleHelp"><i class="fa fa-question-circle"></i></td>
+		</tr>
+	</tbody>
+</table>
+{% end %}
 
-<script>(function(){
 
+{% block script %}
 function Message(msg) {
 	let self = this;
 	
@@ -30,9 +29,11 @@ function Message(msg) {
 	self.help			= ko.observable(false);
 	self.toggleHelp		= function() { self.help(!self.help()); }
 }
+{% end %}
 
 
-gui.report = new function() {
+{% block model %}
+function() {
 	let self = this;
 	
 	self.messages		= ko.observableArray();
@@ -58,5 +59,4 @@ gui.report = new function() {
 		self.messages([]);
 	}
 }
-
-})();</script>
+{% end %}

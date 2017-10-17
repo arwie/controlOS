@@ -1,4 +1,7 @@
-<div data-bind="page: {id: 'backup', with: backup, beforeShow: backup.start, afterHide: backup.stop}">
+{% extends "page.html" %}
+
+
+{% block html %}
 	
 	<ol class="breadcrumb">
 		<li class="breadcrumb-item active" data-l10n-id="backup"></li>
@@ -13,13 +16,11 @@
 		</label>
 	</div>
 	
-</div>
+{% end %}
 
 
-
-<script>(function(){
-	
-gui.backup = new function() {
+{% block model %}
+function() {
 	let self = this;
 	
 	self.upload = function(file) {
@@ -43,5 +44,4 @@ gui.backup = new function() {
 	self.stop = function() {
 	}
 }
-
-})();</script>
+{% end %}
