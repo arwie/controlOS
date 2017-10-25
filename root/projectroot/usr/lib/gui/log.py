@@ -47,6 +47,7 @@ class LogHandler(websocket.WebSocketHandler):
 		args.extend(shlex.split(self.get_argument('args')))
 		args.append('--lines=300')
 		args.append('--output=json')
+		args.append('--all')
 		args.append('--follow')
 		args.append('--merge')
 		
