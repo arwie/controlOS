@@ -57,6 +57,10 @@ function deviceLibEnd($dev) { global $lib;
 	ll('call '.$dev['bus'].'_write('.$dev['address'].', index_, subindex_, size_, value_)');
 	l('end sub');
 	
+	l('public function '.$lib['name'].'_deviceReadString(byval index_ as long, byval subindex_ as long) as string');
+	ll($lib['name'].'_deviceReadString = '.$dev['bus'].'_readString('.$dev['address'].', index_, subindex_)');
+	l('end function');
+	
 	$accessBit = function($rwBit) { global $lib;
 		ll('dim dio_    as long = -1');
 		ll('dim offset_ as long');

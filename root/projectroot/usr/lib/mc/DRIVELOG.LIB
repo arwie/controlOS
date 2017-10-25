@@ -77,8 +77,13 @@ end sub
 
 	call logLibInfo("<?=$ax['name']?> drive information")
 	
-	' reading strings not supported yet
-	call com_putString("/version", "123")	
+<?if ($ax['device']=='stepim' && $ax['bus']=='etc') {?>
+	try
+		call com_putString("/version", <?=$ax['name']?>_deviceReadString(0x2E00, 0))
+	catch else
+		'bug in readString of stepim
+	end try
+<?}?>
 	
 	call com_putString("/axis", "<?=$ax['name']?>")
 	call log_putMessageId("866facc307854a73bdf1483e90ae4171")

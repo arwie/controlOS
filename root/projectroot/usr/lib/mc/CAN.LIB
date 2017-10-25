@@ -100,3 +100,7 @@ end sub
 public function can_sdoRead(byval slave_ as long, byval index_ as long, byval subindex_ as long) as long
 <?	$can_xdoReadWriteBody('can_sdoRead = CAN_SDO_READ(slave_, index_, subindex_)')?>
 end function
+
+
+public function can_readString(byval slave_ as long, byval index_ as long, byval subindex_ as long) as string
+end function

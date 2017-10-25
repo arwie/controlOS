@@ -24,6 +24,7 @@ common shared etc_busnumber as const long = 0
 	dim slave_ as long
 
 	slaveCount_ = EC_ETHERCAT_INIT
+	call sleepActive(1000)
 
 	call logLibInfo("ethercat init with "+str$(slaveCount_)+" slaves")
 	call log_putMessageId("af06a2c1696f46b18b948283b249a04e")
@@ -45,6 +46,9 @@ common shared etc_busnumber as const long = 0
 			case 'cdhd':
 #				ll('call EC_REMAP_CDHD_DEFAULT_PDOS('.$dev['address'].')');
 				break;
+			case 'stepim':
+				ll('call setupPdoMapping_stepim('.$dev['address'].')');
+				break;
 		}
 	}
 ?>
@@ -55,6 +59,8 @@ common shared etc_busnumber as const long = 0
 
 	call EC_CREATE_MASTER
 	call EC_SET_BUS_CYCLETIME(4000)
+	dummy_ = EC_SET_NEW_STATIC_DISTANCE(300)
+
 <?
 	foreach(get('etc') as $dev) {
 		ll("'--------");
@@ -69,6 +75,7 @@ common shared etc_busnumber as const long = 0
 			case 'stepim':
 				ll('call EC_CDHD_SET_PDOS('.$dev['address'].', etc_busnumber, 0, CDHD_OPMODE_SYNC_POSITION)');
 				ll('call EC_USE_SLAVE('.$dev['address'].', EC_SLAVES_INFO['.$dev['address'].']->vendor_id, EC_SLAVES_INFO['.$dev['address'].']->product_code, "ECAT_AXIS_SLAVE", true)');
+				ll('call etc_sdoWrite('.$dev['address'].', 0x60C2, 2, 8,  -3)');
 				ll('call etc_sdoWrite('.$dev['address'].', 0x6060, 0, 8,  CDHD_OPMODE_SYNC_POSITION)');
 				ll('call etc_sdoWrite('.$dev['address'].', 0x6040, 0, 16, 128)');
 				break;
@@ -140,3 +147,30 @@ end sub
 public function etc_sdoRead(byval slave_ as long, byval index_ as long, byval subindex_ as long) as long
 <?	$etc_xdoReadWriteBody('etc_sdoRead = EC_SDO_READ(slave_, index_, subindex_)')?>
 end function
+
+
+public function etc_readString(byval slave_ as long, byval index_ as long, byval subindex_ as long) as string
+	dim strLen_ as long
+<?	$etc_xdoReadWriteBody('etc_readString = EC_SDO_READ_STRING(slave_, index_, subindex_, strLen_)')?>
+end function
+
+
+
+sub setupPdoMapping_stepim(byval address_ as long)
+	call etc_sdoWrite(address_, EC_SYNC_MANAGER_1C12, 0, 8, 0)
+	call etc_sdoWrite(address_, EC_SYNC_MANAGER_1C12, 1, 16, 0x1600)
+	call etc_sdoWrite(address_, EC_SYNC_MANAGER_1C12, 0, 8, 1)
+	call etc_sdoWrite(address_, 0x1600, 0, 8, 0)
+	call etc_sdoWrite(address_, 0x1600, 1, 32, 0x60400010)
+	call etc_sdoWrite(address_, 0x1600, 2, 32, 0x607A0020)
+	call etc_sdoWrite(address_, 0x1600, 3, 32, 0x60FE0120)
+	call etc_sdoWrite(address_, 0x1600, 0, 8, 3)
+	call etc_sdoWrite(address_, EC_SYNC_MANAGER_1C13, 0, 8, 0)
+	call etc_sdoWrite(address_, EC_SYNC_MANAGER_1C13, 1, 16, 0x1A00)
+	call etc_sdoWrite(address_, EC_SYNC_MANAGER_1C13, 0, 8, 1)
+	call etc_sdoWrite(address_, 0x1A00, 0, 8, 0)
+	call etc_sdoWrite(address_, 0x1A00, 1, 32, 0x60410010)
+	call etc_sdoWrite(address_, 0x1A00, 2, 32, 0x60640020)
+	call etc_sdoWrite(address_, 0x1A00, 3, 32, 0x60FD0020)
+	call etc_sdoWrite(address_, 0x1A00, 0, 8, 3)
+end sub
