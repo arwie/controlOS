@@ -1,4 +1,4 @@
-{% import socket %}
+{% import os,socket,glob %}
 
 
 <!DOCTYPE html>
@@ -25,8 +25,8 @@
 	
 	<script defer src="/static/l20n.js"></script>
 	<link rel="localization" href="locale/{locale}.ftl">
-	<meta name="availableLanguages" content="en,de">
 	<meta name="defaultLanguage" content="en">
+	<meta name="availableLanguages" content="{{ ','.join(sorted(os.path.splitext(os.path.basename(f))[0] for f in glob.glob('locale/*.ftl'))) }}">
 </head>
 
 
@@ -154,11 +154,11 @@ function reconnectState() {
 	}
 }
 
+reconnectState();
+
 pager.extendWithPage(gui);
 ko.applyBindings(gui);
 pager.start();
-
-reconnectState();
 
 })();</script>
 

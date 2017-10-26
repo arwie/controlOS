@@ -1,31 +1,9 @@
-<li data-bind="with: locale" class="nav-item dropdown">
+<li class="nav-item dropdown">
 	<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
 		<i class="fa fa-language"></i>
 		<span data-l10n-id="locale"></span>
 	</a>
-	<div data-bind="foreach: locales" class="dropdown-menu">
-		<a class="dropdown-item" data-bind="click: $parent.change, text: $data[1]" href="#"></a>
+	<div data-bind="foreach:document.querySelector('meta[name=availableLanguages]').content.split(',')" class="dropdown-menu">
+		<a data-bind="click:function(){document.l10n.requestLanguages([$data])}, attr:{'data-l10n-id':'locale-'+$data}" class="dropdown-item" href="#"></a>
 	</div>
 </li>
-
-
-
-<script>(function(){
-	
-gui.locale = new function() {
-	let self = this;
-	
-	self.locales	= [
-		['en', 'English'],
-		['de', 'Deutsch'],
-		['se', 'Svenska'],
-//		['ru', 'Русский'],
-//		['he', 'עִברִית'],
-	];
-	
-	self.change		= function(locale) {
-		document.l10n.requestLanguages([locale[0]]);
-	};
-}
-
-})();</script>
