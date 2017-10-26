@@ -1,8 +1,7 @@
 knockout			3.4.2
 pager				1.1.0
 jquery				3.2.1
-bootstrap			4.0.0-beta
-popper				1.12.5
+bootstrap			4.0.0-beta2 (bundle)
 l20n				5.0.0
 pep					0.4.3
 font-awesome		4.7.0
