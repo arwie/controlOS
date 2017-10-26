@@ -1,5 +1,6 @@
 {% import socket %}
 
+
 <!DOCTYPE html>
 <html>
 
@@ -28,82 +29,11 @@
 	<meta name="defaultLanguage" content="en">
 </head>
 
+
 <script>
 var hosts = {
 	mc:		'{{ socket.gethostbyname('mc') }}'
 }
-
-gui = new function() {
-	let self = this;
-
-	self.state				= ko.observable(null);
-	self.stateWatchdog;
-	self.stateConnection;
-	self.stateDisconnected	= false;
-	
-	self.isState	= function(state) {
-		return self.state() && (state in self.state()) && self.state()[state]();
-	}
-}
-
-$(document).ready(function()
-{
-	pager.extendWithPage(gui);
-	ko.applyBindings(gui);
-	pager.start();
-	
-	function updateState(msg) {
-		if (msg) {
-			if (!gui.state())
-				gui.state(ko.mapping.fromJS(msg));
-			else
-				ko.mapping.fromJS(msg, gui.state());
-		} else {
-			gui.state(null);
-		}
-		
-		pager.goTo(pager.activePage$().path());
-	}
-	
-	function reconnectState() {
-		resetWatchdog();
-
-		gui.stateConnection = new WebSocket('ws://'+location.host+'/state');
-		
-		gui.stateConnection.onopen = function() {
-			if (gui.stateDisconnected)
-				location.reload();
-		}
-		
-		gui.stateConnection.onerror = function() {
-			$('#stateDisconnected').modal();
-			gui.stateDisconnected = true;
-		}
-		
-		gui.stateConnection.onmessage = function (e) {
-			let msg = JSON.parse(e.data);
-
-			if (!$.isEmptyObject(msg))
-				updateState(msg);
-
-			resetWatchdog();
-		}
-	}
-	
-	function resetWatchdog() {
-		clearTimeout(gui.stateWatchdog);
-		gui.stateWatchdog = setTimeout(function(){
-			console.log('ERROR: lost connection -> reconnecting...');
-			try {
-				gui.stateConnection.close();
-			} catch(e) {}
-			updateState();
-			reconnectState();
-		}, 5000+1000);
-	}
-	
-	reconnectState();
-});
 
 function requestFullscreen() {
 	(document.documentElement.requestFullScreen || document.documentElement.webkitRequestFullScreen || document.documentElement.mozRequestFullScreen || document.documentElement.msRequestFullScreen).call(document.documentElement);
@@ -140,9 +70,19 @@ function GuiPage(pageModel, pageParams, pageGuard, pageRoute) {
 	}
 }
 
+gui = new function() {
+	let self = this;
+
+	self.state		= ko.observable(null);
+	self.isState	= function(state) {
+		return self.state() && (state in self.state()) && self.state()[state]();
+	}
+}
+
 {% block script %}{% end %}
 
 </script>
+
 
 <body data-bind="visible:true" style="display:none">
 	
@@ -156,5 +96,70 @@ function GuiPage(pageModel, pageParams, pageGuard, pageRoute) {
 		</div>
 	</div>
 </body>
+
+
+<script>(function(){
+
+let stateWatchdog;
+let stateConnection;
+let stateDisconnected	= false;
+
+function updateState(msg) {
+	if (msg) {
+		if (!gui.state())
+			gui.state(ko.mapping.fromJS(msg));
+		else
+			ko.mapping.fromJS(msg, gui.state());
+	} else {
+		gui.state(null);
+	}
+	
+	pager.goTo(pager.activePage$().path());
+}
+
+function resetWatchdog() {
+	clearTimeout(stateWatchdog);
+	stateWatchdog = setTimeout(function(){
+		console.log('ERROR: lost connection -> reconnecting...');
+		try {
+			stateConnection.close();
+		} catch(e) {}
+		updateState();
+		reconnectState();
+	}, 5000+1000);
+}
+
+function reconnectState() {
+	resetWatchdog();
+
+	stateConnection = new WebSocket('ws://'+location.host+'/state');
+	
+	stateConnection.onopen = function() {
+		if (stateDisconnected)
+			location.reload();
+	}
+	
+	stateConnection.onerror = function() {
+		$('#stateDisconnected').modal();
+		stateDisconnected = true;
+	}
+	
+	stateConnection.onmessage = function (e) {
+		let msg = JSON.parse(e.data);
+
+		if (!$.isEmptyObject(msg))
+			updateState(msg);
+
+		resetWatchdog();
+	}
+}
+
+pager.extendWithPage(gui);
+ko.applyBindings(gui);
+pager.start();
+
+reconnectState();
+
+})();</script>
 
 </html>
