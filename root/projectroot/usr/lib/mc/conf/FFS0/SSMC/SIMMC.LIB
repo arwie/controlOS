@@ -40,6 +40,10 @@ public function EC_SDO_READ(byval slaveaddres as long, byval index as long, byva
 	throw simmc_error
 end function
 
+public function EC_SDO_READ_STRING(byval slaveaddres as long, byval index as long, byval subindex as long, str_length as long) as string
+	throw simmc_error
+end function
+
 
 public function EC_ETHERCAT_INIT as long
 	throw simmc_error
@@ -60,6 +64,10 @@ end sub
 public sub EC_SET_BUS_CYCLETIME(byval user_ctime as long)
 	throw simmc_error
 end sub
+
+public function EC_SET_NEW_STATIC_DISTANCE(byval stat_Dist as long) as long
+	throw simmc_error
+end Function
 
 public sub EC_STARTMASTER
 	throw simmc_error
