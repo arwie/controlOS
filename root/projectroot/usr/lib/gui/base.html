@@ -2,6 +2,7 @@
 
 <!DOCTYPE html>
 <html>
+
 <head>
 	<meta charset="utf-8"/>
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -23,12 +24,15 @@
 	<script src="/static/three/three.min.js"></script>
 	<script src="/static/three/STLLoader.js"></script>
 	<script src="/static/three/TrackballControls.js"></script>
+
+	{% block head %}{% end %}
 	
 	<script defer src="/static/l20n.js"></script>
 	<link rel="localization" href="locale/{locale}.ftl">
 	<meta name="availableLanguages" content="en,de">
 	<meta name="defaultLanguage" content="en">
 </head>
+
 <script>
 var hosts = {
 	mc:		'{{ socket.gethostbyname('mc') }}'
@@ -110,8 +114,10 @@ function requestFullscreen() {
 	(document.documentElement.requestFullScreen || document.documentElement.webkitRequestFullScreen || document.documentElement.mozRequestFullScreen || document.documentElement.msRequestFullScreen).call(document.documentElement);
 }
 
-function GuiPage(pageModel, pageGuard, pageRoute) {
+function GuiPage(pageModel, pageParams, pageGuard, pageRoute) {
 	let self = this;
+	
+	self.params = pageParams();
 	
 	self.create = function(callback) {
 		self.model = pageModel();
@@ -138,7 +144,11 @@ function GuiPage(pageModel, pageGuard, pageRoute) {
 			pager.navigate(event.page.path()+'/'+route);
 	}
 }
+
+{% block script %}{% end %}
+
 </script>
+
 <body data-bind="visible:true" style="display:none">
 	
 	{% block html %}{% end %}
@@ -151,4 +161,5 @@ function GuiPage(pageModel, pageGuard, pageRoute) {
 		</div>
 	</div>
 </body>
+
 </html>

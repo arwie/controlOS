@@ -18,6 +18,11 @@ gui.{{uuid}} = new GuiPage(
 		return model;
 	},
 	function() {
+		{% block params %}
+		return [];
+		{% end %}
+	},
+	function() {
 		{% block guard %}
 		return true;
 		{% end %}
@@ -31,7 +36,7 @@ gui.{{uuid}} = new GuiPage(
 })();</script>
 
 
-<div data-bind="page: {id:'{{id}}', sourceCache:true, withOnShow:$root.{{uuid}}.create, beforeShow:$root.{{uuid}}.start, afterHide:$root.{{uuid}}.stop, guard:$root.{{uuid}}.guard, onNoMatch:$root.{{uuid}}.route}">
+<div data-bind="page: {id:'{{id}}', sourceCache:true, withOnShow:$root.{{uuid}}.create, params:$root.{{uuid}}.params, beforeShow:$root.{{uuid}}.start, afterHide:$root.{{uuid}}.stop, guard:$root.{{uuid}}.guard, onNoMatch:$root.{{uuid}}.route}">
 	{% block html %}
 	{% end %}
 </div>
