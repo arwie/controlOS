@@ -42,11 +42,11 @@ function() {
 	
 	
 	self.set	= function() {
-		$.post('/wlan?'+$.param({do:'set', ssid:self.ssid(), psk:self.psk()}));
+		$.post(ajaxUrl('wlan', {do:'set', ssid:self.ssid(), psk:self.psk()}));
 	}
 	
 	self.remove	= function() {
-		$.post('/wlan?'+$.param({do:'remove'}));
+		$.post(ajaxUrl('wlan', {do:'remove'}));
 	}
 	
 	self.start = function()	{

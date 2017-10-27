@@ -15,6 +15,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+import server
 import os, subprocess, json
 from tornado.web import RequestHandler
 
@@ -22,7 +23,7 @@ from tornado.web import RequestHandler
 wlanConfPath = '/etc/wlan.conf'
 
 
-class WlanHandler(RequestHandler):
+class Handler(RequestHandler):
 
 	def get(self):
 		pass
@@ -39,4 +40,7 @@ class WlanHandler(RequestHandler):
 			os.remove(wlanConfPath)
 			
 		subprocess.run(['/bin/systemctl', '--no-block', 'restart', 'wpa_supplicant.service'])
-		
+
+
+
+server.addAjax(__name__, Handler)

@@ -162,7 +162,7 @@ function() {
 	self.query = function()	{
 		self.stop();
 		
-		self.connection(new WebSocket('ws://'+location.host+'/log?'+$.param({args: self.filter.args()})));
+		self.connection(new WebSocket(wsUrl(null, null, 'log', {args: self.filter.args()})));
 
 		self.connection().onmessage = function(e) {
 			self.messages.unshift(new Message(JSON.parse(e.data)));
@@ -180,12 +180,12 @@ function() {
 		self.query();
 		
 		if (!self.filter.hosts().length) {
-			$.getJSON('/log/_HOSTNAME', function(data) { 
+			$.getJSON(ajaxUrl('log/_HOSTNAME'), function(data) { 
 				self.filter.hosts(data);
 			});
 		}
 		if (!self.filter.identifiers().length) {
-			$.getJSON('/log/SYSLOG_IDENTIFIER', function(data) { 
+			$.getJSON(ajaxUrl('log/SYSLOG_IDENTIFIER'), function(data) { 
 				self.filter.identifiers(data);
 			});
 		}

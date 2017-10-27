@@ -15,12 +15,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+import server
 import shutil, subprocess
 from tornado.web import RequestHandler
 from tornado import web, gen, process
 
 
-class BackupHandler(web.RequestHandler):
+class Handler(web.RequestHandler):
 
 	@gen.coroutine
 	def get(self):
@@ -37,3 +38,7 @@ class BackupHandler(web.RequestHandler):
 		subprocess.run(['/usr/bin/find', '/var/etc', '-delete', '-mindepth', '1'])	
 		subprocess.run(['/bin/tar', '-xJ', '-C/var/etc'], input=self.request.files['backup'][0]['body'])	
 		subprocess.run(['/bin/systemctl', '--no-block', 'reboot'])
+
+
+
+server.addAjax(__name__, Handler)

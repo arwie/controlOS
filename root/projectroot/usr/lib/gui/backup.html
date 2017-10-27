@@ -9,7 +9,7 @@
 	<hr>
 	
 	<div class="btn-group d-flex">
-		<a href="/backup" class="btn btn-primary w-100" data-l10n-id="backup-download"></a>
+		<a href="{{ajax_url('backup')}}" class="btn btn-primary w-100" data-l10n-id="backup-download"></a>
 		<label class="btn btn-warning btn-file w-100">
 			<span data-l10n-id="backup-restore"></span> 
 			<input type="file" data-bind="event: {change: function() { upload($element.files[0]) }}" style="display: none;">
@@ -27,7 +27,7 @@ function() {
 		let formData = new FormData();
 		formData.append('backup', file);
 		$.ajax({
-			url: '/backup',
+			url: ajaxUrl('backup'),
 			type: "put",
 			data: formData,
 			processData: false,

@@ -15,14 +15,19 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+import server
 import subprocess, json
 from tornado.web import RequestHandler
 
 
-class RemoteHandler(RequestHandler):
+class Handler(RequestHandler):
 	
 	def get(self):
 		pass
 	
 	def post(self):
 		subprocess.run(['/bin/systemctl', '--no-block', 'start', 'remote.service'])
+
+
+
+server.addAjax(__name__, Handler)

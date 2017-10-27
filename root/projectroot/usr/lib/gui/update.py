@@ -15,11 +15,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+import server
 import os, json
 from tornado.web import RequestHandler
 
 
-class UpdateHandler(RequestHandler):
+class Handler(RequestHandler):
 	
 	def get(self):
 		info = {}
@@ -31,3 +32,7 @@ class UpdateHandler(RequestHandler):
 		with open('/mnt/init/.update', 'wb') as f:
 			f.write(self.request.files['update'][0]['body'])
 		os.rename('/mnt/init/.update', '/mnt/init/update')
+
+
+
+server.addAjax(__name__, Handler)

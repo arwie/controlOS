@@ -15,6 +15,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+import server
 import shlex, json
 from tornado import web, websocket, gen, process, iostream
 
@@ -23,7 +24,7 @@ journalArgs = ['/bin/journalctl', '--file=/var/log/journal/*/*']
 
 
 
-class LogHandler(websocket.WebSocketHandler):
+class Handler(websocket.WebSocketHandler):
 	
 	@gen.coroutine
 	def readJournal(self):
@@ -78,3 +79,8 @@ class LogFieldHandler(web.RequestHandler):
 		self.write(json.dumps(values).encode('utf8'))
 
 		yield journalProc.wait_for_exit(raise_error=False)
+
+
+
+server.addAjax(__name__,			Handler)
+server.addAjax(__name__+'/(.*)',	LogFieldHandler)

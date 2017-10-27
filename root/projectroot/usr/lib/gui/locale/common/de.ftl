@@ -1,3 +1,3 @@
-{% include "_locales.ftl" %}
+{% include "_all.ftl" %}
 
 locale = Sprache

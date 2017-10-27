@@ -28,7 +28,7 @@ class {
 	constructor() {
 		this.versionId = ko.observable();
 		
-		$.getJSON('/update', (data) => {
+		$.getJSON(ajaxUrl('update'), (data) => {
 			this.versionId(data['version-id']);
 		});
 	}
@@ -37,7 +37,7 @@ class {
 		let formData = new FormData();
 		formData.append('update', file);
 		$.ajax({
-			url: '/update',
+			url: ajaxUrl('update'),
 			type: "put",
 			data: formData,
 			processData: false,

@@ -7,32 +7,39 @@
 <head>
 	<meta charset="utf-8"/>
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	<link rel="shortcut icon" href="/static/favicon.ico">
+	<link rel="shortcut icon" href="{{static_url('favicon.ico')}}">
 	
 	<title data-l10n-id="title"></title>
 	
-	<script src="/static/pep.js"></script>
-	<script src="/static/jquery.js"></script>
-	<script src="/static/bootstrap.js"></script>
-	<link rel="stylesheet" href="/static/bootstrap.css">
-	<link rel="stylesheet" href="/static/font-awesome/css/font-awesome.min.css">
+	<script src="{{static_url('pep.js')}}"></script>
+	<script src="{{static_url('jquery.js')}}"></script>
+	<script src="{{static_url('bootstrap.js')}}"></script>
+	<link rel="stylesheet" href="{{static_url('bootstrap.css')}}">
+	<link rel="stylesheet" href="{{static_url('font-awesome/css/font-awesome.min.css')}}">
 	
-	<script src="/static/knockout.js"></script>
-	<script src="/static/knockout.mapping.js"></script>
-	<script src="/static/pager.js"></script>
+	<script src="{{static_url('knockout.js') }}"></script>
+	<script src="{{static_url('knockout.mapping.js') }}"></script>
+	<script src="{{static_url('pager.js') }}"></script>
 
 	{% block head %}{% end %}
 	
-	<script defer src="/static/l20n.js"></script>
-	<link rel="localization" href="locale/{locale}.ftl">
+	<script defer src="{{static_url('l20n.js')}}"></script>
+	<link rel="localization" href="{{ajax_url('locale/{locale}.ftl')}}">
 	<meta name="defaultLanguage" content="en">
-	<meta name="availableLanguages" content="{{ ','.join(sorted(os.path.splitext(os.path.basename(f))[0] for f in glob.glob('locale/*.ftl'))) }}">
+	<meta name="availableLanguages" content="{{','.join(sorted(os.path.splitext(os.path.basename(f))[0] for f in glob.glob('locale/*.ftl')))}}">
 </head>
 
 
 <script>
 var hosts = {
 	mc:		'{{ socket.gethostbyname('mc') }}'
+}
+
+function ajaxUrl(url, params=null) {
+	return '{{ajax_url()}}'+url + (params ? '?'+$.param(params) : '');
+}
+function wsUrl(host, port, url=null, params=null) {
+	return 'ws://' + (host ? (host in hosts ? hosts[host] : host)+':'+port : (port ? location.hostname+':'+port : location.host)) + (url ? ajaxUrl(url, params) : '/');
 }
 
 function requestFullscreen() {
@@ -132,7 +139,7 @@ function resetWatchdog() {
 function reconnectState() {
 	resetWatchdog();
 
-	stateConnection = new WebSocket('ws://'+location.host+'/state');
+	stateConnection = new WebSocket(wsUrl(null, null, 'state'));
 	
 	stateConnection.onopen = function() {
 		if (stateDisconnected)

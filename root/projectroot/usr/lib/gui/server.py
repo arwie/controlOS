@@ -20,15 +20,9 @@ from systemd import journal
 from tornado import web, httpserver, ioloop, gen, websocket
 
 
-logging.root.addHandler(journal.JournalHandler())
-logging.root.setLevel(logging.DEBUG)
-logging.getLogger('tornado.access').setLevel(logging.WARNING)
-
-
 
 class RequestHandler(web.RequestHandler):
 	pass
-
 
 
 
@@ -97,10 +91,12 @@ class HttpWebsocketJsonProxy(web.RequestHandler):
 
 
 
-class PageModule(web.UIModule):
-	def render(self, page):
-		_id = os.path.splitext(os.path.basename(page))[0]
-		return self.render_string(page, id=_id)
+class DocumentHandler(web.RequestHandler):
+	def initialize(self, html):
+		self.html = html
+	def get(self):
+		self.set_header('Cache-Control', 'no-store, must-revalidate')
+		self.render(self.html)
 
 
 class LocaleHandler(web.RequestHandler):
@@ -108,22 +104,50 @@ class LocaleHandler(web.RequestHandler):
 		self.render('locale/'+locale+'.ftl')
 
 
-defaultHandlers = [
-	(r"/locale/(.*).ftl",		LocaleHandler),
-	(r"/state",					WebsocketJsonProxy,		{'url': 'ws://mc:33000'}),
-]
-
-settings = {
-	'static_path':		os.path.dirname(__file__)+'/static',
-	'cookie_secret':	base64.b64encode(os.urandom(64)).decode('ascii'),
-	"ui_modules":		{"page": PageModule},
-}
+class PageModule(web.UIModule):
+	def render(self, page):
+		_id = os.path.splitext(os.path.basename(page))[0]
+		return self.render_string(page, id=_id)
 
 
-def run(handlers):
-	application = web.Application(defaultHandlers+handlers, **settings)
+
+
+def addDocument(match, html):
+	handlers.append(('/'+match, DocumentHandler, {'html': html}))
+
+def addAjax(match, handler, params={}):
+	handlers.append((ajaxPrefix+match, handler, params))
+
+def ajax_url(handler, url=''):
+	return ajaxPrefix+url
+
+
+def run():
+	application = web.Application(handlers, **settings)
 	server = httpserver.HTTPServer(application, max_buffer_size=128*1024*1024)
 	systemdSocket = socket.fromfd(3, socket.AF_INET6, socket.SOCK_STREAM)
 	systemdSocket.setblocking(False)
 	server.add_socket(systemdSocket)
 	ioloop.IOLoop.current().start()
+
+
+
+logging.root.addHandler(journal.JournalHandler())
+logging.root.setLevel(logging.DEBUG)
+logging.getLogger('tornado.access').setLevel(logging.WARNING)
+
+
+ajaxPrefix = '/xhr/'
+
+settings = {
+	'static_path':				os.path.dirname(__file__)+'/static',
+	'cookie_secret':			base64.b64encode(os.urandom(64)).decode('ascii'),
+	"ui_modules":				{"page": PageModule},
+	"ui_methods":				{"ajax_url": ajax_url},
+	"compiled_template_cache":	False,
+}
+
+handlers = []
+
+addAjax('state', 				WebsocketJsonProxy,		{'url': 'ws://mc:33000'})
+addAjax('locale/(.*).ftl',		LocaleHandler)
