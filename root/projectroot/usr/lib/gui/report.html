@@ -42,7 +42,7 @@ function() {
 	self.connection		= ko.observable();
 
 	self.start = function()	{
-		self.connection(new WebSocket('ws://'+location.host+'/log?'+$.param({args:'--since=-24hours REPORTS=1'})));
+		self.connection(new WebSocket(wsUrl(null, null, 'log', {args:'--since=-24hours REPORTS=1'})));
 
 		self.connection().onmessage = function(e) {
 			self.messages.unshift(new Message(JSON.parse(e.data)));

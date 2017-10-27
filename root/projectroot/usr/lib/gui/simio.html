@@ -113,7 +113,7 @@ class {
 	
 	start()
 	{
-		this.mc = new WebSocket('ws://'+hosts.mc+':6002');
+		this.mc = new WebSocket(wsUrl('mc', 6002));
 		
 		this.mc.onmessage = (e) => {
 			let msg = JSON.parse(e.data);
