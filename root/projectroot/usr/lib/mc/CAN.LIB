@@ -16,12 +16,11 @@
 
 
 common shared can_busnumber as const long = 1
+common shared can_cycletime as const long = 4000	'{4000,2000,1000}[µs]
 
 
 
 <?lib_init()?>
-	bus[can_busnumber].cycletime = 4000
-	
 	bus[can_busnumber].phase = 0
 	call sleepActive(300)
 
@@ -32,8 +31,8 @@ common shared can_busnumber as const long = 1
 				ll('call can_sdoWrite('.$dev['address'].', 0x6040, 0, 16, 128)');
 				ll('call can_sdoWrite('.$dev['address'].', 0x262C, 0, 32, 50000)');									#262Ch – Sync Allowed Window (500µs)
 				ll('call can_sdoWrite('.$dev['address'].', 0x1017, 0, 16, 0)');
-				ll('call can_sdoWrite('.$dev['address'].', 0x1006, 0, 32, bus[can_busnumber].cycletime)');
-				ll('call can_sdoWrite('.$dev['address'].', 0x60C2, 1, 8,  bus[can_busnumber].cycletime/1000)');
+				ll('call can_sdoWrite('.$dev['address'].', 0x1006, 0, 32, can_cycletime)');
+				ll('call can_sdoWrite('.$dev['address'].', 0x60C2, 1, 8,  can_cycletime/1000)');
 				ll('call can_sdoWrite('.$dev['address'].', 0x60C2, 2, 8,  -3)');
 				ll('call can_sdoWrite('.$dev['address'].', 0x6060, 0, 8, 8)');
 				ll('call IntergratedStepperMapPDO('.$dev['address'].')');
@@ -41,7 +40,11 @@ common shared can_busnumber as const long = 1
 		}
 	}
 ?>
+end sub
 
+
+<?lib_start()?>
+	bus[can_busnumber].cycletime = can_cycletime
 	bus[can_busnumber].phase = 4
 	call sleepActive(100)
 end sub

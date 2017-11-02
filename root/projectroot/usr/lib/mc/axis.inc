@@ -28,8 +28,6 @@ function axis($ax, $simulated=false) { global $axis, $lib, $out;
 	
 	$ax['setup']		= $ax['setup']		?: strtoupper($ax['name']).'.DAT';
 	$ax['firmware']		= $ax['firmware']	?: strtoupper($ax['device']).'.O';
-	
-	$ax['drive']		= parseDriveSetup($ax);
 
 	switch ($ax['device']) {
 		case 'cdhd':
@@ -49,6 +47,12 @@ function axis($ax, $simulated=false) { global $axis, $lib, $out;
 }
 
 
+function drive_setup() { global $lib;
+	$lib['axis']['driveSetup'] = true;
+	l('sub driveSetup');
+}
+
+
 function axis_setup() { global $lib;
 	$lib['axis']['axisSetup'] = true;
 	l('sub axisSetup');
@@ -58,6 +62,10 @@ function axis_setup() { global $lib;
 function axisLibEnd($ax) { global $lib;
 	l('public sub '.$lib['name'].'_axisSetup');
 	ll('attach '.$ax['name']);
+	if (!$ax['simulated']) {
+		defaultDriveSetup($ax);
+		if ($lib['axis']['driveSetup']) ll('call driveSetup');
+	}
 	defaultAxisSetup($ax);
 	if ($lib['axis']['axisSetup']) ll('call axisSetup');
 	ll('detach '.$ax['name']);
@@ -91,36 +99,32 @@ function axisLibEnd($ax) { global $lib;
 }
 
 
-
-function parseDriveSetup(&$ax) { global $drive;
-	switch ($ax['device']) {
-		case 'cdhd':
-			foreach (file($ax['setup'], FILE_USE_INCLUDE_PATH) as $line) {
-				$line = explode(' ', preg_replace('/<.*>$/', '', trim($line)));
-				$drive[$line[0]] = $line[1];
-			}
-			break;
-	}
-	return $drive;
-}
-
-
-function defaultAxisSetup(&$ax) { global $drive;
+function defaultDriveSetup(&$ax) {
+	ll($ax['name'].'.motionbusvelocityscale		= 0');
+	ll($ax['name'].'.motionbusvelocitybase		= 1000');
+	
 	switch ($ax['device']) {
 		case 'cdhd':
 			ll($ax['name'].'.positionerrordelay			= 4.11');
-			ll($ax['name'].'.motionbusvelocityscale		= 0');
-			ll($ax['name'].'.motionbusvelocitybase		= 1000');
 			break;
 		case 'stepim':
+			ll($ax['name'].'.positionfactor				= 4096');
 			ll($ax['name'].'.positionerrordelay			= 5');
-			ll($ax['name'].'.motionbusvelocityscale		= 0');
-			ll($ax['name'].'.motionbusvelocitybase		= 1000');
 			break;
 	}
-	ll($ax['name'].'.smoothFactor				= -1');
+}
+
+
+function defaultAxisSetup(&$ax) {
 	if ($ax['simulated']) {
-		ll($ax['name'].'.positionerrordelay			= 4');
+		ll($ax['name'].'.positionerrordelay		= 4');
 	}
+	
+	ll($ax['name'].'.velocityfactor				= '.$ax['name'].'.positionfactor / 1000');
+	ll($ax['name'].'.accelerationfactor			= '.$ax['name'].'.positionfactor / 1000000');
+	ll($ax['name'].'.jerkfactor					= '.$ax['name'].'.positionfactor / 1000000000');
+	ll($ax['name'].'.velocityexternalfactor		= '.$ax['name'].'.positionexternalfactor / 1000');
+	
+	ll($ax['name'].'.smoothFactor				= -1');
 }
 

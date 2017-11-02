@@ -50,6 +50,11 @@ end sub
 <?	foreach($robot as $rbt)
 		ll('call '.$rbt['name'].'_robotSetup')?>
 
+<?	if (!empty(get('etc')))
+		ll('call etc_start')?>
+<?	if (!empty(get('can')))
+		ll('call can_start')?>
+
 <?	foreach($axis as $ax) 
 		if ($ax['simulated']) {
 			ll($ax['name'].'.simulated					= true');
@@ -86,4 +91,9 @@ end sub
 	call debug_stop
 	call simio_stop
 	call drivelog_stop
+
+<?	if (!empty(get('etc')))
+		ll('call etc_stop')?>
+<?	if (!empty(get('can')))
+		ll('call can_stop')?>
 end sub
