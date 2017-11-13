@@ -1,9 +1,3 @@
-{% comment 
-# Copyright (c) 2017 Artur Wiebe <artur@4wiebe.de>
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
-# associated documentation files (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
 # and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
 # subject to the following conditions:
 #
@@ -14,18 +8,24 @@
 # IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-%}
-
-{% include "_all.ftl" %}
-
-locale = Sprache
 
 
-issue = Problembericht
-issue_description = Beschreibung des Problems
-issue_contact = Kontaktperson
-issue_contactName = Name
-issue_contactEmail = Emailadresse
-issue_contactTelephone = Telefonnummer
-issue_send = An Hersteller senden
-issue_download = Herunterladen (mittels externem Emailprogramm senden)
+import subprocess
+from tornado import gen, process
+
+
+
+@gen.coroutine
+def store():
+	rpoc = process.Subprocess(['/usr/bin/tar', '-cJ', '-C/var/etc', '.'], stdout=process.Subprocess.STREAM)
+	backup = yield rpoc.stdout.read_until_close()
+	yield rpoc.wait_for_exit(raise_error=False)
+	return backup
+
+
+@gen.coroutine
+def restore(backup):
+	subprocess.run(['/usr/bin/find', '/var/etc', '-delete', '-mindepth', '1'])
+	subprocess.run(['/usr/bin/tar', '-xJ', '-C/var/etc'], input=backup)
+	subprocess.run(['/usr/bin/systemctl', '--no-block', 'reboot'])
+

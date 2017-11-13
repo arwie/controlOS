@@ -19,3 +19,13 @@
 {% include "_all.ftl" %}
 
 locale = Language
+
+
+issue = Issue report
+issue_description = Issue description
+issue_contact = Contact person
+issue_contactName = Name
+issue_contactEmail = Email address
+issue_contactTelephone = Telephone number
+issue_send = Send to manufacturer
+issue_download = Download (send via external email client)

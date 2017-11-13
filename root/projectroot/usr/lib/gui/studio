@@ -18,6 +18,7 @@
 import server
 
 import log
+import issue
 import wlan
 import update
 import remote

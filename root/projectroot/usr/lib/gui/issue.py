@@ -1,4 +1,3 @@
-{% comment 
 # Copyright (c) 2017 Artur Wiebe <artur@4wiebe.de>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
@@ -14,18 +13,40 @@
 # IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-%}
-
-{% include "_all.ftl" %}
-
-locale = Sprache
 
 
-issue = Problembericht
-issue_description = Beschreibung des Problems
-issue_contact = Kontaktperson
-issue_contactName = Name
-issue_contactEmail = Emailadresse
-issue_contactTelephone = Telefonnummer
-issue_send = An Hersteller senden
-issue_download = Herunterladen (mittels externem Emailprogramm senden)
+import server
+from shared.issue	import Issue
+from tornado		import gen
+
+
+text = """\
+{description}
+
+Contact:
+	{name}
+	{email}
+	{telephone}
+"""
+
+
+class Handler(server.RequestHandler):
+
+	@gen.coroutine
+	def post(self):
+		issue = Issue(text.format(
+			description	= self.get_body_argument("description"),
+			name		= self.get_body_argument("name"),
+			email		= self.get_body_argument("email"),
+			telephone	= self.get_body_argument("telephone"),
+		))
+		
+		yield issue.gather()
+		
+		self.set_header('Content-Type',			'message/rfc822')
+		self.set_header('Content-Disposition',	'attachment; filename=issue.eml')
+		self.write(issue.encode())
+
+
+
+server.addAjax(__name__, Handler)

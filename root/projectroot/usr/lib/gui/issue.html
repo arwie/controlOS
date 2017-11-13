@@ -16,16 +16,42 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 %}
 
-{% include "_all.ftl" %}
-
-locale = Sprache
+{% extends "page.html" %}
 
 
-issue = Problembericht
-issue_description = Beschreibung des Problems
-issue_contact = Kontaktperson
-issue_contactName = Name
-issue_contactEmail = Emailadresse
-issue_contactTelephone = Telefonnummer
-issue_send = An Hersteller senden
-issue_download = Herunterladen (mittels externem Emailprogramm senden)
+{% block html %}
+<form action="{{ajax_url('issue')}}" method="post">
+	<p>
+		<legend data-l10n-id="issue_description"></legend>
+		<textarea name="description" class="form-control" rows="7"></textarea>
+	</p>
+	<p>
+		<legend data-l10n-id="issue_contact"></legend>
+		<div class="form-group">
+			<label data-l10n-id="issue_contactName"></label>
+			<input type="text" name="name" class="form-control">
+		</div>
+		<div class="form-row">
+			<div class="form-group col">
+				<label data-l10n-id="issue_contactEmail"></label>
+				<input type="email" name="email" class="form-control">
+			</div>
+			<div class="form-group col">
+				<label data-l10n-id="issue_contactTelephone"></label>
+				<input type="tel" name="telephone" class="form-control">
+			</div>
+		</div>
+	</p>
+	<p>
+		<button type="submit" name="action" value="download" class="btn btn-secondary" data-l10n-id="issue_download"></button>
+	</p>
+</form>
+{% end %}
+
+
+{% block model %}
+class {
+	start() {
+	}
+}
+{% end %}
