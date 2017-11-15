@@ -1,4 +1,3 @@
-{% comment 
 # Copyright (c) 2017 Artur Wiebe <artur@4wiebe.de>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
@@ -14,20 +13,16 @@
 # IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-%}
-
-{% include "_all.ftl" %}
-
-locale = Sprache
 
 
-issue = Problembericht
-issue_description = Beschreibung des Problems
-issue_contact = Kontaktperson
-issue_contactName = Name
-issue_contactEmail = Emailadresse
-issue_contactTelephone = Telefonnummer
-issue_download = Herunterladen (mittels externem Emailprogramm senden)
-issue_send = An Hersteller senden
-issue_sendSuccess = Problembericht wurde erfolgreich an den Hersteller gesendet.
-issue_sendFail = Problembericht konnte nicht gesendet werden. Bitte herunterladen und manuell versenden.
+from configparser import ConfigParser
+import os
+
+
+
+class Conf(ConfigParser):
+	
+	def __init__(self, confFile):
+		super().__init__()
+		
+		self.read_string("[{}]\n".format(os.path.splitext(os.path.basename(confFile))[0]) + open(confFile).read())

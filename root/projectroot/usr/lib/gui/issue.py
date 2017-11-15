@@ -16,8 +16,9 @@
 
 
 import server
-from shared.issue	import Issue
-from tornado		import gen
+from shared.issue import Issue
+from shared import smtp
+from tornado import gen
 
 
 text = """\
@@ -25,27 +26,37 @@ text = """\
 
 Contact:
 	{name}
-	{email}
-	{telephone}
+	Email: {email}
+	Telephone: {telephone}
 """
 
 
 class Handler(server.RequestHandler):
-
+	
+	def get(self):
+		self.write({
+			'sendEnabled': smtp.configured()
+		})
+	
+	
 	@gen.coroutine
 	def post(self):
-		issue = Issue(text.format(
+		issueText = text.format(
 			description	= self.get_body_argument("description"),
 			name		= self.get_body_argument("name"),
 			email		= self.get_body_argument("email"),
 			telephone	= self.get_body_argument("telephone"),
-		))
+		)
+		issue = yield server.executor.submit(Issue, issueText)
+		issue['Reply-To'] = self.get_body_argument("email")
 		
-		yield issue.gather()
-		
-		self.set_header('Content-Type',			'message/rfc822')
-		self.set_header('Content-Disposition',	'attachment; filename=issue.eml')
-		self.write(issue.encode())
+		action = self.get_query_argument('action', 'download')
+		if action.startswith('send'):
+			yield server.executor.submit(smtp.send, issue)
+		else:
+			self.set_header('Content-Type',			'message/rfc822')
+			self.set_header('Content-Disposition',	'attachment; filename=issue.eml')
+			self.write(bytes(issue))
 
 
 

@@ -18,6 +18,7 @@
 import os, socket, json, logging, base64
 from systemd import journal
 from tornado import web, httpserver, ioloop, gen, websocket
+from concurrent.futures import ThreadPoolExecutor
 
 
 
@@ -151,3 +152,6 @@ handlers = []
 
 addAjax('state', 				WebsocketJsonProxy,		{'url': 'ws://mc:33000'})
 addAjax('locale/(.*).ftl',		LocaleHandler)
+
+
+executor = ThreadPoolExecutor(max_workers=2)

@@ -18,9 +18,11 @@
 from email.mime.multipart	import MIMEMultipart
 from email.mime.text		import MIMEText
 from email.mime.application	import MIMEApplication
-from tornado import gen, process, template
+import subprocess
+from tornado import template
 from datetime import datetime
-from shared import backup
+from shared import backup, smtp
+from shared.conf import Conf
 import logging, json
 
 
@@ -76,7 +78,7 @@ def renderLogHtml(data):
 		</body>
 		</html>
 		""").generate(
-				bootstrapCss	= open('/usr/lib/gui/static/bootstrap.css', 'r').read(),
+				bootstrapCss	= open('/usr/lib/gui/static/bootstrap.css').read(),
 				messages		= [ processMessage(json.loads(l.decode())) for l in data.splitlines() ],
 			)
 
@@ -86,33 +88,30 @@ class Issue(MIMEMultipart):
 	
 	def __init__(self, text):
 		super().__init__()
-		self['Subject'] = "issue"
+		conf = Conf('/etc/issue.conf')
+		
 		self.attach(MIMEText(text))
-	
-	
-	@gen.coroutine
-	def gather(self):
+		self['To']		= conf.get('issue', 'to')
+		self['Subject']	= conf.get('issue', 'subject', fallback='issue report')
 		
 		# attach backup
-		self.attach(MIMEApplication((yield backup.store()), name='backup.txz'))
+		self.attach(MIMEApplication(
+			backup.store(),
+			name='backup.txz'
+		))
 		
 		# attach full journal export
-		proc = process.Subprocess(['/usr/bin/sh', '-c', '/usr/bin/journalctl --merge --no-pager --output=export --since=-3months | xz'], stdout=process.Subprocess.STREAM)
-		self.attach(MIMEApplication((yield proc.stdout.read_until_close()), name='journal.xz'))
-		yield proc.wait_for_exit(raise_error=False)
+		self.attach(MIMEApplication(
+			subprocess.run('journalctl --merge --no-pager --output=export --since=-3months | xz -2', shell=True, stdout=subprocess.PIPE).stdout,
+			name='journal.xz'
+		))
 		
 		# attach rendered journal html
-		proc = process.Subprocess(['/usr/bin/journalctl', '--merge', '--no-pager', '--output=json', '--all', '--priority=notice', '--lines=300'], stdout=process.Subprocess.STREAM)
 		try:
-			self.attach(MIMEApplication(renderLogHtml((yield proc.stdout.read_until_close())), name='log.html'))
+			self.attach(MIMEApplication(
+				renderLogHtml(subprocess.run(['/usr/bin/journalctl', '--merge', '--no-pager', '--output=json', '--all', '--priority=notice', '--lines=300'], stdout=subprocess.PIPE).stdout),
+				name='log.html'
+			))
 		except Exception as e:
 			logging.error(e)
-		yield proc.wait_for_exit(raise_error=False)
-	
-	
-	def send(self):
-		pass
-	
-	def encode(self):
-		return bytes(self)
 

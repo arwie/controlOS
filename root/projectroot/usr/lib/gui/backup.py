@@ -27,11 +27,12 @@ class Handler(server.RequestHandler):
 	def get(self):
 		self.set_header('Content-Type',        'application/octet-stream')
 		self.set_header('Content-Disposition', 'attachment; filename=backup.txz')
-		self.write((yield backup.store()))
+		self.write((yield server.executor.submit(backup.store)))
 	
 
+	@gen.coroutine
 	def put(self):
-		backup.restore(self.request.files['backup'][0]['body'])
+		yield server.executor.submit(backup.restore, self.request.files['backup'][0]['body'])
 
 
 

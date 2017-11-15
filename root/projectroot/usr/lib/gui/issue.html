@@ -20,10 +20,13 @@
 
 
 {% block html %}
-<form action="{{ajax_url('issue')}}" method="post">
+<div data-bind="visible:sendResult()==1" class="alert alert-success" data-l10n-id="issue_sendSuccess"></div>
+<div data-bind="visible:sendResult()==2" class="alert alert-warning" data-l10n-id="issue_sendFail"></div>
+
+<form action="{{ajax_url('issue')}}" method="post" target="_blank">
 	<p>
 		<legend data-l10n-id="issue_description"></legend>
-		<textarea name="description" class="form-control" rows="7"></textarea>
+		<textarea name="description" class="form-control" rows="10"></textarea>
 	</p>
 	<p>
 		<legend data-l10n-id="issue_contact"></legend>
@@ -43,7 +46,11 @@
 		</div>
 	</p>
 	<p>
-		<button type="submit" name="action" value="download" class="btn btn-secondary" data-l10n-id="issue_download"></button>
+		<button data-bind="click:send, visible:sendEnabled" class="btn btn-primary">
+			<i data-bind="visible:sendResult()==0" class="fa fa-refresh fa-spin"></i>
+			<span data-l10n-id="issue_send"></span>
+		</button>
+		<button type="submit" class="btn btn-secondary" data-l10n-id="issue_download"></button>
 	</p>
 </form>
 {% end %}
@@ -51,7 +58,33 @@
 
 {% block model %}
 class {
+	constructor() {
+		this.sendEnabled	= ko.observable(false);
+		this.sendResult		= ko.observable(null);
+	}
+	
+	send(data, event) {
+		this.sendResult(0);
+		let form = $(event.target).closest('form');
+		$.post(ajaxUrl('issue', {action:'send'}), form.serialize())
+			.done(()=>{
+				this.sendResult(1);
+				form[0].reset();
+			})
+			.fail(()=>{
+				this.sendResult(2);
+			});
+	}
+	
 	start() {
+		$.getJSON(ajaxUrl('issue'))
+			.done((data)=>{
+				this.sendEnabled(data.sendEnabled);
+			})
+	}
+	
+	stop() {
+		this.sendResult(null);
 	}
 }
 {% end %}
