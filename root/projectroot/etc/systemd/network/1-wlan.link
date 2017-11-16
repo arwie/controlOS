@@ -1,6 +1,4 @@
 [Match]
-Type=wlan
-
 #     >SolidPC:USB1-1               >iEi:USB1-4
 Path= pci-0000:00:14.0-usb-0:1:1.0  pci-0000:00:1d.7-usb-0:4:1.0
 

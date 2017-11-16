@@ -1,6 +1,5 @@
 [Match]
-Name=en*
-Name=wl*
+Name=wlan
 
 [Network]
 DHCP=yes

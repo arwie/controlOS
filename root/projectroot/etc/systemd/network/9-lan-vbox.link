@@ -1,0 +1,5 @@
+[Match]
+Path=pci-0000:00:08.0
+
+[Link]
+Name=lan

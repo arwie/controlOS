@@ -1,8 +1,6 @@
 [Match]
-Type=wlan
-
 #     >SolidPC:USB1-3               >iEi:USB1-3
 Path= pci-0000:00:14.0-usb-0:3:1.0  pci-0000:00:1d.7-usb-0:3:1.0
 
 [Link]
-Name=sys-wlan
+Name=syswlan

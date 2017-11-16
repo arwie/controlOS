@@ -85,17 +85,13 @@ $(STATEDIR)/system.targetinstall:
 	@$(call install_alternative, system, 0, 0, 0644, /boot/boot.conf)
 
 	# networking
-	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/network/05-sys-lan.link)
-	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/network/05-sys-wlan.link)
-	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/network/06-wlan.link)
-	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/network/10-sys-bridge.network)
-	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/network/10-sys.network)
-	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/network/10-sys.network.d/address.conf)
-	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/network/99-public.network)
-	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/network/sys.netdev)
-	@$(call install_link,        system, ../wpa_supplicant.service, /usr/lib/systemd/system/multi-user.target.wants/wpa_supplicant.service)
+	@$(call install_alternative_tree, system, 0, 0, /etc/systemd/network)
+	@$(call install_alternative, system, 0, 0, 0644, /etc/hostapd.conf)
+	@$(call install_alternative_tree, system, 0, 0,  /etc/hostapd.conf.d)
 	@$(call install_alternative, system, 0, 0, 0644, /usr/lib/systemd/system/hostapd.service)
 	@$(call install_link,        system, ../hostapd.service, /usr/lib/systemd/system/multi-user.target.wants/hostapd.service)
+	@$(call install_alternative_tree, system, 0, 0,  /etc/wpa_supplicant.conf.d)
+	@$(call install_link,        system, ../wpa_supplicant.service, /usr/lib/systemd/system/multi-user.target.wants/wpa_supplicant.service)
 	
 	# update
 	@$(call install_copy,        system, 0, 0, 0755, /mnt/init)

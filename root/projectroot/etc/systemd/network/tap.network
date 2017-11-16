@@ -1,9 +1,5 @@
 [Match]
-Name=sys-lan
-
-#remote
 Name=tap*
-
 
 [Network]
 Bridge=sys

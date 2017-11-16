@@ -20,7 +20,7 @@ import os, subprocess, json
 from tornado.web import RequestHandler
 
 
-wlanConfPath = '/etc/wlan.conf'
+wlanConfPath = '/etc/wpa_supplicant.conf.d/local.conf'
 
 
 class Handler(RequestHandler):
@@ -34,7 +34,7 @@ class Handler(RequestHandler):
 		
 		if do.startswith('set'):
 			with open(wlanConfPath, 'wb') as fp:
-				subprocess.run(['/sbin/wpa_passphrase', self.get_argument('ssid').encode('utf8'), self.get_argument('psk').encode('utf8')], stdout=fp)
+				subprocess.run(['/usr/sbin/wpa_passphrase', self.get_argument('ssid').encode('utf8'), self.get_argument('psk').encode('utf8')], stdout=fp)
 
 		elif do.startswith('remove'):
 			os.remove(wlanConfPath)

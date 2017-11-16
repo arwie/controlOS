@@ -1,10 +1,13 @@
 [Unit]
-ConditionPathExists=/etc/wlan.conf
+After=network.target
+ConditionPathExists=/sys/class/net/wlan
 
 [Service]
 Type=dbus
 BusName=fi.epitest.hostap.WPASupplicant
-ExecStart=/sbin/wpa_supplicant -u -c /etc/wpa_supplicant.conf -I /etc/wlan.conf -i wlan
+RuntimeDirectory=wpa_supplicant
+ExecStartPre=-/usr/bin/sh -c 'cat /etc/wpa_supplicant.conf /etc/wpa_supplicant.conf.d/*.conf > /run/wpa_supplicant/wpa_supplicant.conf'
+ExecStart=/usr/sbin/wpa_supplicant -u -i wlan -c /run/wpa_supplicant/wpa_supplicant.conf
 
 [Install]
 WantedBy=multi-user.target
