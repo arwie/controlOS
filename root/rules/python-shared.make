@@ -38,18 +38,13 @@ PYTHON_SHARED_CONF_TOOL    := python3
 
 $(STATEDIR)/python-shared.targetinstall:
 	@$(call targetinfo)
-
 	@$(call install_init, python-shared)
-	@$(call install_fixup,python-shared,PRIORITY,optional)
-	@$(call install_fixup,python-shared,SECTION,base)
-	@$(call install_fixup,python-shared,AUTHOR,"Artur Wiebe <artur@4wiebe.de>")
-	@$(call install_fixup,python-shared,DESCRIPTION,missing)
 
 	@$(call install_glob, python-shared, 0, 0, -, \
 		/usr/lib/python$(PYTHON3_MAJORMINOR)/site-packages/shared,, *.py)
 
 	@$(call install_finish,python-shared)
-
 	@$(call touch)
+
 
 # vim: syntax=make

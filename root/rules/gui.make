@@ -30,10 +30,6 @@ GUI_VERSION	:= 1
 $(STATEDIR)/gui.targetinstall:
 	@$(call targetinfo)
 	@$(call install_init, gui)
-	@$(call install_fixup,gui,PRIORITY,optional)
-	@$(call install_fixup,gui,SECTION,base)
-	@$(call install_fixup,gui,AUTHOR,"Artur Wiebe <artur@4wiebe.de>")
-	@$(call install_fixup,gui,DESCRIPTION,missing)
 
 	@$(call install_alternative_tree, gui, 0, 0, /usr/lib/gui)
 	

@@ -24,48 +24,12 @@ PACKAGES-$(PTXCONF_STX_MC) += stx-mc
 STX_MC_VERSION	:= 1
 
 # ----------------------------------------------------------------------------
-# Extract
-# ----------------------------------------------------------------------------
-
-#$(STATEDIR)/stx-mc.extract:
-#	@$(call targetinfo)
-#	@$(call touch)
-
-# ----------------------------------------------------------------------------
-# Prepare
-# ----------------------------------------------------------------------------
-
-$(STATEDIR)/stx-mc.prepare:
-	@$(call targetinfo)
-	@$(call touch)
-
-# ----------------------------------------------------------------------------
-# Compile
-# ----------------------------------------------------------------------------
-
-$(STATEDIR)/stx-mc.compile:
-	@$(call targetinfo)
-	@$(call touch)
-
-# ----------------------------------------------------------------------------
-# Install
-# ----------------------------------------------------------------------------
-
-$(STATEDIR)/stx-mc.install:
-	@$(call targetinfo)
-	@$(call touch)
-
-# ----------------------------------------------------------------------------
 # Target-Install
 # ----------------------------------------------------------------------------
 
 $(STATEDIR)/stx-mc.targetinstall:
 	@$(call targetinfo)
 	@$(call install_init, stx-mc)
-	@$(call install_fixup, stx-mc,PRIORITY,optional)
-	@$(call install_fixup, stx-mc,SECTION,base)
-	@$(call install_fixup, stx-mc,AUTHOR,"Artur Wiebe <artur@4wiebe.de>")
-	@$(call install_fixup, stx-mc,DESCRIPTION,missing)
 
 	@$(call install_alternative_tree, stx-mc, 0, 0, /usr/lib/mc, no)
 	
@@ -85,12 +49,5 @@ $(STATEDIR)/stx-mc.targetinstall:
 	@$(call install_finish, stx-mc)
 	@$(call touch)
 
-# ----------------------------------------------------------------------------
-# Clean
-# ----------------------------------------------------------------------------
-
-#$(STATEDIR)/stx-mc.clean:
-#	@$(call targetinfo)
-#	@$(call clean_pkg, STX_MC)
 
 # vim: syntax=make

@@ -30,10 +30,6 @@ VERSION_VERSION	:= 1
 $(STATEDIR)/version.targetinstall: FORCE
 	@$(call targetinfo)
 	@$(call install_init, version)
-	@$(call install_fixup,version,PRIORITY,optional)
-	@$(call install_fixup,version,SECTION,base)
-	@$(call install_fixup,version,AUTHOR,"Artur Wiebe <artur@4wiebe.de>")
-	@$(call install_fixup,version,DESCRIPTION,missing)
 
 	@$(call install_alternative, version, 0, 0, 0644, /version-id)
 	@$(call install_replace,     version, /version-id, @ID@, $(shell date +%Y%m%d%H%M))
