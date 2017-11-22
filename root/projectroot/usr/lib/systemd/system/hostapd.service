@@ -6,7 +6,7 @@ ConditionPathExists=/etc/hostapd.conf.d/local.conf
 [Service]
 RuntimeDirectory=hostapd
 ExecStartPre=-/usr/bin/sh -c 'cat /etc/hostapd.conf /etc/hostapd.conf.d/*.conf > /run/hostapd/hostapd.conf'
-ExecStart=/usr/sbin/hostapd -i syswlan /run/hostapd/hostapd.conf
+ExecStart=/usr/sbin/hostapd -g /run/hostapd/syswlan -i syswlan /run/hostapd/hostapd.conf
 
 [Install]
 WantedBy=multi-user.target

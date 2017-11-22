@@ -18,11 +18,17 @@
 import os, socket, json, logging, base64
 from systemd import journal
 from tornado import web, httpserver, ioloop, gen, websocket
+from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor
 
 
 
 class RequestHandler(web.RequestHandler):
+	def readJson(self):
+		return json.loads(self.request.body.decode(), object_pairs_hook=OrderedDict)
+
+
+class WebSocketHandler(websocket.WebSocketHandler):
 	pass
 
 

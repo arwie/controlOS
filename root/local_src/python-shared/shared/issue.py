@@ -21,7 +21,7 @@ from email.mime.application	import MIMEApplication
 import subprocess
 from tornado import template
 from datetime import datetime
-from shared import backup, smtp
+from shared import backup, network, smtp
 from shared.conf import Conf
 import logging, json
 
@@ -114,4 +114,10 @@ class Issue(MIMEMultipart):
 			))
 		except Exception as e:
 			logging.error(e)
+		
+		# attach network status
+		self.attach(MIMEApplication(
+			network.networkStatus(),
+			name='network.txt'
+		))
 

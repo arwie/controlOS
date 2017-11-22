@@ -31,3 +31,22 @@ issue_download = Herunterladen (mittels externem Emailprogramm senden)
 issue_send = An Hersteller senden
 issue_sendSuccess = Problembericht wurde erfolgreich an den Hersteller gesendet.
 issue_sendFail = Problembericht konnte nicht gesendet werden. Bitte herunterladen und manuell versenden.
+
+
+network = Netzwerk
+network_save = Speichern
+network_status = Netzwerkstatus
+network_syswlan = Drahtloser Zugangspunkt
+network_lan = LAN
+network_wlan = WLAN
+network_dhcp = Automatische Netzwerkkonfiguration (DHCP)
+network_maunal = Manuelle Netzwerkkonfiguration
+network_hostname = Hostname
+network_address = Netzwerkadresse
+network_gateway = Gateway
+network_dns = DNS
+network_enabled = Aktiviert
+network_ssid = Netzwerkname (SSID)
+network_password = Passwort
+network_channel = Frequenzkanal
+network_country = Landeskennung (DE,US,..)

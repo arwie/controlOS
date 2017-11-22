@@ -31,3 +31,22 @@ issue_download = Download (send via external email client)
 issue_send = Send to manufacturer
 issue_sendSuccess = Issue was sent successfully to the manufacturer.
 issue_sendFail = Issue could not be sent. Please download and send manually.
+
+
+network = Network
+network_save = Save
+network_status = Network status
+network_syswlan = Wireless access point
+network_lan = Wired LAN
+network_wlan = Wireless LAN
+network_dhcp = Automatic network configuration (DHCP)
+network_maunal = Manual network configuration
+network_hostname = Hostname
+network_address = Network address
+network_gateway = Gateway
+network_dns = DNS
+network_enabled = Enabled
+network_ssid = Network name (SSID)
+network_password = Password
+network_channel = Wireless frequency channel
+network_country = Country code (DE,US,..)

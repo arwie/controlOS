@@ -19,7 +19,7 @@ import server
 
 import log
 import issue
-import wlan
+import network
 import update
 import remote
 import backup

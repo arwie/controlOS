@@ -15,45 +15,28 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-import configparser, os
+import os, subprocess
 
 
 
-class Conf(configparser.ConfigParser):
-	
-	def __init__(self, confFile, fromDict=None, section=None):
-		super().__init__(strict=False)
-		self.optionxform = str
-		
-		self.confFile = confFile
-		
-		if fromDict:
-			if section:
-				self.read_dict({section:fromDict})
-			else:
-				self.read_dict(fromDict)
-		else:
-			data = open(confFile, encoding='utf8').read()
-			if not section:
-				try:
-					self.read_string(data)
-				except configparser.MissingSectionHeaderError:
-					section = os.path.splitext(os.path.basename(confFile))[0]
-			if section:
-				self.read_string("[{}]\n{}".format(section, data))
-	
-	
-	def save(self, section=None):
-		with open(self.confFile, 'w', encoding='utf8') as f:
-			if section:
-				for k,v in self.items(section):
-					f.write("{}={}\n".format(k,v))
-			else:
-				self.write(f)
-	
-	
-	def dict(self, section=None):
-		if section:
-			return dict(self.items(section))
-		else:
-			return {s:dict(self.items(s)) for s in self.sections()}
+def networkStatus():
+	def shell(cmd): return subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.decode()
+	def format(name, content): return "##### {}\n{}\n\n".format(name, content)
+	status  = format('status',				shell('networkctl --no-pager status'))
+	status += format('internet access',		shell('ping -c1 -W1 google.com'))
+	status += format('local connections',	shell('ping -c1 -W1 mc'))
+	if interfaceAvailable('syswlan'):
+		status += format('syswlan',			shell('systemctl --no-pager status hostapd'))
+	if interfaceAvailable('wlan'):
+		status += format('wlan status',		shell('wpa_cli status'))
+		status += format('wlan stations',	shell('wpa_cli scan_result'))
+	status += format('addresses',			shell('ip addr'))
+	status += format('links',				shell('ip link'))
+	status += format('routes',				shell('ip route'))
+	status += format('neighbours',			shell('ip neigh'))
+	return status
+
+
+
+def interfaceAvailable(interface):
+	return os.path.exists('/sys/class/net/'+interface)

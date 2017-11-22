@@ -1,6 +1,7 @@
 [Unit]
 After=network.target
 ConditionPathExists=/sys/class/net/wlan
+ConditionPathExists=/etc/wpa_supplicant.conf.d/local.conf
 
 [Service]
 Type=dbus
