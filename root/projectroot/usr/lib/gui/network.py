@@ -104,8 +104,25 @@ class WlanLanHandler(LanHandler):
 
 
 
+class SmtpHandler(server.RequestHandler):
+	def initialize(self):
+		self.confFile = '/etc/smtp.conf'
+	
+	def get(self):
+		self.write(Conf(self.confFile).dict())
+	
+	def post(self):
+		if self.request.body:
+			Conf(self.confFile, self.readJson()).save()
+		else:
+			try: os.remove(self.confFile)
+			except OSError: pass
+
+
+
 server.addAjax(__name__+'/status',		StatusHandler)
 server.addAjax(__name__+'/syswlan',		SyswlanHandler)
 server.addAjax(__name__+'/lan',			LanHandler)
 server.addAjax(__name__+'/wlan',		WlanHandler)
 server.addAjax(__name__+'/wlan/lan',	WlanLanHandler)
+server.addAjax(__name__+'/smtp',		SmtpHandler)
