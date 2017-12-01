@@ -16,7 +16,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 %}
 
-{% extends "page.html" %}
+{% extends "../page.html" %}
 
 
 
@@ -30,12 +30,7 @@
 
 <div class="col">
 
-	<fieldset data-bind="page:{id:'status', role:'start'}">
-		<legend data-l10n-id="network_status"></legend>
-		<p>
-			<pre data-bind="text:status"></pre>
-		</p>
-	</fieldset>
+	{% module page("network/status.html") %}
 
 	{% if network.interfaceAvailable('syswlan') %}
 	<fieldset data-bind="page:{id:'syswlan', with:syswlan}">
@@ -250,8 +245,6 @@ class wlan {
 {% block model %}
 class {
 	constructor() {
-		this.status		= ko.observable();
-		
 		this.syswlan	= new syswlan();
 		this.lan		= new lan();
 		this.wlan		= new wlan();
@@ -261,18 +254,11 @@ class {
 		this.syswlan.load();
 		this.lan.load();
 		this.wlan.load();
-		
-		this.statusConnection = new WebSocket(wsUrl(null, null, 'network/status'));
-		this.statusConnection.onmessage = (e)=>{
-			this.status(e.data);
-		}
-		this.statusConnection.onclose = ()=>{
-			this.status(null);
-		}
-	}
-	
-	stop() {
-		if (this.statusConnection) this.statusConnection.close();
 	}
 }
+{% end %}
+
+
+{% block route %}
+	return 'status';
 {% end %}
