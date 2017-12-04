@@ -118,6 +118,7 @@ function defaultDriveSetup(&$ax) {
 function defaultAxisSetup(&$ax) {
 	if ($ax['simulated']) {
 		ll($ax['name'].'.positionerrordelay		= 4');
+		ll($ax['name'].'.positionerrormax		= MAXDOUBLE');
 	}
 	
 	ll($ax['name'].'.velocityfactor				= '.$ax['name'].'.positionfactor / 1000');
