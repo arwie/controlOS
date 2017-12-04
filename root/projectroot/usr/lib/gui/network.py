@@ -17,8 +17,8 @@
 
 import server
 from shared.conf import Conf
-from shared.network import networkStatus
-from tornado import gen
+from shared import network
+from tornado import gen, websocket
 import os, subprocess, re
 
 
@@ -33,7 +33,7 @@ class StatusHandler(server.WebSocketHandler):
 	def sendStatus(self):
 		try:
 			while self.active:
-				self.write_message((yield server.executor.submit(networkStatus)))
+				self.write_message((yield server.executor.submit(network.status)))
 				yield gen.sleep(3)
 		except websocket.WebSocketClosedError: pass
 
@@ -53,6 +53,8 @@ class SyswlanHandler(server.RequestHandler):
 	def get(self):
 		if os.path.isfile(self.confFile):
 			self.write(Conf(self.confFile, section='x').dict('x'))
+		else:
+			self.write({})
 	
 	def post(self):
 		if self.request.body:
@@ -86,6 +88,8 @@ class WlanHandler(server.RequestHandler):
 			match = re.compile(r'ssid="(.*)"').search(open(self.confFile, encoding='utf8').read())
 			if match:
 				self.write({'ssid':match.group(1)})
+		else:
+			self.write({})
 	
 	def post(self):
 		if self.request.body:
@@ -105,15 +109,15 @@ class WlanLanHandler(LanHandler):
 
 
 class SmtpHandler(server.RequestHandler):
-	def initialize(self):
-		self.confFile = '/etc/smtp.conf'
-	
 	def get(self):
-		self.write(Conf(self.confFile).dict())
+		if network.smtpEnabled():
+			self.write(Conf(network.smtpConfFile).dict())
+		else:
+			self.write({})
 	
 	def post(self):
 		if self.request.body:
-			Conf(self.confFile, self.readJson()).save()
+			Conf(network.smtpConfFile, self.readJson()).save()
 		else:
 			try: os.remove(self.confFile)
 			except OSError: pass

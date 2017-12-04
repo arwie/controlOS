@@ -46,7 +46,7 @@
 		</div>
 	</p>
 	<p>
-		<button data-bind="click:send, visible:sendEnabled" class="btn btn-primary">
+		<button data-bind="click:send, visible:smtpEnabled" class="btn btn-primary">
 			<i data-bind="visible:sendResult()==0" class="fa fa-refresh fa-spin"></i>
 			<span data-l10n-id="issue_send"></span>
 		</button>
@@ -59,7 +59,7 @@
 {% block model %}
 class {
 	constructor() {
-		this.sendEnabled	= ko.observable(false);
+		this.smtpEnabled	= ko.observable(false);
 		this.sendResult		= ko.observable(null);
 	}
 	
@@ -79,7 +79,7 @@ class {
 	start() {
 		$.getJSON(ajaxUrl('issue'))
 			.done((data)=>{
-				this.sendEnabled(data.sendEnabled);
+				this.smtpEnabled(data.smtpEnabled);
 			})
 	}
 	

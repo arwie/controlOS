@@ -16,27 +16,67 @@
 
 
 import os, subprocess
+import smtplib
+from shared.conf import Conf
 
 
 
-def networkStatus():
+def status():
 	def shell(cmd): return subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.decode()
 	def format(name, content): return "##### {}\n{}\n\n".format(name, content)
+	
 	status  = format('status',				shell('networkctl --no-pager status'))
+	
 	status += format('internet access',		shell('ping -c1 -W1 google.com'))
 	status += format('local connections',	shell('ping -c1 -W1 mc'))
-	if interfaceAvailable('syswlan'):
+	
+	if hasInterface('syswlan'):
 		status += format('syswlan',			shell('systemctl --no-pager status hostapd'))
-	if interfaceAvailable('wlan'):
+	
+	if hasInterface('wlan'):
 		status += format('wlan status',		shell('wpa_cli status'))
 		status += format('wlan stations',	shell('wpa_cli scan_result'))
+	
+	if smtpEnabled():
+		result = "OK"
+		try:
+			sendEmail(False)
+		except Exception as e:
+			result = "Failed!\n" + str(e)
+		status += format('email smtp',		result)
+	
 	status += format('addresses',			shell('ip addr'))
 	status += format('links',				shell('ip link'))
 	status += format('routes',				shell('ip route'))
 	status += format('neighbours',			shell('ip neigh'))
+	
 	return status
 
 
 
-def interfaceAvailable(interface):
+def hasInterface(interface):
 	return os.path.exists('/sys/class/net/'+interface)
+
+
+
+
+smtpConfFile = '/etc/smtp.conf'
+
+
+def smtpEnabled():
+	return os.path.isfile(smtpConfFile)
+
+
+def sendEmail(msg):
+	conf = Conf(smtpConfFile)
+	
+	SMTP = smtplib.SMTP_SSL if conf.getboolean('smtp', 'ssl', fallback=False) else smtplib.SMTP
+	
+	with SMTP(conf.get('smtp', 'host'), conf.get('smtp', 'port', fallback=0)) as smtp:
+		if conf.get('smtp', 'user', fallback=False):
+			smtp.login(conf.get('smtp', 'user'), conf.get('smtp', 'pass'))
+		
+		if msg:
+			smtp.send_message(msg, from_addr='noreply')
+		else:
+			smtp.noop()

@@ -117,7 +117,7 @@ class Issue(MIMEMultipart):
 		
 		# attach network status
 		self.attach(MIMEApplication(
-			network.networkStatus(),
+			network.status(),
 			name='network.txt'
 		))
 

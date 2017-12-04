@@ -17,7 +17,7 @@
 
 import server
 from shared.issue import Issue
-from shared import smtp
+from shared import network
 from tornado import gen
 
 
@@ -35,7 +35,7 @@ class Handler(server.RequestHandler):
 	
 	def get(self):
 		self.write({
-			'sendEnabled': smtp.configured()
+			'smtpEnabled': network.smtpEnabled()
 		})
 	
 	
@@ -52,7 +52,7 @@ class Handler(server.RequestHandler):
 		
 		action = self.get_query_argument('action', 'download')
 		if action.startswith('send'):
-			yield server.executor.submit(smtp.send, issue)
+			yield server.executor.submit(network.sendEmail, issue)
 		else:
 			self.set_header('Content-Type',			'message/rfc822')
 			self.set_header('Content-Disposition',	'attachment; filename=issue.eml')
