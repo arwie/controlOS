@@ -21,7 +21,7 @@ from email.mime.application	import MIMEApplication
 import subprocess
 from tornado import template
 from datetime import datetime
-from shared import backup, network, smtp
+from shared import backup, network
 from shared.conf import Conf
 import logging, json
 
