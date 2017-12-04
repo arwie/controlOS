@@ -50,7 +50,7 @@ require 'robot.inc';
 require 'simio.inc';
 
 
-function includeLib($file, $type='app') { global $out, $libs, $simio, $axis, $robot, $drive, $sim;
+function includeLib($file, $type='app') { global $out, $libs, $lib, $simio, $axis, $robot, $sim;
 	libBegin($file, $type);
 	l("'--------------------");
 	l('');
