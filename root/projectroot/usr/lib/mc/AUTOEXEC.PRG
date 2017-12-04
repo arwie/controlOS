@@ -28,6 +28,7 @@ program continue
 		catch else
 			call log_message(log_prioError, system.error)
 			call com_putLong("/error", system.errornumber)
+			call com_putString("/errorhistory", vesexecute("?errorhistorydelta"))
 			call log_putCodeFunc("onSystemError")
 			call log_send
 	end onSystemError
@@ -50,7 +51,9 @@ terminate program
 
 
 sub logSystemStart
-	call log_message(log_prioInfo, "mc system start")
+	call log_message(log_prioNotice, "mc system start")
+	call com_putString("/system", vesexecute("?system.information"))
+	call com_putString("/errorhistory", vesexecute("?errorhistorydelta"))
 	call com_putString("/version", version)
 	call com_putString("/sn",  system.serialNumber)
 	call com_putString("/uac", system.userAuthorizationCode)
