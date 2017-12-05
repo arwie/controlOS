@@ -15,6 +15,9 @@
 ' OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+dim shared logErrorHistory as long
+
+
 program continue
 
 	call state_init
@@ -28,15 +31,26 @@ program continue
 		catch else
 			call log_message(log_prioError, system.error)
 			call com_putLong("/error", system.errornumber)
-			call com_putString("/errorhistory", vesexecute("?errorhistorydelta"))
+			call com_putString("/prg", "autoexec")
 			call log_putCodeFunc("onSystemError")
 			call log_send
+			logErrorHistory = true
 	end onSystemError
 
 
 	call system_init
 	call system_start
-	call system_waitWhile(system_active)
+
+	while not system_wait(1000)
+		if logErrorHistory then
+			logErrorHistory = false
+			call log_message(log_prioNotice, "mc error history")
+			call com_putString("/errorhistory", vesexecute("?errorhistorydelta"))
+			call com_putString("/prg", "autoexec")
+			call log_send
+		end if
+	end while
+
 	call system_stopTimeout(10000)
 
 
@@ -57,6 +71,7 @@ sub logSystemStart
 	call com_putString("/version", version)
 	call com_putString("/sn",  system.serialNumber)
 	call com_putString("/uac", system.userAuthorizationCode)
+	call com_putString("/prg", "autoexec")
 	call log_putMessageId("94cb9b9f452e4309a1265c857c5321a2")
 	call log_send
 end sub
@@ -64,6 +79,8 @@ end sub
 
 sub logSystemStop
 	call log_message(log_prioNotice, "mc system stop")
+	call com_putString("/errorhistory", vesexecute("?errorhistorydelta"))
+	call com_putString("/prg", "autoexec")
 	call log_putMessageId("e0dc5bc5c2914fab953d61df01c9d5eb")
 	call log_send
 end sub

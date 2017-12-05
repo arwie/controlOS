@@ -15,6 +15,10 @@
 ' OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+dim shared healthQueryIntervalMS	as const long	= 10*60*1000
+
+
+
 <?lib_stopTrigger()?>
 	system.enable = off
 end sub
@@ -80,7 +84,13 @@ end sub
 
 
 <?lib_prgLoop()?>
-	call sleepActive(5000)
+	call sleepActive(healthQueryIntervalMS)
+
+	call logLibInfo("mc system health")
+	'call com_putLong("/peakload", system.peakload)
+	'call com_putLong("/averageload", system.averageload)
+	call log_putMessageId("1ad4145d37eb41aa89ff27237baea260")
+	call logSend
 end sub
 
 
