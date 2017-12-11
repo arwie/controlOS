@@ -119,7 +119,7 @@ class SmtpHandler(server.RequestHandler):
 		if self.request.body:
 			Conf(network.smtpConfFile, self.readJson()).save()
 		else:
-			try: os.remove(self.confFile)
+			try: os.remove(network.smtpConfFile)
 			except OSError: pass
 
 
