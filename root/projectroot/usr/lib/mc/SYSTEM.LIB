@@ -15,7 +15,7 @@
 ' OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-dim shared healthQueryIntervalMS	as const long	= 10*60*1000
+dim shared healthQueryIntervalMs	as const long	= 10*60*1000
 
 
 
@@ -84,7 +84,7 @@ end sub
 
 
 <?lib_prgLoop()?>
-	call sleepActive(healthQueryIntervalMS)
+	call sleepActive(healthQueryIntervalMs)
 
 	call logLibInfo("mc system health")
 	'call com_putLong("/peakload", system.peakload)

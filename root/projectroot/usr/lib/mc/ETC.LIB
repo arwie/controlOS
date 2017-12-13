@@ -18,11 +18,13 @@
 common shared etc_busnumber as const long = 0
 common shared etc_cycletime as const long = 4000	'{4000,2000,1000,500}[µs]
 
+dim shared healthQueryIntervalMs as const long	= 15*60*1000
+
+
 
 <?lib_init()?>
-	call logLibInfo("ethercat init")
-	call log_putMessageId("af06a2c1696f46b18b948283b249a04e")
-	call com_putString("/slaves", sh("ethercat slaves"))
+	call logEthercat("init")
+	call com_putString("/slaves", sh("ethercat -v slaves"))
 	call logSend
 
 	call dropLong(EC_ETHERCAT_INIT)
@@ -32,7 +34,7 @@ common shared etc_cycletime as const long = 4000	'{4000,2000,1000,500}[µs]
 	foreach(get('etc') as $dev) {
 		switch ($dev['device']) {
 			case 'cdhd':
-#				ll('call EC_REMAP_CDHD_DEFAULT_PDOS('.$dev['address'].')');
+				ll('call EC_REMAP_CDHD_DEFAULT_PDOS('.$dev['address'].')');
 				break;
 			case 'stepim':
 				ll('call setupPdoMapping_stepim('.$dev['address'].')');
@@ -85,6 +87,20 @@ end sub
 	call dropLong(EC_SET_NEW_STATIC_DISTANCE(300))
 	
 	call EC_STARTMASTER
+end sub
+
+
+<?lib_prgLoop()?>
+	call sleepActive(healthQueryIntervalMs)
+	call logEthercat("health")
+	call logSend
+end sub
+
+
+sub logEthercat(byval what_ as string)
+	call logLibInfo("ethercat "+what_)
+	call log_putMessageId("af06a2c1696f46b18b948283b249a04e")
+	call com_putString("/master", sh("ethercat master"))
 end sub
 
 
