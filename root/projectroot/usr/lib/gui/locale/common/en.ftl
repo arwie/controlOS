@@ -21,6 +21,9 @@
 locale = Language
 
 
+save = Save
+
+
 issue = Issue report
 issue_description = Issue description
 issue_contact = Contact person
@@ -34,7 +37,7 @@ issue_sendFail = Issue could not be sent. Please download and send manually.
 
 
 network = Network
-network_save = Save
+network_save = {save}
 network_status = Network status
 network_syswlan = Wireless access point
 network_lan = Wired LAN

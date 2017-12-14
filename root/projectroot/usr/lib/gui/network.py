@@ -17,14 +17,9 @@
 
 import server
 from shared.conf import Conf
-from shared import network
+from shared import network, system
 from tornado import gen, websocket
 import os, subprocess, re
-
-
-
-def restart(unit):
-	subprocess.run(['/usr/bin/systemctl', '--no-block', 'restart', unit])
 
 
 
@@ -62,7 +57,7 @@ class SyswlanHandler(server.RequestHandler):
 		else:
 			try: os.remove(self.confFile)
 			except OSError: pass
-		restart('hostapd.service')
+		system.restart('hostapd.service')
 
 
 
@@ -75,7 +70,7 @@ class LanHandler(server.RequestHandler):
 	
 	def post(self):
 		Conf(self.confFile, self.readJson()).save()
-		restart('systemd-networkd.service')
+		system.restart('systemd-networkd.service')
 
 
 
@@ -99,7 +94,7 @@ class WlanHandler(server.RequestHandler):
 		else:
 			try: os.remove(self.confFile)
 			except OSError: pass
-		restart('wpa_supplicant.service')
+		system.restart('wpa_supplicant.service')
 
 
 class WlanLanHandler(LanHandler):

@@ -21,6 +21,9 @@
 locale = Sprache
 
 
+save = Speichern
+
+
 issue = Problembericht
 issue_description = Beschreibung des Problems
 issue_contact = Kontaktperson
@@ -34,7 +37,7 @@ issue_sendFail = Problembericht konnte nicht gesendet werden. Bitte herunterlade
 
 
 network = Netzwerk
-network_save = Speichern
+network_save = {save}
 network_status = Netzwerkstatus
 network_syswlan = Drahtloser Zugangspunkt
 network_lan = LAN
