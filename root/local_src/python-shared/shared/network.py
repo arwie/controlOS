@@ -77,6 +77,6 @@ def sendEmail(msg):
 			smtp.login(conf.get('smtp', 'user'), conf.get('smtp', 'pass'))
 		
 		if msg:
-			smtp.send_message(msg, from_addr='noreply')
+			smtp.send_message(msg, from_addr='noreply@local')
 		else:
 			smtp.noop()

@@ -1,4 +1,5 @@
-{% comment 
+#!/usr/bin/python
+
 # Copyright (c) 2017 Artur Wiebe <artur@4wiebe.de>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
@@ -14,48 +15,21 @@
 # IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-%}
-
-{% import random, string %}
-{% set uuid = ''.join(random.choice(string.ascii_lowercase) for _ in range(8)) %}
 
 
-<script>(function(){
-	let model = null;
-	
-	{% block script %}
-	{% end %}
-	
-gui.{{uuid}} = new GuiPage(
-	function(page) {
-		model = new (
-			{% block model %}
-			class {}
-			{% end %}
-		)(page);
-		return model;
-	},
-	function() {
-		{% block params %}
-		return [];
-		{% end %}
-	},
-	function() {
-		{% block guard %}
-		return true;
-		{% end %}
-	},
-	function() {
-		{% block route %}
-		return false;
-		{% end %}
-	}
-);
-})();</script>
+import server
+import subprocess
+
+import state
+
+import extlog
 
 
-<div data-bind="page: {id:'{{id}}', sourceCache:true, withOnShow:$root.{{uuid}}.create, params:$root.{{uuid}}.params, beforeShow:$root.{{uuid}}.start, afterHide:$root.{{uuid}}.stop, guard:$root.{{uuid}}.guard, onNoMatch:$root.{{uuid}}.route}">
-	{% block html %}
-	{% end %}
-</div>
+
+server.addDocument('', 'office.html')
+
+
+print('http://localhost:8000')
+server.run(8000)
+
 

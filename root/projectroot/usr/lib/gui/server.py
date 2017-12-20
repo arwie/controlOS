@@ -26,10 +26,13 @@ from concurrent.futures import ThreadPoolExecutor
 class RequestHandler(web.RequestHandler):
 	def readJson(self):
 		return json.loads(self.request.body.decode(), object_pairs_hook=OrderedDict)
+	def writeJson(self, data):
+		self.write(json.dumps(data).encode())
 
 
 class WebSocketHandler(websocket.WebSocketHandler):
-	pass
+	def write_messageJson(self, data):
+		self.write_message(json.dumps(data).encode())
 
 
 
@@ -128,13 +131,26 @@ def addAjax(match, handler, params={}):
 def ajax_url(handler, url=''):
 	return ajaxPrefix+url
 
+def etc_hosts(handler):
+	hosts = {}
+	with open('/etc/hosts') as f:
+		for line in f:
+			if not line.startswith('#'):
+				tokens = line.split()
+				if len(tokens) == 2:
+					hosts[tokens[1]] = tokens[0]
+	return json.dumps(hosts)
 
-def run():
+
+def run(port=None):
 	application = web.Application(handlers, **settings)
 	server = httpserver.HTTPServer(application, max_buffer_size=128*1024*1024)
-	systemdSocket = socket.fromfd(3, socket.AF_INET6, socket.SOCK_STREAM)
-	systemdSocket.setblocking(False)
-	server.add_socket(systemdSocket)
+	if port:
+		server.listen(port)
+	else:
+		systemdSocket = socket.fromfd(3, socket.AF_INET6, socket.SOCK_STREAM)
+		systemdSocket.setblocking(False)
+		server.add_socket(systemdSocket)
 	ioloop.IOLoop.current().start()
 
 
@@ -149,15 +165,19 @@ ajaxPrefix = '/xhr/'
 settings = {
 	'static_path':				os.path.dirname(__file__)+'/static',
 	'cookie_secret':			base64.b64encode(os.urandom(64)).decode('ascii'),
-	"ui_modules":				{"page": PageModule},
-	"ui_methods":				{"ajax_url": ajax_url},
 	"compiled_template_cache":	False,
+	"ui_modules": {
+		"page": PageModule
+	},
+	"ui_methods": {
+		"ajax_url": ajax_url,
+		"etc_hosts": etc_hosts,
+	},
 }
 
 handlers = []
 
-addAjax('state', 				WebsocketJsonProxy,		{'url': 'ws://mc:33000'})
 addAjax('locale/(.*).ftl',		LocaleHandler)
 
 
-executor = ThreadPoolExecutor(max_workers=2)
+executor = ThreadPoolExecutor()

@@ -17,27 +17,32 @@
 
 import server
 import shlex, json
-from tornado import web, websocket, gen, process, iostream
-
-
-journalArgs = ['/bin/journalctl', '--file=/var/log/journal/*/*']
+from tornado import websocket, gen, process, iostream
 
 
 
-class Handler(websocket.WebSocketHandler):
+def setArgs(journalFile):
+	global journalArgs
+	journalArgs = ['/usr/bin/journalctl', '--file='+journalFile]
+
+setArgs('/var/log/journal/*/*')
+
+
+
+class Handler(server.WebSocketHandler):
 	
 	@gen.coroutine
 	def readJournal(self):
 		try:
 			while True:
 				msg = yield self.journalProc.stdout.read_until(b'\n')
-				msg = json.loads(msg.decode('utf8'))
+				msg = json.loads(msg.decode())
 				
 				if not '_SOURCE_REALTIME_TIMESTAMP' in msg:
 					msg['_SOURCE_REALTIME_TIMESTAMP'] = msg['__REALTIME_TIMESTAMP']
 				msg = {k: v for k,v in msg.items() if not k.startswith('__')}
 				
-				self.write_message(json.dumps(msg).encode('utf8'))
+				self.write_messageJson(msg)
 				
 		except (iostream.StreamClosedError, websocket.WebSocketClosedError): pass
 		self.close()
@@ -66,7 +71,7 @@ class Handler(websocket.WebSocketHandler):
 
 
 
-class LogFieldHandler(web.RequestHandler):
+class LogFieldHandler(server.RequestHandler):
 	
 	@gen.coroutine
 	def get(self, field):
@@ -75,8 +80,7 @@ class LogFieldHandler(web.RequestHandler):
 		journalProc = process.Subprocess(args, stdout=process.Subprocess.STREAM)
 		
 		values = yield journalProc.stdout.read_until_close()
-		values = values.decode('utf8').splitlines()
-		self.write(json.dumps(values).encode('utf8'))
+		self.writeJson(values.decode().splitlines())
 
 		yield journalProc.wait_for_exit(raise_error=False)
 

@@ -16,7 +16,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 %}
 
-{% import os,socket,glob %}
+{% import os,glob %}
 
 
 <!DOCTYPE html>
@@ -49,9 +49,7 @@
 
 
 <script>
-var hosts = {
-	mc:		'{{ socket.gethostbyname('mc') }}'
-}
+var hosts = {% raw etc_hosts() %}
 
 function ajaxUrl(url, params=null) {
 	return '{{ajax_url()}}'+url + (params ? '?'+$.param(params) : '');
@@ -69,8 +67,8 @@ function GuiPage(pageModel, pageParams, pageGuard, pageRoute) {
 	
 	self.params = pageParams();
 	
-	self.create = function(callback) {
-		self.model = pageModel();
+	self.create = function(callback, page) {
+		self.model = pageModel(page);
 		callback(self.model);
 	}
 	

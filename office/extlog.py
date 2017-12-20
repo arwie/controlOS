@@ -1,4 +1,3 @@
-{% comment 
 # Copyright (c) 2017 Artur Wiebe <artur@4wiebe.de>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
@@ -14,48 +13,42 @@
 # IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-%}
-
-{% import random, string %}
-{% set uuid = ''.join(random.choice(string.ascii_lowercase) for _ in range(8)) %}
 
 
-<script>(function(){
-	let model = null;
+import server
+import os, tempfile, subprocess, glob
+from tornado import gen
+
+
+extlogDir = tempfile.TemporaryDirectory(prefix='office.', suffix='.extlog', dir='/var/tmp')
+
+
+class Handler(server.RequestHandler):
 	
-	{% block script %}
-	{% end %}
+	def clearJournal(self):
+		for f in glob.glob('{}/*'.format(extlogDir.name)):
+			os.remove(f)
 	
-gui.{{uuid}} = new GuiPage(
-	function(page) {
-		model = new (
-			{% block model %}
-			class {}
-			{% end %}
-		)(page);
-		return model;
-	},
-	function() {
-		{% block params %}
-		return [];
-		{% end %}
-	},
-	function() {
-		{% block guard %}
-		return true;
-		{% end %}
-	},
-	function() {
-		{% block route %}
-		return false;
-		{% end %}
-	}
-);
-})();</script>
+	def importJournal(self):
+		self.clearJournal()
+		subprocess.run(
+			'xzcat | /usr/lib/systemd/systemd-journal-remote --output={}/extlog.journal -'.format(extlogDir.name),
+			shell=True,
+			input=self.request.files['extlog'][0]['body']
+		)
+	
+	@gen.coroutine
+	def put(self):
+		yield server.executor.submit(self.importJournal)
+	
+	def post(self):
+		self.clearJournal()
 
 
-<div data-bind="page: {id:'{{id}}', sourceCache:true, withOnShow:$root.{{uuid}}.create, params:$root.{{uuid}}.params, beforeShow:$root.{{uuid}}.start, afterHide:$root.{{uuid}}.stop, guard:$root.{{uuid}}.guard, onNoMatch:$root.{{uuid}}.route}">
-	{% block html %}
-	{% end %}
-</div>
+
+server.addAjax(__name__, Handler)
+
+
+import log
+log.setArgs('{}/*'.format(extlogDir.name))
 

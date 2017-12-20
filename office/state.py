@@ -1,4 +1,3 @@
-{% comment 
 # Copyright (c) 2017 Artur Wiebe <artur@4wiebe.de>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
@@ -14,48 +13,30 @@
 # IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-%}
-
-{% import random, string %}
-{% set uuid = ''.join(random.choice(string.ascii_lowercase) for _ in range(8)) %}
 
 
-<script>(function(){
-	let model = null;
+import server
+from tornado import gen, websocket
+
+
+
+class Handler(server.WebSocketHandler):
 	
-	{% block script %}
-	{% end %}
-	
-gui.{{uuid}} = new GuiPage(
-	function(page) {
-		model = new (
-			{% block model %}
-			class {}
-			{% end %}
-		)(page);
-		return model;
-	},
-	function() {
-		{% block params %}
-		return [];
-		{% end %}
-	},
-	function() {
-		{% block guard %}
-		return true;
-		{% end %}
-	},
-	function() {
-		{% block route %}
-		return false;
-		{% end %}
-	}
-);
-})();</script>
+	@gen.coroutine
+	def sendWatchdog(self):
+		try:
+			while self.active:
+				self.write_message('{}')
+				yield gen.sleep(1)
+		except websocket.WebSocketClosedError: pass
+
+	def open(self):
+		self.active = True
+		gen.Task(self.sendWatchdog)
+
+	def on_close(self):
+		self.active = False
 
 
-<div data-bind="page: {id:'{{id}}', sourceCache:true, withOnShow:$root.{{uuid}}.create, params:$root.{{uuid}}.params, beforeShow:$root.{{uuid}}.start, afterHide:$root.{{uuid}}.stop, guard:$root.{{uuid}}.guard, onNoMatch:$root.{{uuid}}.route}">
-	{% block html %}
-	{% end %}
-</div>
 
+server.addAjax(__name__, Handler)

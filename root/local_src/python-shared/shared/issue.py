@@ -49,7 +49,7 @@ def renderLogHtml(data):
 		<body>
 			<table class="table table-sm table-hover">
 			<tbody>
-			{% for msg in reversed(messages) %}
+			{% for msg in messages %}
 				<tr class="{{ {2:'table-danger', 3:'table-danger', 4:'table-warning', 5:'table-info'}.get(msg['PRIORITY']) }}">
 					<td>{{msg.get('_SOURCE_REALTIME_TIMESTAMP')}}</td>
 					<td>{{ {0:'Emergency', 1:'Alert', 2:'Critical', 3:'Error', 4:'Warning', 5:'Notice', 6:'Info', 7:'Debug'}.get(msg['PRIORITY']) }}</td>
@@ -102,14 +102,14 @@ class Issue(MIMEMultipart):
 		
 		# attach full journal export
 		self.attach(MIMEApplication(
-			subprocess.run('journalctl --merge --no-pager --output=export --since=-3months | xz -2', shell=True, stdout=subprocess.PIPE).stdout,
+			subprocess.run('journalctl --merge --no-pager --output=export --since=-3months | xz -3', shell=True, stdout=subprocess.PIPE).stdout,
 			name='journal.xz'
 		))
 		
 		# attach rendered journal html
 		try:
 			self.attach(MIMEApplication(
-				renderLogHtml(subprocess.run(['/usr/bin/journalctl', '--merge', '--no-pager', '--output=json', '--all', '--priority=notice', '--lines=300'], stdout=subprocess.PIPE).stdout),
+				renderLogHtml(subprocess.run(['/usr/bin/journalctl', '--merge', '--no-pager', '--output=json', '--all', '--priority=notice', '--lines=300', '--until=now', '--reverse'], stdout=subprocess.PIPE).stdout),
 				name='log.html'
 			))
 		except Exception as e:

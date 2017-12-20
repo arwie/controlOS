@@ -1,0 +1,53 @@
+{% extends "page.html" %}
+
+
+{% block html %}
+<p>
+	<label class="btn btn-primary">
+		<span data-l10n-id="extlog_import"></span> 
+		<input type="file" data-bind="event:{change:function(){importJournal($element.files[0])}}" style="display:none;">
+	</label>
+	<button data-bind="click:clearJournal" class="btn" data-l10n-id="extlog_clear"></button>
+</p>
+{% module page("log.html") %}
+{% end %}
+
+
+{% block model %}
+class {
+	constructor(page) {
+		this.page = page;
+	}
+	
+	importJournal(file) {
+		let formData = new FormData();
+		formData.append('extlog', file);
+		$.ajax({
+			url: ajaxUrl('extlog'),
+			type: "put",
+			data: formData,
+			processData: false,
+			contentType: false,
+		})
+		.always(()=>{
+			this.refresh();
+		});
+	}
+	
+	clearJournal() {
+		$.post(ajaxUrl('extlog'))
+		.always(()=>{
+			this.refresh();
+		});
+	}
+	
+	refresh() {
+		pager.navigate(this.page.path());
+	}
+}
+{% end %}
+
+
+{% block route %}
+	return 'log';
+{% end %}

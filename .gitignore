@@ -5,3 +5,4 @@
 /root/platform-*/
 /initramfs/platform-*/
 /mccom/platform-*/
+__pycache__
