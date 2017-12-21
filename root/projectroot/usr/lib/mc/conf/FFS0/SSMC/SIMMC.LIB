@@ -23,6 +23,14 @@ public function EC_IS_PDO(byval slaveAddr as long,byval index as long,byval subi
 	throw simmc_error
 end function
 
+public function EC_SLAVE_ERROR_REGS(byval addr as long) as string
+	throw simmc_error
+end function
+
+public sub EC_SLAVE_ERROR_RESET(byval addr as long)
+	throw simmc_error
+end sub
+
 
 public sub EC_PDO_WRITE(byval slaveaddress as long, byval index as long, byval subindex as long, byval new_val as long)
 	throw simmc_error

@@ -32,6 +32,8 @@ dim shared healthQueryIntervalMs as const long	= 15*60*1000
 
 <?
 	foreach(get('etc') as $dev) {
+		ll("'--------");
+		ll('call EC_SLAVE_ERROR_RESET('.$dev['address'].')');
 		switch ($dev['device']) {
 			case 'cdhd':
 				ll('call EC_REMAP_CDHD_DEFAULT_PDOS('.$dev['address'].')');
@@ -91,9 +93,13 @@ end sub
 
 
 <?lib_prgLoop()?>
-	call sleepActive(healthQueryIntervalMs)
 	call logEthercat("health")
+	call com_putString("/slaves", sh("ethercat slaves"))
+	<?foreach(get('etc') as $dev) {?>
+		call com_putString("/regs_<?=$dev['address']?>", EC_SLAVE_ERROR_REGS(<?=$dev['address']?>))
+	<?}?>
 	call logSend
+	call sleepActive(healthQueryIntervalMs)
 end sub
 
 
