@@ -46,14 +46,14 @@
 				</td>
 				<td style="min-width:200px">
 					<div class="input-group">
-						<span class="input-group-addon">
+						<div class="input-group-prepend"><span class="input-group-text">
 							<input data-bind="checked:ord, disable:sim, click:ordToggle" type="checkbox">
-						</span>
+						</span></div>
 						<input data-bind="event:{keypress:ordSendValue}" type="text" class="form-control">
 						<!-- ko if:type=='long'-->
-						<div class="input-group-btn">
-							<button data-bind="click:ordSendPreset" class="btn" type="button" value="1">1</button>
-							<button data-bind="click:ordSendPreset" class="btn" type="button" value="0">0</button>
+						<div class="input-group-append">
+							<button data-bind="click:ordSendPreset" class="btn btn-outline-secondary" type="button" value="1">1</button>
+							<button data-bind="click:ordSendPreset" class="btn btn-outline-primary"   type="button" value="0">0</button>
 						</div>
 						<!-- /ko -->
 					</div>

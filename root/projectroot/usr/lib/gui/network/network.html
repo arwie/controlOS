@@ -37,10 +37,8 @@
 		<legend data-l10n-id="network_syswlan"></legend>
 		<p>
 			<div class="form-check">
-				<label class="form-check-label">
-					<input data-bind="checked:enabled" type="checkbox" class="form-check-input">
-					<span data-l10n-id="network_enabled"></span>
-				</label>
+				<input data-bind="checked:enabled" type="checkbox" class="form-check-input">
+				<label class="form-check-label" data-l10n-id="network_enabled"></label>
 			</div>
 		</p>
 		<div data-bind="visible:enabled">
@@ -64,7 +62,7 @@
 			</p>
 		</div>
 		<p>
-			<a data-bind="click:save" class="btn btn-primary" data-l10n-id="network_save"></a>
+			<button data-bind="click:save" class="btn btn-primary" data-l10n-id="network_save"></button>
 		</p>
 	</fieldset>
 	{% end %}
@@ -76,16 +74,12 @@
 			<p>
 				<radiogroup>
 					<div class="form-check form-check-inline">
-						<label class="form-check-label">
-							<input data-bind="checked:conf.Network.DHCP" type="radio" value="yes" class="form-check-input">
-							<span data-l10n-id="network_dhcp"></span>
-						</label>
+						<input data-bind="checked:conf.Network.DHCP" type="radio" value="yes" class="form-check-input">
+						<label class="form-check-label" data-l10n-id="network_dhcp"></label>
 					</div>
 					<div class="form-check form-check-inline">
-						<label class="form-check-label">
-							<input data-bind="checked:conf.Network.DHCP" type="radio" value="no" class="form-check-input">
-							<span data-l10n-id="network_maunal"></span>
-						</label>
+						<input data-bind="checked:conf.Network.DHCP" type="radio" value="no" class="form-check-input">
+						<label class="form-check-label" data-l10n-id="network_maunal"></label>
 					</div>
 				</radiogroup>
 				<div data-bind="visible:conf.Network.DHCP()!='no'">
@@ -112,7 +106,7 @@
 		</script>
 		<div data-bind="template:{name:'network_lan'}"></div>
 		<p>
-			<a data-bind="click:save" class="btn btn-primary" data-l10n-id="network_save"></a>
+			<button data-bind="click:save" class="btn btn-primary" data-l10n-id="network_save"></button>
 		</p>
 	</fieldset>
 	{% end %}
@@ -122,10 +116,8 @@
 		<legend data-l10n-id="network_wlan"></legend>
 		<p>
 			<div class="form-check">
-				<label class="form-check-label">
-					<input data-bind="checked:enabled" type="checkbox" class="form-check-input">
-					<span data-l10n-id="network_enabled"></span>
-				</label>
+				<input data-bind="checked:enabled" type="checkbox" class="form-check-input">
+				<label class="form-check-label" data-l10n-id="network_enabled"></label>
 			</div>
 		</p>
 		<div data-bind="visible:enabled">
@@ -142,7 +134,7 @@
 			<div data-bind="template:{name:'network_lan',data:lan}"></div>
 		</div>
 		<p>
-			<a data-bind="click:save" class="btn btn-primary" data-l10n-id="network_save"></a>
+			<button data-bind="click:save" class="btn btn-primary" data-l10n-id="network_save"></button>
 		</p>
 	</fieldset>
 	{% end %}

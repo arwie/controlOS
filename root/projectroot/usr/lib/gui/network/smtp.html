@@ -24,26 +24,20 @@
 <legend data-l10n-id="network_smtp"></legend>
 <p>
 	<div class="form-check">
-		<label class="form-check-label">
-			<input data-bind="checked:enabled" type="checkbox" class="form-check-input">
-			<span data-l10n-id="network_enabled"></span>
-		</label>
+		<input data-bind="checked:enabled" type="checkbox" class="form-check-input">
+		<label class="form-check-label" data-l10n-id="network_enabled"></label>
 	</div>
 </p>
 <div data-bind="visible:enabled">
 	<p>
 		<radiogroup>
 			<div class="form-check form-check-inline">
-				<label class="form-check-label">
-					<input data-bind="checked:conf.smtp.ssl" type="radio" value="yes" class="form-check-input">
-					<span data-l10n-id="network_ssl"></span>
-				</label>
+				<input data-bind="checked:conf.smtp.ssl" type="radio" value="yes" class="form-check-input">
+				<label class="form-check-label" data-l10n-id="network_ssl"></label>
 			</div>
 			<div class="form-check form-check-inline">
-				<label class="form-check-label">
-					<input data-bind="checked:conf.smtp.ssl" type="radio" value="no" class="form-check-input">
-					<span data-l10n-id="network_nossl"></span>
-				</label>
+				<input data-bind="checked:conf.smtp.ssl" type="radio" value="no" class="form-check-input">
+				<label class="form-check-label" data-l10n-id="network_nossl"></label>
 			</div>
 		</radiogroup>
 		<div class="form-row">
@@ -69,7 +63,7 @@
 	</p>
 </div>
 <p>
-	<a data-bind="click:save" class="btn btn-primary" data-l10n-id="network_save"></a>
+	<button data-bind="click:save" class="btn btn-primary" data-l10n-id="network_save"></button>
 </p>
 {% end %}
 
