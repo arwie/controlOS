@@ -33,7 +33,6 @@ dim shared healthQueryIntervalMs as const long	= 15*60*1000
 <?
 	foreach(get('etc') as $dev) {
 		ll("'--------");
-		ll('call EC_SLAVE_ERROR_RESET('.$dev['address'].')');
 		switch ($dev['device']) {
 			case 'cdhd':
 				ll('call EC_REMAP_CDHD_DEFAULT_PDOS('.$dev['address'].')');
@@ -53,6 +52,7 @@ dim shared healthQueryIntervalMs as const long	= 15*60*1000
 <?
 	foreach(get('etc') as $dev) {
 		ll("'--------");
+		ll('call EC_SLAVE_ERROR_RESET('.$dev['address'].')');
 		switch ($dev['device']) {
 			case 'cdhd':
 				ll('call EC_CDHD_SET_PDOS('.$dev['address'].', etc_busnumber, 0, CDHD_OPMODE_SYNC_POSITION)');
