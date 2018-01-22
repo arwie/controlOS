@@ -43,6 +43,7 @@ function llll($basic)	{ echo "\t\t\t".$basic."\n"; }
 function lllll($basic)	{ echo "\t\t\t\t".$basic."\n"; }
 
 
+require 'conf.inc';
 require 'lib.inc';
 require 'device.inc';
 require 'axis.inc';
