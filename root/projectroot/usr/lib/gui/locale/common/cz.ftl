@@ -16,14 +16,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 %}
 
-locale_en	= English
-locale_de	= Deutsch
-locale_se	= Svenska
-locale_ru	= Русский
-locale_cz	= Český
+{% include "_all.ftl" %}
 
-locale_he	= עִברִית
+locale = Jazyk
 
 
-
-simio=SimIO
+save = Uložit

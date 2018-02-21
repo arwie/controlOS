@@ -21,3 +21,10 @@ import subprocess
 
 def restart(unit):
 	subprocess.run(['/usr/bin/systemctl', '--no-block', 'restart', unit])
+
+
+def reboot():
+	subprocess.run(['/usr/bin/systemctl', '--no-block', 'reboot'])
+
+def poweroff():
+	subprocess.run(['/usr/bin/systemctl', '--no-block', 'poweroff'])

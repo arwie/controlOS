@@ -1,8 +1,8 @@
 [Unit]
-ConditionPathExists=!/etc/debug
 After=network.target
 
 [Service]
+#Type=oneshot
 ExecStartPre=/bin/sleep 5
 ExecStart=/usr/bin/mc-update
 

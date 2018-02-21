@@ -1,5 +1,4 @@
-{% comment 
-# Copyright (c) 2017 Artur Wiebe <artur@4wiebe.de>
+# Copyright (c) 2018 Artur Wiebe <artur@4wiebe.de>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 # associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -14,16 +13,17 @@
 # IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-%}
 
-locale_en	= English
-locale_de	= Deutsch
-locale_se	= Svenska
-locale_ru	= Русский
-locale_cz	= Český
 
-locale_he	= עִברִית
+import server
+from shared import system
 
 
 
-simio=SimIO
+class PoweroffHandler(server.RequestHandler):
+	def post(self):
+		system.poweroff()
+
+
+
+server.addAjax(__name__+'/poweroff',		PoweroffHandler)

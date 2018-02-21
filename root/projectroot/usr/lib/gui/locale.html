@@ -21,7 +21,7 @@
 		<i class="fa fa-language"></i>
 		<span data-l10n-id="locale"></span>
 	</a>
-	<div data-bind="foreach:document.querySelector('meta[name=availableLanguages]').content.split(',')" class="dropdown-menu">
+	<div data-bind="foreach:document.querySelector('meta[name=availableLanguages]').content.split(',')" class="dropdown-menu dropdown-menu-right">
 		<a data-bind="click:function(){document.l10n.requestLanguages([$data])}, attr:{'data-l10n-id':'locale_'+$data}" class="dropdown-item" href="#"></a>
 	</div>
 </li>

@@ -21,6 +21,8 @@
 locale = Sprache
 
 
+poweroff = Ausschalten
+
 save = Speichern
 
 

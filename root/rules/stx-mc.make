@@ -34,8 +34,8 @@ $(STATEDIR)/stx-mc.targetinstall:
 	@$(call install_alternative_tree, stx-mc, 0, 0, /usr/lib/mc, no)
 	
 	@$(call install_alternative, stx-mc, 0, 0, 0755, /usr/bin/mc-update)
-	@$(call install_alternative, stx-mc, 0, 0, 0644, /etc/systemd/system/mc-update.service)
-	@$(call install_link,        stx-mc, ../mc-update.service, /etc/systemd/system/multi-user.target.wants/mc-update.service)
+	@$(call install_alternative, stx-mc, 0, 0, 0644, /usr/lib/systemd/system/mc-update.service)
+	@$(call install_link,        stx-mc, ../mc-update.service, /usr/lib/systemd/system/multi-user.target.wants/mc-update.service)
 	
 	@$(call install_alternative, stx-mc, 0, 0, 0755, /usr/sbin/mc-state)
 	@$(call install_alternative, stx-mc, 0, 0, 0644, /usr/lib/systemd/system/mc-state@.target)
@@ -45,6 +45,9 @@ $(STATEDIR)/stx-mc.targetinstall:
 	@$(call install_alternative, stx-mc, 0, 0, 0755, /usr/sbin/mc-log)
 	@$(call install_alternative, stx-mc, 0, 0, 0644, /usr/lib/systemd/system/mc-log.service)
 	@$(call install_link,        stx-mc, ../mc-log.service, /usr/lib/systemd/system/mc-state@log.target.wants/mc-log.service)
+	
+	@$(call install_alternative, stx-mc, 0, 0, 0644, /usr/lib/systemd/system/mc-poweroff.service)
+	@$(call install_link,        stx-mc, ../mc-poweroff.service, /usr/lib/systemd/system/poweroff.target.wants/mc-poweroff.service)
 
 	@$(call install_finish, stx-mc)
 	@$(call touch)
