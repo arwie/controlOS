@@ -22,8 +22,8 @@ common shared log_prioNotice	as const long	= 5
 common shared log_prioInfo		as const long	= 6
 common shared log_prioDebug		as const long	= 7
 
-common shared log_priority		as const long	= <?=$sim ? 'log_prioDebug' : 'log_prioInfo'?> 
-common shared log_priorityPrint	as const long	= <?=$sim ? 'log_prioDebug' : 'log_prioWarning'?> 
+common shared log_priority		as const long	= <?=debug() ? 'log_prioDebug' : 'log_prioInfo'?> 
+common shared log_priorityPrint	as const long	= <?=debug() ? 'log_prioDebug' : 'log_prioWarning'?> 
 
 
 dim shared comLogChannel as long
@@ -53,6 +53,14 @@ end sub
 public sub log_putReport(byval report_ as string)
 	call com_putStringRef("/report", report_)
 	call com_putLong("/reports", true)
+end sub
+
+public sub log_putFile(byval name_ as string)
+	call com_putString("/"+name_, sh("awk '{print NR $s}' /FFS0/SSMC/"+name_))
+end sub
+
+public sub log_putTrnErr
+	call com_putString("/TRN.ERR", sh("cat /RAM/TRN.ERR"))
 end sub
 
 

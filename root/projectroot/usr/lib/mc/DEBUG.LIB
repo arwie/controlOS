@@ -17,35 +17,43 @@
 
 dim shared pollIntervalMs as const long		= 250
 
-dim shared debugWebsocket as long
 dim shared debugWebsocketConnected as long
 
 
 
 <?lib_start()?>
-<?	libComOpenServerWebsocket('debugWebsocket', 5610, ['bool("/receive", false)'])?>
+<?	libComOpenServerWebsocket('debug_websocket', 5610, ['bool("/receive", false)'])?>
 	debugWebsocketConnected = false
 end sub
 
 
 <?lib_stop()?>
-	call com_close(debugWebsocket)
+	call com_close(debug_websocket)
 end sub
 
 
 
 <?lib_prgLoop(16)?>
-	select case com_receive(debugWebsocket, pollIntervalMs)
+	dim json_ as string
+	select case com_receive(debug_websocket, pollIntervalMs)
 	case com_receiveConnect
 		debugWebsocketConnected = true
 	case com_receiveDisconnect
 		debugWebsocketConnected = false
+	case com_receiveTimeout
+	case else
+		call com_clear
+		call pollData
+		json_ = com_getJson("")
+		call logLibNotice("system state snapshot")
+		call com_putJson("/debug", json_)
+		call logSend
 	end select
 
 	if debugWebsocketConnected then
 		call com_clear
 		call pollData
-		call com_send(debugWebsocket)
+		call com_send(debug_websocket)
 	end if
 end sub
 
@@ -58,7 +66,7 @@ end sub
 sub pollData
 <?
 	foreach($simio as $io) {
-		ll('call com_put'.ucfirst($io['type']).'("/'.explode('_', $io['name'])[0].'/'.$io['name'].' ('.$io['dir'].')", '.($io['dir']=='out'?$io['app']:$io['name']).')');
+		ll('call com_put'.ucfirst($io['type']).'("/'.explode('_', $io['name'])[0].'/'.explode('_', $io['name'])[1].' ('.$io['dir'].')", '.($io['dir']=='out'?$io['app']:$io['name']).')');
 	}
 
 	foreach($robot as $rbt) {
@@ -72,6 +80,12 @@ sub pollData
 		ll('call com_putDouble("/'.$ax['name'].'/torqueFeedback", '.$ax['name'].'.torqueFeedback)');
 	}
 
-	include 'debug.inc';
+	foreach ($libs['app'] as $l) {
+		ll('call com_with("/'.$l['name'].'")');
+		ll('call com_putBool("started", '.$l['name'].'_started)');
+		ll('call com_putBool("active", '.$l['name'].'_active)');
+		if ($l['debug'])
+			ll('call '.$l['name'].'_debug');
+	}
 ?> 
 end sub

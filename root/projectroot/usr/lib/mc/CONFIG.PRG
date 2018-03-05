@@ -33,7 +33,8 @@ foreach($simio as $io) {
 }
 ?>
 
-common shared state_comStateServer as long
+common shared state_comStateServer	as long
+common shared debug_websocket		as long
 
 
 program

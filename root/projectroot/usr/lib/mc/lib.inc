@@ -92,28 +92,30 @@ function lib_prgLoop($prio='prgPriorityNormal') { global $lib;
 	lib_prg($prio);
 }
 
-
 function lib_prgStart() { global $lib;
 	$lib['prg']['start'] = true;
 	l('public sub '.$lib['name'].'_prgStart');
 }
-
 
 function lib_prgStop() { global $lib;
 	$lib['prg']['stop'] = true;
 	l('public sub '.$lib['name'].'_prgStop');
 }
 
-
 function lib_prgEvent($scantime=1) { global $lib;
 	$lib['prg']['event'] = $scantime;
 	l('public sub '.$lib['name'].'_prgEvent');
 }
 
-
 function lib_prgError() { global $lib;
 	$lib['prg']['error'] = true;
 	l('public sub '.$lib['name'].'_prgError');
+}
+
+
+function lib_debug() { global $lib;
+	$lib['debug'] = true;
+	l('public sub '.$lib['name'].'_debug');
 }
 
 

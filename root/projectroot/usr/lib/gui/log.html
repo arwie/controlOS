@@ -77,14 +77,14 @@
 					<td data-bind="text: identifier"></td>
 					
 					<td width="70%">
-						<a data-bind="click: toggleDetails" href="#"><strong data-bind="text: message" style="white-space:pre-line"></strong></a>
+						<a data-bind="click: toggleDetails" href="#"><strong data-bind="text: message" style="white-space:pre-wrap"></strong></a>
 						<!-- ko if: details -->
 							<p></p>
 							<table class="table table-sm">
 								<tbody data-bind="foreach: {data: keys(), as: 'key'}">
 									<tr>
 										<td data-bind="text: key"></td>
-										<td data-bind="text: message.value(key)" style="white-space:pre-line"></td>
+										<td data-bind="text: message.value(key)" style="white-space:pre-wrap"></td>
 									</tr>
 								</tbody>
 							</table>
@@ -168,7 +168,12 @@ function Message(msg) {
 	self.toggleDetails	= function() { self.details(!self.details()); }
 	
 	self.keys			= function() { return Object.keys(self.msg); }
-	self.value			= function(key) { return self.msg[key]; }
+	self.value			= function(key) { 
+		try {
+			return JSON.stringify(JSON.parse(self.msg[key]), null, 4);
+		} catch(e) {}
+		return self.msg[key]; 
+	}
 }
 {% end %}
 
