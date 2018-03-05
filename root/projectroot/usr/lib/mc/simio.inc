@@ -52,6 +52,7 @@ function simio($dir, $name, $type, $sim, $default) { global $simio, $lib, $out;
 	static $id = 0;
 	
 	$name = $lib['name'].'_'.$name;
+	$sim  = conf('device',$lib['name'],'simulated', (is_string($sim) ? conf('device',$sim,'simulated', false) : $sim));
 	
 	$io = [
 		'id'		=> $id,

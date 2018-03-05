@@ -19,8 +19,11 @@ set('etc');
 set('can');
 
 
-function device($dev) { global $lib, $etc, $can, $out;
+function device(&$dev) { global $lib, $etc, $can, $out;
 	static $dio = 64;
+
+	$dev['address']		= conf('device',$lib['name'],'address',   $dev['address']);
+	$dev['simulated']	= conf('device',$lib['name'],'simulated', $dev['simulated']);
 	
 	$dev['readBit']  = $dev['readBit']  ?: [];
 	$dev['writeBit'] = $dev['writeBit'] ?: [];
@@ -116,7 +119,6 @@ function deviceLibEnd($dev) { global $lib;
 
 
 
-function io($dev, $simulated=false) {
-	$dev['simulated'] = $simulated;
+function io($dev) {
 	device($dev);
 }

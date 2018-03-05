@@ -18,13 +18,11 @@
 $axis = [];
 
 
-function axis($ax, $simulated=false) { global $axis, $lib, $out;
+function axis($ax) { global $axis, $lib, $out;
 	static $elementid = 1;
 
 	$ax['elementid']	= $elementid;
 	$ax['name']			= $lib['name'];
-
-	$ax['simulated']	= $simulated;
 	
 	$ax['setup']		= $ax['setup']		?: strtoupper($ax['name']).'.DAT';
 	$ax['firmware']		= $ax['firmware']	?: strtoupper($ax['device']).'.O';
@@ -36,9 +34,8 @@ function axis($ax, $simulated=false) { global $axis, $lib, $out;
 			break;
 	}
 
+	device($ax);
 	$lib['axis']		= $ax;
-	if ($ax['bus'])
-		device($ax);
 	
 	if (!$out) {
 		$axis[$ax['name']]	= $ax;

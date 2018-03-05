@@ -71,9 +71,7 @@ dim shared healthQueryIntervalMs as const long	= 15*60*1000
 				ll('call etc_sdoWrite('.$dev['address'].', 0x60C2, 2, 8,  -4)');
 				ll('call etc_sdoWrite('.$dev['address'].', 0x6040, 0, 16, 128)');
 				break;
-			case 'wago':
-			case 'pilz':
-			case 'hilscher':
+			default:
 				ll('call EC_USE_SLAVE('.$dev['address'].', EC_SLAVES_INFO['.$dev['address'].']->vendor_id, EC_SLAVES_INFO['.$dev['address'].']->product_code, "ECAT_IOMODULE_SLAVE", true)');
 				break;
 		}

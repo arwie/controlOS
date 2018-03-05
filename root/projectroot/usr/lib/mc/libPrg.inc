@@ -34,7 +34,7 @@ program
 			call log_send
 <?if ($lib['prg']['error']) {?>
 			call <?=$lib['name']?>_prgError
-<?} elseif (!$sim) {?>
+<?} elseif (!debug()) {?>
 			call system_stopTrigger
 <?}?>
 	end onError

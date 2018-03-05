@@ -3,13 +3,26 @@
 HOST=${1-sys}
 PORT=${2-22}
 
+SSHFSMNT=/tmp/sys-fs
+
+
 SCRIPT=$(readlink -f $0)
 BASEDIR=$(dirname $SCRIPT)
 
 cd $BASEDIR
 
 
-if [ "$HOST" = "sys" ]; then 
+
+mkdir -p $SSHFSMNT
+
+
+if [ "$HOST" = "sys" ]; then
+
+  sshfs \
+    -p $PORT \
+    -o IdentityFile=$BASEDIR/ssh/id_rsa \
+    root@$HOST:/ \
+    $SSHFSMNT
 
   ssh \
     -i ssh/id_rsa \
@@ -26,3 +39,6 @@ else
     root@$HOST
 
 fi
+
+
+fusermount -u $SSHFSMNT
