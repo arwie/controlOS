@@ -74,6 +74,7 @@ $(STATEDIR)/system.targetinstall:
 	@$(call install_alternative, system, 0, 0, 0644, /usr/lib/systemd/system/journal-cleanup.timer)
 	@$(call install_link,        system, ../journal-cleanup.timer, /usr/lib/systemd/system/timers.target.wants/journal-cleanup.timer)
 
+	@$(call install_alternative_tree, system, 0, 0, /usr/share/setup)
 	@$(call install_alternative, system, 0, 0, 0644, /etc/issue.conf)
 	@$(call install_copy,        system, 0, 0, 0755, /etc/app)
 

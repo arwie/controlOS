@@ -15,15 +15,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-function conf($file, $section=null, $key=null, $default=null) {
+
+function conf($file=null, $section=null, $key=null, $default=null) {
 	static $conf = null;
 	
 	if (is_null($conf)) {
 		$conf = [];
-		foreach (glob('/etc/app/*.conf') as $file) {
-			$conf[basename($file, '.conf')] = parse_ini_file($file, true);
+		foreach (glob('/etc/app/*.conf') as $path) {
+			$conf[basename($path, '.conf')] = parse_ini_file($path, true);
 		}
 	}
+	
+	if (is_null($file))
+		return $conf;
 	
 	if (is_null($section))
 		return array_key_exists($file, $conf);
@@ -33,3 +37,42 @@ function conf($file, $section=null, $key=null, $default=null) {
 	
 	return (array_key_exists($file, $conf) && array_key_exists($section, $conf[$file]) && array_key_exists($key, $conf[$file][$section])) ? $conf[$file][$section][$key] : $default;
 }
+
+
+function setup($section=null, $key=null) {
+	static $setup = null;
+	
+	if (is_null($setup)) {
+		$dir = '/usr/share/setup/'; $ext = '.json';
+		$type = conf('setup','setup','type');
+		$rev  = conf('setup','setup','revision');
+		$decode = function($name) use ($dir, $ext) { return json_decode(file_get_contents($dir.$name.$ext), true); };
+		
+		$setup = array_replace_recursive($decode('setup'), $decode($type));
+		
+		$patches = [];
+		foreach (glob($dir.$type.'-*'.$ext) as $path) 
+			if (preg_match("/.*-(\d*)\..*/", $path, $match))
+				if (intval($match[1]) >= intval($rev))
+					$patches[] = $match[1];
+		rsort($patches, SORT_NUMERIC);
+		foreach ($patches as $patch)
+			$setup = array_replace_recursive($setup, $decode($type.'-'.$patch));
+		
+		$setup = array_replace_recursive($setup, conf()['setup']);
+	}
+	
+	return is_null($section) ? $setup : (is_null($key) ? $setup[$section] : $setup[$section][$key]);
+}
+
+
+function debug() {
+	return file_exists('/etc/app/debug');
+}
+
+
+function l($basic)		{ echo $basic."\n"; }
+function ll($basic)		{ echo "\t".$basic."\n"; }
+function lll($basic)	{ echo "\t\t".$basic."\n"; }
+function llll($basic)	{ echo "\t\t\t".$basic."\n"; }
+function lllll($basic)	{ echo "\t\t\t\t".$basic."\n"; }

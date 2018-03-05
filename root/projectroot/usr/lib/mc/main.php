@@ -15,6 +15,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+require 'shared.inc';
+
 
 function &set($what) { global $real, $out;
 	static $fake;
@@ -32,18 +34,6 @@ function get($what)  { global $real;
 }
 
 
-if (file_exists('/etc/app/sim.conf'))
-	$sim = parse_ini_file('/etc/app/sim.conf') ?: true;
-
-
-function l($basic)		{ echo $basic."\n"; }
-function ll($basic)		{ echo "\t".$basic."\n"; }
-function lll($basic)	{ echo "\t\t".$basic."\n"; }
-function llll($basic)	{ echo "\t\t\t".$basic."\n"; }
-function lllll($basic)	{ echo "\t\t\t\t".$basic."\n"; }
-
-
-require 'conf.inc';
 require 'lib.inc';
 require 'device.inc';
 require 'axis.inc';
@@ -51,7 +41,7 @@ require 'robot.inc';
 require 'simio.inc';
 
 
-function includeLib($file, $type='app') { global $out, $libs, $lib, $simio, $axis, $robot, $sim;
+function includeLib($file, $type='app') { global $out, $libs, $lib, $simio, $axis, $robot;
 	libBegin($file, $type);
 	l("'--------------------");
 	l('');
