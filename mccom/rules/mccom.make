@@ -41,8 +41,7 @@ MCCOM_LICENSE	:= unknown
 #
 MCCOM_CONF_TOOL	:= cmake
 
-MCCOM_CONF_OPT	:= $(CROSS_CMAKE_USR) -DCMAKE_BUILD_TYPE=Release
-#MCCOM_CONF_OPT	:= $(CROSS_CMAKE_USR) -DCMAKE_BUILD_TYPE=Debug
+MCCOM_CONF_OPT	:= $(CROSS_CMAKE_USR) -DCMAKE_BUILD_TYPE=Release -DPLATFORM=$(PTXCONF_PLATFORM)
 
 # ----------------------------------------------------------------------------
 # Target-Install
