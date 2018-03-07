@@ -17,8 +17,8 @@ PACKAGES-$(PTXCONF_GLIB) += glib
 #
 # Paths and names
 #
-GLIB_VERSION	:= 2.52.3
-GLIB_MD5	:= 89265d0289a436e99cad54491eb21ef4
+GLIB_VERSION	:= 2.54.2
+GLIB_MD5	:= 50f83e08f080f99b1e2f0ad2b760fb81
 GLIB		:= glib-$(GLIB_VERSION)
 GLIB_SUFFIX	:= tar.xz
 GLIB_SOURCE	:= $(SRCDIR)/$(GLIB).$(GLIB_SUFFIX)
@@ -32,17 +32,22 @@ GLIB_LICENSE	:= LGPL-2.0+
 # Prepare
 # ----------------------------------------------------------------------------
 
+# If one of GTKDOC tools is found at configure stage, it might be used,
+# no matter whether we use --disable-gtk-doc as this option controls
+# generating documentation, while in tarballs it is already generated
+# and providing empty paths to GTKDOC tools avoids doc installation.
 GLIB_CONF_ENV	:= \
 	$(CROSS_ENV) \
 	glib_cv_uscore=no \
 	glib_cv_stack_grows=no \
 	glib_cv_have_qsort_r=yes \
 	ac_cv_func_statfs=yes \
-	ac_cv_path_MSGFMT=: \
-	ac_cv_path_XGETTEXT=no \
+	ac_cv_path_MSGFMT="" \
+	ac_cv_path_XGETTEXT="" \
 	LIBS="-lresolv" \
-	PKG_CONFIG_PATH=$(GLIB_DIR)/ \
-	GTKDOC_REBASE="/bin/true"
+	ac_cv_prog_GTKDOC_CHECK="" \
+	ac_cv_path_GTKDOC_REBASE="" \
+	ac_cv_path_GTKDOC_MKPDF=""
 
 #
 # autoconf
@@ -54,6 +59,7 @@ GLIB_CONF_ENV	:= \
 GLIB_CONF_TOOL	:= autoconf
 GLIB_CONF_OPT	:= \
 	$(CROSS_AUTOCONF_USR) \
+	--disable-maintainer-mode \
 	--enable-debug=minimum \
 	--disable-gc-friendly \
 	--enable-mem-pools \
@@ -70,6 +76,8 @@ GLIB_CONF_OPT	:= \
 	--disable-libelf \
 	--disable-libmount \
 	--disable-gtk-doc \
+	--disable-gtk-doc-html \
+	--disable-gtk-doc-pdf \
 	--disable-man \
 	--disable-dtrace \
 	--disable-systemtap \
