@@ -15,16 +15,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-function libBegin($file, $type='app') { global $lib;
+function libBegin($file, $from, $type) { global $lib;
 	$lib = [
 		'file'	=> basename($file),
 		'name'	=> strtolower(basename($file, '.LIB')),
+		'from'	=> $from,
 		'type'	=> $type,
 	];
 
 	l('common shared '.$lib['name'].'_started as long');
 	l('common shared '.$lib['name'].'_active  as long');
 	l('dim shared libActiveNotify as long');
+}
+
+function lib($what='name') { global $lib;
+	return $lib[$what];
 }
 
 
@@ -120,7 +125,7 @@ function lib_debug() { global $lib;
 
 
 
-function libEnd() { global $lib, $libs, $out;
+function libEnd() { global $lib;
 	l('public sub '.$lib['name'].'_init');
 	libComOpen('libActiveNotify', 'notify');
 	if ($lib['init']) ll('call libInit');
@@ -210,8 +215,6 @@ function libEnd() { global $lib, $libs, $out;
 	if ($lib['robot'])
 		robotLibEnd($lib['robot']);
 	
-	if (!$out) {
-		$libs['all'][]			= $lib;
-		$libs[$lib['type']][]	= $lib;
-	}
+	set('libs')['all'][]		= $lib;
+	set('libs')[$lib['type']][]	= $lib;
 }

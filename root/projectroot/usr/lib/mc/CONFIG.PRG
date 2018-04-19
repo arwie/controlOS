@@ -15,10 +15,10 @@
 ' OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-system.numberaxes = <?=count($axis)?> 
+system.numberaxes = <?=count(get('axis'))?> 
 
 <?
-foreach($robot as $rbt) {
+foreach(get('robot') as $rbt) {
 	foreach ($rbt['axes'] as $ax)
 		$axisname .= ' axisname=a'.$axis[$ax]['elementid'];
 	l('common shared '.$rbt['name'].' as group '.$axisname.' model='.$rbt['model'].' of '.$rbt['type']);
@@ -26,7 +26,7 @@ foreach($robot as $rbt) {
 ?>
 
 <?
-foreach($simio as $io) {
+foreach(get('simio') as $io) {
 	l('common shared '.$io['ord'].' as long = '.($io['sim'] ? '1' : '0'));
 	l('common shared '.$io['app'].' as '.$io['type'].($io['default']!=null ? ' = '.($io['type']=='string' ? '"'.$io['default'].'"' : $io['default']) : ''));
 	l('common shared '.$io['io'].' as '.$io['type']);
@@ -43,7 +43,7 @@ program
 	system.doubleformat			= 1
 
 <?
-	foreach($axis as $ax)
+	foreach(get('axis') as $ax)
 		ll('a'.$ax['elementid'].'.axisname = '.$ax['name']);
 ?>
 
@@ -55,6 +55,11 @@ else
 	load EC_CDHD.LIB
 	load ISMAPPER.LIB
 end if
+
+<?if (get('config')['modbus']) {?>
+	oload MODBUS.O
+	load  MODBUS.LIB
+<?}?>
 	
 	oload MCCOM.O
 	load  MCCOM.LIB
@@ -62,12 +67,12 @@ end if
 	load BASIC.LIB
 
 <?
-	foreach ($libs['all'] as $l)
+	foreach (get('libs')['all'] as $l)
 		ll('load '.$l['file']);
 ?>
 
-<?	if ($robot)
-		ll('with '.end($robot)['name']);	//make last robot default motion element
+<?	if (get('robot'))
+		ll('with '.end(get('robot'))['name']);	//make last robot default motion element
 ?>
 
 end program

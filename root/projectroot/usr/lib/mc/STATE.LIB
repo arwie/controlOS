@@ -45,7 +45,7 @@ end sub
 sub sendState
 	call com_clear
 <?
-	foreach ($libs['all'] as $l) 
+	foreach (get('libs')['all'] as $l) 
 		ll('call com_putBool("/'.$l['name'].'", '.$l['name'].'_started)')
 ?>
 	call com_send(state_comStateServer)

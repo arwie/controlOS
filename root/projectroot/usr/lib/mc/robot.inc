@@ -15,9 +15,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-$robot = [];
-
-
 function scara($a1, $a2, $a3, $a4) {
 	return [
 		'axes'		=> [$a1, $a2, $a3, $a4],
@@ -27,15 +24,13 @@ function scara($a1, $a2, $a3, $a4) {
 }
 
 
-function robot($rbt) { global $robot, $lib, $out;
+function robot($rbt) { global $lib;
 	
 	$rbt['name']			= $lib['name'];
 		
 	$lib['robot']			= $rbt;
 
-	if (!$out) {
-		$robot[$rbt['name']]	= $rbt;
-	}
+	set('robot')[$rbt['name']]	= $rbt;
 }
 
 
