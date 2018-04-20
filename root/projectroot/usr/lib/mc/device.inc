@@ -18,8 +18,9 @@
 function device(&$dev) { global $lib;
 	static $dio = 64;
 
-	$dev['address']		= conf('device',$lib['name'],'address',   $dev['address']);
 	$dev['simulated']	= conf('device',$lib['name'],'simulated', $dev['simulated']);
+	$dev['address']		= conf('device',$lib['name'],'address',   $dev['address']);
+	$dev['bus']			= conf('device',$lib['name'],'bus',       $dev['bus']);
 	
 	$dev['readBit']  = $dev['readBit']  ?: [];
 	$dev['writeBit'] = $dev['writeBit'] ?: [];
