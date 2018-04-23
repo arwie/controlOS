@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# PTXdist 2018.03.0
+# PTXdist 2018.04.0
 #
 PTXCONF_SYSTEM=y
 
@@ -60,7 +60,7 @@ PTXCONF_PROJECT_BUILD_DEVEL=y
 PTXCONF_RUNTIME=y
 PTXCONF_BUILDTIME=y
 PTXCONF_VIRTUAL=y
-PTXCONF_CONFIGFILE_VERSION="2018.03.0"
+PTXCONF_CONFIGFILE_VERSION="2018.04.0"
 PTXCONF__ptxconfig_MAGIC__=y
 
 #
@@ -1466,6 +1466,7 @@ PTXCONF_BUSYBOX_LOGGER=y
 #
 # BusyBox' i2c tools are selected!
 #
+# PTXCONF_JQ is not set
 # PTXCONF_KBD is not set
 PTXCONF_KEXEC_TOOLS=y
 # PTXCONF_KEXEC_TOOLS_ZLIB is not set
@@ -1644,6 +1645,7 @@ PTXCONF_UTIL_LINUX_NG_SFDISK=y
 # PTXCONF_UTIL_LINUX_NG_LSMEM is not set
 # PTXCONF_UTIL_LINUX_NG_CHMEM is not set
 # PTXCONF_UTIL_LINUX_NG_MKFS is not set
+# PTXCONF_UTIL_LINUX_NG_LSCPU is not set
 # PTXCONF_WATCHDOG is not set
 
 #
@@ -1727,7 +1729,6 @@ PTXCONF_UTIL_LINUX_NG_SFDISK=y
 #
 # Bytecode Engines / VMs        
 #
-# PTXCONF_CLASSPATH is not set
 # PTXCONF_FRODO is not set
 # PTXCONF_JAMVM is not set
 # PTXCONF_MONO is not set
@@ -1862,7 +1863,6 @@ PTXCONF_UTIL_LINUX_NG_SFDISK=y
 # PTXCONF_RSYSLOG is not set
 # PTXCONF_SIMPLERPL is not set
 # PTXCONF_SOCAT is not set
-# PTXCONF_STRONGSWAN is not set
 # PTXCONF_STUNNEL is not set
 # PTXCONF_SYSLOGNG is not set
 # PTXCONF_TCPDUMP is not set
@@ -1987,7 +1987,6 @@ PTXCONF_E2FSPROGS_INSTALL_MKFS_EXT4=y
 # PTXCONF_OPENSC is not set
 # PTXCONF_PCSC_LITE is not set
 # PTXCONF_POP3SPAM is not set
-# PTXCONF_RXTX is not set
 # PTXCONF_SJINN is not set
 # PTXCONF_SMTPCLIENT is not set
 # PTXCONF_SSMTP is not set
@@ -2029,7 +2028,6 @@ PTXCONF_E2FSPROGS_INSTALL_MKFS_EXT4=y
 # PTXCONF_FLEX is not set
 # PTXCONF_GETTEXT is not set
 # PTXCONF_GFLAGS is not set
-# PTXCONF_GPM is not set
 # PTXCONF_GPSD is not set
 # PTXCONF_ICU is not set
 # PTXCONF_INOTIFY_TOOLS is not set
@@ -2168,7 +2166,6 @@ PTXCONF_LIBUUID=y
 # PTXCONF_DBUS_GLIB is not set
 # PTXCONF_DBUS is not set
 # PTXCONF_EGGDBUS is not set
-# PTXCONF_XMLRPC_C is not set
 
 #
 # Scientific Apps               
@@ -2285,7 +2282,6 @@ PTXCONF_LIBUUID=y
 # qt                            
 #
 # PTXCONF_ARORA is not set
-# PTXCONF_LIBQXT is not set
 # PTXCONF_PYSIDE is not set
 # PTXCONF_PYTHON3_PYSIDE is not set
 # PTXCONF_PYTHON3_SHIBOKEN is not set

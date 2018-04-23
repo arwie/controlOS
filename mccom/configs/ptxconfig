@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# PTXdist 2018.03.0
+# PTXdist 2018.04.0
 #
 PTXCONF_MCCOM=y
 
@@ -59,7 +59,7 @@ PTXCONF_PROJECT_BUILD_DEVEL=y
 # PTXCONF_PROJECT_CHECK_LICENSES is not set
 PTXCONF_RUNTIME=y
 PTXCONF_BUILDTIME=y
-PTXCONF_CONFIGFILE_VERSION="2018.03.0"
+PTXCONF_CONFIGFILE_VERSION="2018.04.0"
 PTXCONF__ptxconfig_MAGIC__=y
 
 #
@@ -412,6 +412,7 @@ PTXCONF_LIBC_NSS_FILES=y
 # PTXCONF_HTOP is not set
 # PTXCONF_HUB_CTRL is not set
 # PTXCONF_I2C_TOOLS is not set
+# PTXCONF_JQ is not set
 # PTXCONF_KBD is not set
 # PTXCONF_KEXEC_TOOLS is not set
 # PTXCONF_KILLPROC is not set
@@ -539,7 +540,6 @@ PTXCONF_LIBC_NSS_FILES=y
 #
 # Bytecode Engines / VMs        
 #
-# PTXCONF_CLASSPATH is not set
 # PTXCONF_FRODO is not set
 # PTXCONF_JAMVM is not set
 # PTXCONF_MONO is not set
@@ -662,7 +662,6 @@ PTXCONF_LIBC_NSS_FILES=y
 # PTXCONF_RSYSLOG is not set
 # PTXCONF_SIMPLERPL is not set
 # PTXCONF_SOCAT is not set
-# PTXCONF_STRONGSWAN is not set
 # PTXCONF_STUNNEL is not set
 # PTXCONF_SYSLOGNG is not set
 # PTXCONF_TCPDUMP is not set
@@ -734,7 +733,6 @@ PTXCONF_LIBC_NSS_FILES=y
 # PTXCONF_OPENSC is not set
 # PTXCONF_PCSC_LITE is not set
 # PTXCONF_POP3SPAM is not set
-# PTXCONF_RXTX is not set
 # PTXCONF_SJINN is not set
 # PTXCONF_SMTPCLIENT is not set
 # PTXCONF_SSMTP is not set
@@ -814,7 +812,6 @@ PTXCONF_BOOST_NOPYTHON=y
 # PTXCONF_FLEX is not set
 # PTXCONF_GETTEXT is not set
 # PTXCONF_GFLAGS is not set
-# PTXCONF_GPM is not set
 # PTXCONF_GPSD is not set
 # PTXCONF_ICU is not set
 # PTXCONF_INOTIFY_TOOLS is not set
@@ -944,7 +941,6 @@ PTXCONF_BOOST_NOPYTHON=y
 # PTXCONF_DBUS_GLIB is not set
 # PTXCONF_DBUS is not set
 # PTXCONF_EGGDBUS is not set
-# PTXCONF_XMLRPC_C is not set
 
 #
 # Scientific Apps               
@@ -1061,7 +1057,6 @@ PTXCONF_BOOST_NOPYTHON=y
 # qt                            
 #
 # PTXCONF_ARORA is not set
-# PTXCONF_LIBQXT is not set
 # PTXCONF_PYSIDE is not set
 # PTXCONF_PYTHON3_PYSIDE is not set
 # PTXCONF_PYTHON3_SHIBOKEN is not set
