@@ -15,49 +15,43 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-import os, json, collections, glob, re
-from shared.conf import Conf
+import server
 
 
-def _construct():
-	confFile	= '/etc/app/setup.conf'
-	dir			= '/usr/share/setup/'
-	ext			= '.json'
 
-	def decode(name):
-		return json.load(open(dir+name+ext))
-
-	def replaceRecursive(d, u):
-		for k, v in u.items():
-			if isinstance(v, collections.Mapping):
-				d[k] = replaceRecursive(d.get(k, {}), v)
-			else:
-				d[k] = v
-		return d
+class TableHandler(server.RequestHandler):
+	def initialize(self, db, table):
+		self.table = db.table(table)
+		self.doGet = {
+			'list':		self.doList,
+			'load':		self.doLoad,
+		}
+		self.doPost = {
+			'new':		self.doNew,
+			'delete':	self.doDelete,
+			'save':		self.doSave,
+		}
 	
-	setup = decode('setup')
+	def get(self):
+		self.writeJson(self.doGet[self.get_query_argument('do', 'list')]())
 	
-	if os.path.exists(confFile):
-		conf = Conf(confFile)
-		type = conf.get('setup','type')
-		rev  = conf.get('setup','revision')
-
-		setup = replaceRecursive(setup, decode(type))
-
-		patches = []
-		for path in glob.glob(dir+type+'-*'+ext):
-			match = re.match(r'.*-(\d*)\..*', path)
-			if match:
-				patch = int(match.group(1))
-				if patch >= int(rev):
-					patches.append(patch)
-		patches.sort(reverse=True)
-		for patch in patches:
-			setup = replaceRecursive(setup, decode(type+'-'+str(patch)))
-
-		setup = replaceRecursive(setup, conf.dict())
-
-	return setup
-
-
-setup = _construct()
+	def post(self):
+		with self.table.db:
+			self.doPost[self.get_query_argument('do')]()
+	
+	
+	def doList(self):
+		return self.table.list()
+	
+	def doLoad(self):
+		return self.table.load(self.get_query_argument('id'))
+	
+	
+	def doNew(self):
+		self.table.new()
+	
+	def doDelete(self):
+		self.table.delete(self.get_query_argument('id'))
+	
+	def doSave(self):
+		return self.table.save(self.get_query_argument('id'), self.readJson())

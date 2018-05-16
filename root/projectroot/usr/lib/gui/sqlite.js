@@ -1,3 +1,4 @@
+{% comment 
 # Copyright (c) 2018 Artur Wiebe <artur@4wiebe.de>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
@@ -13,51 +14,47 @@
 # IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+%}
 
 
-import os, json, collections, glob, re
-from shared.conf import Conf
-
-
-def _construct():
-	confFile	= '/etc/app/setup.conf'
-	dir			= '/usr/share/setup/'
-	ext			= '.json'
-
-	def decode(name):
-		return json.load(open(dir+name+ext))
-
-	def replaceRecursive(d, u):
-		for k, v in u.items():
-			if isinstance(v, collections.Mapping):
-				d[k] = replaceRecursive(d.get(k, {}), v)
-			else:
-				d[k] = v
-		return d
+class SqliteTable {
+	constructor(handler) {
+		this.handler = handler;
+	}
 	
-	setup = decode('setup')
+	url(action, id=null, args={}) {
+		args['do'] = action;
+		if (id) args['id'] = id;
+		return ajaxUrl(this.handler, args);
+	}
 	
-	if os.path.exists(confFile):
-		conf = Conf(confFile)
-		type = conf.get('setup','type')
-		rev  = conf.get('setup','revision')
+	
+	list(success) {
+		$.getJSON(this.url('list'), success);
+	}
 
-		setup = replaceRecursive(setup, decode(type))
-
-		patches = []
-		for path in glob.glob(dir+type+'-*'+ext):
-			match = re.match(r'.*-(\d*)\..*', path)
-			if match:
-				patch = int(match.group(1))
-				if patch >= int(rev):
-					patches.append(patch)
-		patches.sort(reverse=True)
-		for patch in patches:
-			setup = replaceRecursive(setup, decode(type+'-'+str(patch)))
-
-		setup = replaceRecursive(setup, conf.dict())
-
-	return setup
-
-
-setup = _construct()
+	load(id, success)	{
+		$.getJSON(this.url('load', id), success);
+	}
+	
+	
+	new(success) {
+		$.post(this.url('new'), success);
+	}
+	
+	delete(id, success) {
+		$.post(this.url('delete', id), success);
+	}
+	
+	save(id, data, success) {
+		$.post(
+			this.url('save', id), 
+			JSON.stringify(data, function(k, v) { return (v === undefined) ? null : v; }), 
+			success
+		);
+	}
+	
+	copy(id, success) {
+		$.post(this.url('copy', id), success);
+	}
+}
