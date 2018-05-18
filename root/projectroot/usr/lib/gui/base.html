@@ -89,6 +89,10 @@ function GuiPage(pageModel, pageParams, pageGuard, pageRoute) {
 		let ready = function() {
 			$(page.element).show();
 			self.started = true;
+			if (self.model && self.model.breadcrumb) {
+				let breadcrumb = self.model.breadcrumb();
+				if (breadcrumb !== undefined) gui.breadcrumb(breadcrumb);
+			} else gui.breadcrumb([{l10n:page.currentId}]);
 			if (callback) callback();
 		}
 		if (self.model && self.model.start && !self.started) {
@@ -132,6 +136,8 @@ gui = new function() {
 	self.isState	= function(state) {
 		return self.state() && (state in self.state()) && self.state()[state]();
 	}
+
+	self.breadcrumb = ko.observable();
 }
 
 {% block script %}{% end %}
