@@ -67,6 +67,14 @@ function requestFullscreen() {
 	(document.documentElement.requestFullScreen || document.documentElement.webkitRequestFullScreen || document.documentElement.mozRequestFullScreen || document.documentElement.msRequestFullScreen).call(document.documentElement);
 }
 
+
+ko.subscribeTree = function(model, notify) {
+	return ko.dependentObservable(()=>{
+		return ko.toJS(model);
+	}).subscribe(notify);
+};
+
+
 function GuiPage(pageModel, pageParams, pageGuard, pageRoute) {
 	let self = this;
 	
