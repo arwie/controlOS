@@ -28,33 +28,36 @@ class SqliteTable {
 		return ajaxUrl(this.handler, args);
 	}
 	
+	stringify(data) {
+		return JSON.stringify(data, function(k, v) { return (v === undefined) ? null : v; });
+	}
 	
-	list(success) {
-		$.getJSON(this.url('list'), success);
+	
+	list() {
+		return $.getJSON(this.url('list'));
 	}
 
-	load(id, success)	{
-		$.getJSON(this.url('load', id), success);
+	load(id) {
+		return $.getJSON(this.url('load', id));
 	}
 	
 	
-	new(success) {
-		$.post(this.url('new'), success);
+	new() {
+		return $.post(this.url('new'));
 	}
 	
-	delete(id, success) {
-		$.post(this.url('delete', id), success);
+	delete(id) {
+		return $.post(this.url('delete', id));
 	}
 	
-	save(id, data, success) {
-		$.post(
+	save(id, data) {
+		return $.post(
 			this.url('save', id), 
-			JSON.stringify(data, function(k, v) { return (v === undefined) ? null : v; }), 
-			success
+			this.stringify(data)
 		);
 	}
 	
-	copy(id, success) {
-		$.post(this.url('copy', id), success);
+	copy(id) {
+		return $.post(this.url('copy', id));
 	}
 }

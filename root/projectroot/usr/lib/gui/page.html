@@ -22,18 +22,21 @@
 
 
 <script>(function(){
+	let page = null;
 	let model = null;
 	
 	{% block script %}
 	{% end %}
 	
 gui.{{uuid}} = new GuiPage(
-	function(page) {
+	function(newPage) {
+		page = newPage;
+		Object.defineProperty(page, 'params', { get: function() { return page.pageRoute.params; } });
 		model = new (
 			{% block model %}
 			class {}
 			{% end %}
-		)(page);
+		)();
 		return model;
 	},
 	function() {

@@ -74,28 +74,41 @@ function GuiPage(pageModel, pageParams, pageGuard, pageRoute) {
 	
 	self.create = function(callback, page) {
 		self.model = pageModel(page);
-		callback(self.model);
+		let ready = function() {
+			self.started = true;
+			callback(self.model);
+		}
+		if (self.model.start) {
+			self.model.start(ready);
+			if (self.model.start.length) return;
+		}
+		ready();
 	}
 	
 	self.start = function(page, callback) {
-		let started = function() {
+		let ready = function() {
 			$(page.element).show();
+			self.started = true;
 			if (callback) callback();
 		}
-		if (self.model && self.model.start) {
-			self.model.start(started);
+		if (self.model && self.model.start && !self.started) {
+			self.model.start(ready);
 			if (self.model.start.length) return;
 		}
-		started();
+		ready();
 	}
 	
 	self.stop = function(page, callback) {
 		$(page.element).hide();
-		if (self.model && self.model.stop) {
-			self.model.stop(callback);
+		let ready = function() {
+			self.started = false;
+			if (callback) callback();
+		}
+		if (self.model && self.model.stop && self.started) {
+			self.model.stop(ready);
 			if (self.model.stop.length) return;
 		}
-		if (callback) callback();
+		ready();
 	}
 	
 	self.guard = function(page, route, callback) {
