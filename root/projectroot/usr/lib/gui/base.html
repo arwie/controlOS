@@ -58,9 +58,8 @@ function ajaxUrl(url, params=null) {
 function wsUrl(host, port, url=null, params=null) {
 	return 'ws://' + (host ? (host in hosts ? hosts[host] : host)+':'+port : (port ? location.hostname+':'+port : location.host)) + (url ? ajaxUrl(url, params) : '/');
 }
-
-function navigate(page, params=null) {
-	pager.navigate(page + (params ? '?'+$.param(params) : ''));
+function pageUrl(url, params=null) {
+	return '#'+url + (params ? '?'+$.param(params) : '');
 }
 
 function requestFullscreen() {
