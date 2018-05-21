@@ -42,12 +42,12 @@ class SqliteTable {
 	}
 	
 	
-	new() {
-		return $.post(this.url('new'));
+	create() {
+		return $.post(this.url('create'));
 	}
 	
-	delete(id) {
-		return $.post(this.url('delete', id));
+	remove(id) {
+		return $.post(this.url('remove', id));
 	}
 	
 	save(id, data) {

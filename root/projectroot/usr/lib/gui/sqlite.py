@@ -27,8 +27,8 @@ class TableHandler(server.RequestHandler):
 			'load':		self.doLoad,
 		}
 		self.doPost = {
-			'new':		self.doNew,
-			'delete':	self.doDelete,
+			'create':	self.doCreate,
+			'remove':	self.doRemove,
 			'save':		self.doSave,
 		}
 	
@@ -47,11 +47,11 @@ class TableHandler(server.RequestHandler):
 		return self.table.load(self.get_query_argument('id'))
 	
 	
-	def doNew(self):
-		self.table.new()
+	def doCreate(self):
+		self.table.create()
 	
-	def doDelete(self):
-		self.table.delete(self.get_query_argument('id'))
+	def doRemove(self):
+		self.table.remove(self.get_query_argument('id'))
 	
 	def doSave(self):
 		return self.table.save(self.get_query_argument('id'), self.readJson())

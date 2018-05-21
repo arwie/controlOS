@@ -58,7 +58,7 @@ class Table:
 	def load(self, id):
 		return self.db.execute('SELECT * FROM {0.table} WHERE id=:id'.format(self), {'id':id}).fetchone()
 	
-	def new(self, data=None):
+	def create(self, data=None):
 		if data:
 			data = dataToRow(data)
 			keys = set(self.schema.keys()) & set(data.keys())
@@ -83,7 +83,7 @@ class Table:
 		self.db.execute('UPDATE {0.table} SET ord=:swOrd WHERE id=:id'.format(self), {'swOrd':swOrd, 'id':id})
 		self.db.execute('UPDATE {0.table} SET ord=:idOrd WHERE id=:sw'.format(self), {'idOrd':idOrd, 'sw':sw})
 	
-	def delete(self, id):
+	def remove(self, id):
 		self.db.execute('DELETE FROM {0.table} WHERE id=:id'.format(self), {'id':id})
 
 
