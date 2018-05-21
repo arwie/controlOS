@@ -20,17 +20,17 @@ import server
 
 
 class TableHandler(server.RequestHandler):
-	def initialize(self, db, table):
+	def initialize(self, db, table, doGet={}, doPost={}):
 		self.table = db.table(table)
-		self.doGet = {
+		self.doGet = {**{
 			'list':		self.doList,
 			'load':		self.doLoad,
-		}
-		self.doPost = {
+		}, **doGet}
+		self.doPost = {**{
 			'create':	self.doCreate,
 			'remove':	self.doRemove,
 			'save':		self.doSave,
-		}
+		}, **doPost}
 	
 	def get(self):
 		self.writeJson(self.doGet[self.get_query_argument('do', 'list')]())
