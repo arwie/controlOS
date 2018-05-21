@@ -95,7 +95,7 @@ function GuiPage(pageModel, pageParams, pageGuard, pageRoute) {
 	
 	self.start = function(page, callback) {
 		let ready = function() {
-			$(page.element).show();
+			$(page.element).fadeIn(75);
 			self.started = true;
 			if (self.model && self.model.breadcrumb) {
 				let breadcrumb = self.model.breadcrumb();
@@ -111,16 +111,17 @@ function GuiPage(pageModel, pageParams, pageGuard, pageRoute) {
 	}
 	
 	self.stop = function(page, callback) {
-		$(page.element).hide();
 		let ready = function() {
 			self.started = false;
 			if (callback) callback();
 		}
-		if (self.model && self.model.stop && self.started) {
-			self.model.stop(ready);
-			if (self.model.stop.length) return;
-		}
-		ready();
+		$(page.element).fadeOut(75, ()=>{
+			if (self.model && self.model.stop && self.started) {
+				self.model.stop(ready);
+				if (self.model.stop.length) return;
+			}
+			ready();
+		});
 	}
 	
 	self.guard = function(page, route, callback) {
