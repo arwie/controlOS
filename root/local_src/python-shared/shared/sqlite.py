@@ -50,9 +50,10 @@ class Table:
 		self.schema	= sqlite.schema[table]
 		self.table	= table
 	
-	def list(self, where={}):
-		return self.db.execute('SELECT * FROM {0.table} {where} ORDER BY ord'.format(self,
-					where = '' if not where else 'WHERE {}'.format(' AND '.join([c+'=:'+c for c in where.keys()]))
+	def list(self, where={}, order='ord'):
+		return self.db.execute('SELECT * FROM {0.table} {where} ORDER BY {order}'.format(self,
+					where = '' if not where else 'WHERE {}'.format(' AND '.join([c+'=:'+c for c in where.keys()])),
+					order = order
 				), where).fetchall()
 	
 	def load(self, id):
@@ -78,6 +79,7 @@ class Table:
 		), data)
 	
 	def swap(self, id, sw):
+		if id == sw: return
 		idOrd = self.db.execute('SELECT ord FROM {0.table} WHERE id=:id'.format(self), {'id':id}).fetchone()['ord']
 		swOrd = self.db.execute('SELECT ord FROM {0.table} WHERE id=:sw'.format(self), {'sw':sw}).fetchone()['ord']
 		self.db.execute('UPDATE {0.table} SET ord=:swOrd WHERE id=:id'.format(self), {'swOrd':swOrd, 'id':id})
@@ -90,16 +92,22 @@ class Table:
 
 class Sqlite:
 	
-	def __init__(self, path, schemaVersion, schema):
-		self.schema = collections.OrderedDict(schema)
+	def __init__(self, path, schemaVersion, definition):
+		self.schema = collections.OrderedDict([(t[0],t[1]) for t in definition])
 		
 		def dbFile(version): return '{}.{}.sqlite'.format(path, version)
 		
 		def create():
 			self.db.execute('PRAGMA user_version = {};'.format(schemaVersion))
-			for table in self.schema:
-				self.db.execute('CREATE TABLE IF NOT EXISTS {table} (id INTEGER PRIMARY KEY,ord INTEGER,{columns})'.format(table=table, columns=','.join([c+' '+d for c,d in self.schema[table].items()])))
-				self.db.execute('CREATE TRIGGER {table}_ord AFTER INSERT ON {table} FOR EACH ROW WHEN NEW.ord IS NULL BEGIN UPDATE {table} SET ord = NEW.rowid WHERE rowid = NEW.rowid; END;'.format(table=table))
+			for table in definition:
+				self.db.execute('CREATE TABLE IF NOT EXISTS {table} (id INTEGER PRIMARY KEY,ord INTEGER,{columns}{constraint})'.format(
+					table = table[0],
+					columns = ','.join([c+' '+d for c,d in table[1].items()]),
+					constraint = ',{}'.format(table[2]) if len(table)>=3 else ''
+				))
+				self.db.execute('CREATE TRIGGER {table}_ord AFTER INSERT ON {table} FOR EACH ROW WHEN NEW.ord IS NULL BEGIN UPDATE {table} SET ord = NEW.rowid WHERE rowid = NEW.rowid; END;'.format(
+					table = table[0]
+				))
 		
 		def migrate(oldDbFile):
 			oldDb = sqlite3.connect(oldDbFile)
@@ -119,7 +127,6 @@ class Sqlite:
 		self.db = sqlite3.connect(dbFile(schemaVersion))
 		with self.db:
 			self.db.row_factory = rowToData
-			self.db.execute('PRAGMA foreign_keys = ON;')
 			self.db.execute('PRAGMA synchronous  = OFF;')
 			
 			if not self.db.execute('SELECT * FROM sqlite_master;').fetchone():	# db empty
@@ -136,6 +143,8 @@ class Sqlite:
 							print("jobdb: failed to migrate from old database")
 							traceback.print_exc()
 						break
+			
+			self.db.execute('PRAGMA foreign_keys = ON;')	#check foreign keys after migrating
 	
 	
 	def table(self, table):

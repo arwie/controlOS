@@ -20,8 +20,9 @@ import server
 
 
 class TableHandler(server.RequestHandler):
-	def initialize(self, db, table, doGet={}, doPost={}):
-		self.table = db.table(table)
+	def initialize(self, sqlite, tableName, doGet={}, doPost={}):
+		self.table = sqlite.table(tableName)
+		self.db    = sqlite.db
 		self.doGet = {**{
 			'list':		self.doList,
 			'load':		self.doLoad,
