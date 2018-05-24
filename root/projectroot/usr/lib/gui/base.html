@@ -63,13 +63,24 @@ function pageUrl(url, params=null) {
 	return '#'+url + (params ? '?'+$.param(params) : '');
 }
 
+function webSocket(url, onMessageJson) {
+	let ws = new WebSocket(url);
+	ws.onmessage = (e)=>{
+		onMessageJson(JSON.parse(e.data));
+	};
+	ws.sendJson = (data)=>{
+		ws.send(JSON.stringify(data));
+	};
+	return ws;
+}
+
 function requestFullscreen() {
 	(document.documentElement.requestFullScreen || document.documentElement.webkitRequestFullScreen || document.documentElement.mozRequestFullScreen || document.documentElement.msRequestFullScreen).call(document.documentElement);
 }
 
 
 ko.subscribeTree = function(model, notify) {
-	return ko.dependentObservable(()=>{
+	return ko.pureComputed(()=>{
 		return ko.toJS(model);
 	}).subscribe(notify);
 };
@@ -95,7 +106,7 @@ function GuiPage(pageModel, pageParams, pageGuard, pageRoute) {
 	
 	self.start = function(page, callback) {
 		let ready = function() {
-			$(page.element).fadeIn(75);
+			$(page.element).fadeIn(50);
 			self.started = true;
 			if (self.model && self.model.breadcrumb) {
 				let breadcrumb = self.model.breadcrumb();
@@ -115,7 +126,7 @@ function GuiPage(pageModel, pageParams, pageGuard, pageRoute) {
 			self.started = false;
 			if (callback) callback();
 		}
-		$(page.element).fadeOut(75, ()=>{
+		$(page.element).fadeOut(50, ()=>{
 			if (self.model && self.model.stop && self.started) {
 				self.model.stop(ready);
 				if (self.model.stop.length) return;
@@ -144,6 +155,12 @@ gui = new function() {
 	self.state		= ko.observable(null);
 	self.isState	= function(state) {
 		return self.state() && (state in self.state()) && self.state()[state]();
+	}
+	self.subscribeState = function(state, notify, initialCall=true) {
+		if (initialCall) notify(gui.isState(state));
+		return ko.pureComputed(()=>{
+			return gui.isState(state);
+		}).subscribe(notify);
 	}
 
 	self.breadcrumb = ko.observable();
