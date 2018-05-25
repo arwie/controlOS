@@ -14,13 +14,10 @@ SSH="ssh -i keys/ssh/id_rsa root@$HOST"
 
 $SSH mount -o remount,rw /																	|| exit 1
 
-$SCP root/projectroot/usr/share/* root@$HOST:/usr/share/									|| exit 1
-
+$SCP root/projectroot/usr/* root@$HOST:/usr/												|| exit 1
 $SCP root/local_src/python-shared/shared root@$HOST:/usr/lib/python3.5/site-packages/		|| exit 1
 
-$SCP gui root@$HOST:/usr/lib/																|| exit 1
+$SSH systemctl daemon-reload																|| exit 1
 $SSH systemctl restart gui.service															|| exit 1
 $SSH systemctl restart studio.service														|| exit 1
-
-$SCP mc root@$HOST:/usr/lib/																|| exit 1
 $SSH mc-update																				|| exit 1
