@@ -26,15 +26,17 @@ foreach(get('robot') as $rbt) {
 ?>
 
 <?
+foreach(get('common') as $common)
+	l("common shared {$common['lib']}_{$common['name']} as {$common['type']}".($common['init'] ? " = {$common['init']}" : ''));
+?>
+
+<?
 foreach(get('simio') as $io) {
 	l('common shared '.$io['ord'].' as long = '.($io['sim'] ? '1' : '0'));
 	l('common shared '.$io['app'].' as '.$io['type'].($io['default']!=null ? ' = '.($io['type']=='string' ? '"'.$io['default'].'"' : $io['default']) : ''));
 	l('common shared '.$io['io'].' as '.$io['type']);
 }
 ?>
-
-common shared state_comStateServer	as long
-common shared debug_websocket		as long
 
 
 program

@@ -32,6 +32,16 @@ function get($what) {
 }
 
 
+function common($name, $type='long', $init=null) {
+	set('common')[] = [
+		'lib'	=> lib(),
+		'name'	=> $name,
+		'type'	=> $type,
+		'init'	=> $init,
+	];
+}
+
+
 require 'lib.inc';
 require 'device.inc';
 require 'axis.inc';

@@ -138,7 +138,7 @@ function libEnd() { global $lib;
 	ll('if not '.$lib['name'].'_started then');
 	if ($lib['start']) lll('call libStart');
 	lll($lib['name'].'_started = true');
-	lll('call com_sendSelf(state_comStateServer)');
+	lll('call com_sendSelf(state_websocket)');
 	lll($lib['name'].'_active = true');
 	lll('call com_reset(libActiveNotify)');
 	if ($lib['prg']) {
@@ -173,7 +173,7 @@ function libEnd() { global $lib;
 		lll('killtask '.$lib['prg']['file']);
 	}
 	lll($lib['name'].'_started = false');
-	lll('call com_sendSelf(state_comStateServer)');
+	lll('call com_sendSelf(state_websocket)');
 	if ($lib['stop']) lll('call libStop');
 	lll('call logLibInfo("'.$lib['name'].' lib stopped")');
 	lll('call logSend');
