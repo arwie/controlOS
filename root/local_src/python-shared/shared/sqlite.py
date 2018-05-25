@@ -130,18 +130,17 @@ class Sqlite:
 			self.db.execute('PRAGMA synchronous  = OFF;')
 			
 			if not self.db.execute('SELECT * FROM sqlite_master;').fetchone():	# db empty
-				print("jobdb: creating tables")
+				logging.info("sqlite: creating tables")
 				create()
 				
 				for version in reversed(range(1, schemaVersion)):
 					oldDbFile = dbFile(version)
 					if os.path.isfile(oldDbFile):
-						print("jobdb: migrating from old database {}".format(oldDbFile))
+						logging.info("sqlite: migrating from old database {}".format(oldDbFile))
 						try:
 							migrate(oldDbFile)
 						except:
-							print("jobdb: failed to migrate from old database")
-							traceback.print_exc()
+							logging.exception("sqlite: failed to migrate from old database")
 						break
 			
 			self.db.execute('PRAGMA foreign_keys = ON;')	#check foreign keys after migrating
@@ -149,5 +148,3 @@ class Sqlite:
 	
 	def table(self, table):
 		return Table(self, table)
-	
-	

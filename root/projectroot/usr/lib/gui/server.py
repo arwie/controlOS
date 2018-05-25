@@ -15,8 +15,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+import shared
 import os, socket, json, logging, base64
-from systemd import journal
 from tornado import web, httpserver, ioloop, gen, websocket
 from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor
@@ -155,8 +155,6 @@ def run(port=None):
 
 
 
-logging.root.addHandler(journal.JournalHandler())
-logging.root.setLevel(logging.DEBUG)
 logging.getLogger('tornado.access').setLevel(logging.WARNING)
 
 
