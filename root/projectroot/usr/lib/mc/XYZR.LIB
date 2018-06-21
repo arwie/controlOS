@@ -77,6 +77,11 @@ public function xyzr_robotDestPos(robot_ as generic group) as xyzr_posType
 end function
 
 
+public function xyzr_robotDestArm(robot_ as generic group) as long
+	xyzr_robotDestArm = xyzr_armOfJnt(robot_.dest_joint)
+end function
+
+
 
 public function xyzr_comGetPos(byval path as string) as xyzr_posType
 	xyzr_comGetPos->xyzr = com_getLocationXyzr(path)

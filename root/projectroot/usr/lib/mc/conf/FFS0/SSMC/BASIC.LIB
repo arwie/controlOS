@@ -105,6 +105,10 @@ public function cosDeg(byval angle_ as double) as double
 	cosDeg = cos(angle_*PI/180)
 end function
 
+public function atan2Deg(byval opposite_ as double, byval adjacent_ as double) as double
+	atan2Deg = atan2(opposite_, adjacent_) * 180/PI
+end function
+
 
 public function normDeg(byval angle_ as double) as double
 	normDeg = angle_ mod 360
