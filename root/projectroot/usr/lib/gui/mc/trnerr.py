@@ -1,4 +1,4 @@
-# Copyright (c) 2017 Artur Wiebe <artur@4wiebe.de>
+# Copyright (c) 2018 Artur Wiebe <artur@4wiebe.de>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 # associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -16,20 +16,21 @@
 
 
 import server
-
-import system
-import state
-import log
-import issue
-import network
-import update
-import remote
-import backup
-
-import mc
+import subprocess
+from tornado import gen
 
 
-server.addDocument('',		'studio.html')
+
+class Handler(server.RequestHandler):
+	
+	@gen.coroutine
+	def get(self):
+		
+		def catTrnerr():
+			return subprocess.run(['ssh', 'mc', 'cat /RAM/TRN.ERR'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout
+		
+		trnerr = yield server.executor.submit(catTrnerr)
+		self.write(trnerr)
 
 
-server.run()
+server.addAjax(__name__, Handler)
