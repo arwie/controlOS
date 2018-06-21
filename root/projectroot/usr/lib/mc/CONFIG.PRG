@@ -55,6 +55,11 @@ else
 	load EC_CDHD.LIB
 	load ISMAPPER.LIB
 end if
+
+<?if (get('config')['modbus']) {?>
+	oload MODBUS.O
+	load  MODBUS.LIB
+<?}?>
 	
 	oload MCCOM.O
 	load  MCCOM.LIB
