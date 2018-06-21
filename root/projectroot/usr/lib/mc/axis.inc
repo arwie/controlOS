@@ -15,13 +15,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-$axis = [];
-
-
-function axis($ax) { global $axis, $lib, $out;
+function axis($ax) { global $lib;
 	static $elementid = 1;
 
-	$ax['elementid']	= $elementid;
+	$ax['elementid']	= $elementid++;
 	$ax['name']			= $lib['name'];
 	
 	$ax['setup']		= $ax['setup']		?: strtoupper($ax['name']).'.DAT';
@@ -37,10 +34,7 @@ function axis($ax) { global $axis, $lib, $out;
 	device($ax);
 	$lib['axis']		= $ax;
 	
-	if (!$out) {
-		$axis[$ax['name']]	= $ax;
-		$elementid++;
-	}
+	set('axis')[$ax['name']]	= $ax;
 }
 
 

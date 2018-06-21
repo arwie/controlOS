@@ -61,7 +61,7 @@ sub handleOverride
 	try
 		select case com_getLong("/id")
 <?
-	foreach($simio as $io) {
+	foreach(get('simio') as $io) {
 		lll('case '.$io['id']);
 		llll('select case com_getLong("/ord")');
 		
@@ -97,7 +97,7 @@ end sub
 
 sub updateInputs
 <?
-	foreach($simio as $io) {
+	foreach(get('simio') as $io) {
 		if (!$io['sim'] && $io['dir'] == 'in') {
 			ll('call '.$io['get'].'('.$io['io'].')');
 			ll('if not '.$io['ord'].' then');
@@ -112,7 +112,7 @@ end sub
 sub sendUpdate
 	call com_clear
 <?
-	foreach($simio as $io) {
+	foreach(get('simio') as $io) {
 		ll('call com_with("/'.$io['id'].'")');
 		lll('call com_putLong("id",  '.$io['id'].')');
 		lll('call com_putLong("ord", '.$io['ord'].')');
@@ -127,7 +127,7 @@ end sub
 sub sendList
 	call com_clear
 <?
-	foreach($simio as $io) {
+	foreach(get('simio') as $io) {
 		ll('call com_with("/'.$io['id'].'")');
 		lll('call com_putLong("id",  '.$io['id'].')');
 		lll('call com_putLong("sim", '.$io['sim'].')');

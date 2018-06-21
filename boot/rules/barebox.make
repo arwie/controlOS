@@ -24,7 +24,8 @@ BAREBOX_SUFFIX	:= tar.bz2
 BAREBOX_URL	:= $(call barebox-url, BAREBOX)
 BAREBOX_SOURCE	:= $(SRCDIR)/$(BAREBOX).$(BAREBOX_SUFFIX)
 BAREBOX_DIR	:= $(BUILDDIR)/$(BAREBOX)
-BAREBOX_LICENSE	:= GPL-2.0
+BAREBOX_LICENSE	:= GPL-2.0-only
+BAREBOX_DEVPKG	:= NO
 
 BAREBOX_CONFIG	:= $(call remove_quotes, $(PTXDIST_PLATFORMCONFIGDIR)/$(PTXCONF_BAREBOX_CONFIG))
 
@@ -36,7 +37,8 @@ BAREBOX_WRAPPER_BLACKLIST := \
 	TARGET_HARDEN_RELRO \
 	TARGET_HARDEN_BINDNOW \
 	TARGET_HARDEN_PIE \
-	TARGET_DEBUG
+	TARGET_DEBUG \
+	TARGET_BUILD_ID
 
 BAREBOX_ENV := \
 	KCONFIG_NOTIMESTAMP=1 \
@@ -87,8 +89,6 @@ ifdef PTXCONF_BAREBOX_EXTRA_ENV
 		else \
 			cp "$(path)" $(BAREBOX_DIR)/.ptxdist-defaultenv/; \
 		fi;)
-	@sed -i -e "s,^\(CONFIG_DEFAULT_ENVIRONMENT_PATH=.*\)\"$$,\1 .ptxdist-defaultenv\"," \
-		$(BAREBOX_DIR)/.config
 endif
 
 	@$(call touch)
@@ -99,6 +99,14 @@ endif
 
 $(STATEDIR)/barebox.compile:
 	@$(call targetinfo)
+
+ifdef PTXCONF_BAREBOX_EXTRA_ENV
+	@if test $$(grep -c -e "^CONFIG_DEFAULT_ENVIRONMENT_PATH=.*\.ptxdist-defaultenv" $(BAREBOX_DIR)/.config) -eq 0; then \
+		sed -i -e "s,^\(CONFIG_DEFAULT_ENVIRONMENT_PATH=.*\)\"$$,\1 .ptxdist-defaultenv\"," \
+			$(BAREBOX_DIR)/.config; \
+	fi
+endif
+
 	@+cd $(BAREBOX_DIR) && $(BAREBOX_PATH) $(BAREBOX_ENV) \
 		$(MAKE) $(BAREBOX_MAKEVARS)
 	@$(call touch)

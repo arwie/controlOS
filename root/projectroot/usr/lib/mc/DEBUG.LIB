@@ -15,6 +15,8 @@
 ' OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+<?common('websocket')?>
+
 dim shared pollIntervalMs as const long		= 250
 
 dim shared debugWebsocketConnected as long
@@ -65,22 +67,22 @@ end sub
 
 sub pollData
 <?
-	foreach($simio as $io) {
+	foreach(get('simio') as $io) {
 		ll('call com_put'.ucfirst($io['type']).'("/'.explode('_', $io['name'])[0].'/'.explode('_', $io['name'])[1].' ('.$io['dir'].')", '.($io['dir']=='out'?$io['app']:$io['name']).')');
 	}
 
-	foreach($robot as $rbt) {
+	foreach(get('robot') as $rbt) {
 		ll('call com_putBool("/'.$rbt['name'].'/enable", '.$rbt['name'].'.enable)');
 		ll('call com_putJoint'.ucfirst($rbt['type']).'("/'.$rbt['name'].'/positionFeedback", '.$rbt['name'].'.positionFeedback)');
 	}
 
-	foreach($axis as $ax) {
+	foreach(get('axis') as $ax) {
 		ll('call com_putBool("/'.$ax['name'].'/enable", '.$ax['name'].'.enable)');
 		ll('call com_putDouble("/'.$ax['name'].'/positionFeedback", '.$ax['name'].'.positionFeedback)');
 		ll('call com_putDouble("/'.$ax['name'].'/torqueFeedback", '.$ax['name'].'.torqueFeedback)');
 	}
 
-	foreach ($libs['app'] as $l) {
+	foreach (get('libs')['app'] as $l) {
 		ll('call com_with("/'.$l['name'].'")');
 		ll('call com_putBool("started", '.$l['name'].'_started)');
 		ll('call com_putBool("active", '.$l['name'].'_active)');

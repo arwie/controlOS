@@ -15,15 +15,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-set('etc');
-set('can');
-
-
-function device(&$dev) { global $lib, $etc, $can, $out;
+function device(&$dev) { global $lib;
 	static $dio = 64;
 
-	$dev['address']		= conf('device',$lib['name'],'address',   $dev['address']);
 	$dev['simulated']	= conf('device',$lib['name'],'simulated', $dev['simulated']);
+	$dev['address']		= conf('device',$lib['name'],'address',   $dev['address']);
+	$dev['bus']			= conf('device',$lib['name'],'bus',       $dev['bus']);
 	
 	$dev['readBit']  = $dev['readBit']  ?: [];
 	$dev['writeBit'] = $dev['writeBit'] ?: [];
@@ -48,11 +45,15 @@ function device(&$dev) { global $lib, $etc, $can, $out;
 	set('device')[$lib['name']] = $dev;
 	$lib['device'] = get('device')[$lib['name']];
 	
-	l('common shared '.$lib['name'].'_deviceAddress as const long = '.$dev['address']);
+	if ($dev['bus']) {
+		l('common shared '.$lib['name'].'_deviceAddress as const long = '.$dev['address']);
+	}
 }
 
 
 function deviceLibEnd($dev) { global $lib;
+	if (!$dev['bus']) return;
+	
 	l('public function '.$lib['name'].'_deviceRead(byval index_ as long, byval subindex_ as long) as long');
 	ll($lib['name'].'_deviceRead = '.$dev['bus'].'_read('.$dev['address'].', index_, subindex_)');
 	l('end function');

@@ -15,12 +15,14 @@
 ' OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+<?common('websocket')?>
+
 dim shared stateWatchdogIntervalMs as const long	= 1000
 
 
 
 <?lib_init()?>
-<?	libComOpenServerWebsocket('state_comStateServer', 33000, ['bool("/receive", false)'])?>
+<?	libComOpenServerWebsocket('state_websocket', 33000, ['bool("/receive", false)'])?>
 end sub
 
 
@@ -32,7 +34,7 @@ end sub
 
 
 <?lib_prgLoop(14)?>
-	select case com_receive(state_comStateServer, stateWatchdogIntervalMs)
+	select case com_receive(state_websocket, stateWatchdogIntervalMs)
 	case com_receiveTimeout
 		call sendWatchdog
 	case else
@@ -45,14 +47,14 @@ end sub
 sub sendState
 	call com_clear
 <?
-	foreach ($libs['all'] as $l) 
+	foreach (get('libs')['all'] as $l) 
 		ll('call com_putBool("/'.$l['name'].'", '.$l['name'].'_started)')
 ?>
-	call com_send(state_comStateServer)
+	call com_send(state_websocket)
 end sub
 
 
 sub sendWatchdog
 	call com_clear
-	call com_send(state_comStateServer)
+	call com_send(state_websocket)
 end sub

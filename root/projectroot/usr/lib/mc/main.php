@@ -18,19 +18,27 @@
 require 'shared.inc';
 
 
-function &set($what) { global $real, $out;
-	static $fake;
+function &set($what, $set=true) { global $out;
+	static $real, $fake;
 	
-	if ($out) {
-		$fake = $fake ?: $real;
-		return $fake[$what];
-	}
+	if ($out && $set) 
+		return $fake;
 	
 	$real[$what] = $real[$what] ?: [];
 	return $real[$what];
 }
-function get($what)  { global $real;
-	return $real[$what];
+function get($what) {
+	return set($what, false);
+}
+
+
+function common($name, $type='long', $init=null) {
+	set('common')[] = [
+		'lib'	=> lib(),
+		'name'	=> $name,
+		'type'	=> $type,
+		'init'	=> $init,
+	];
 }
 
 
@@ -41,11 +49,11 @@ require 'robot.inc';
 require 'simio.inc';
 
 
-function includeLib($file, $type='app') { global $out, $libs, $lib, $simio, $axis, $robot;
-	libBegin($file, $type);
+function includeLib($file, $from=null, $type='app') {
+	libBegin($file, $from, $type);
 	l("'--------------------");
 	l('');
-	include $file;
+	include $from ?: $file;
 	l('');
 	l("'--------------------");
 	libEnd();
@@ -54,17 +62,17 @@ function includeLib($file, $type='app') { global $out, $libs, $lib, $simio, $axi
 
 ob_start();
 
-includeLib('LOG.LIB', 'system');
-includeLib('ETC.LIB', 'system');
-includeLib('CAN.LIB', 'system');
+includeLib('LOG.LIB', null, 'system');
+includeLib('ETC.LIB', null, 'system');
+includeLib('CAN.LIB', null, 'system');
 
 include 'config.inc';
 
-includeLib('DRIVELOG.LIB', 'system');
-includeLib('SIMIO.LIB', 'system');
-includeLib('DEBUG.LIB', 'system');
-includeLib('SYSTEM.LIB', 'system');
-includeLib('STATE.LIB', 'system');
+includeLib('DRIVELOG.LIB', null, 'system');
+includeLib('SIMIO.LIB',    null, 'system');
+includeLib('DEBUG.LIB',    null, 'system');
+includeLib('SYSTEM.LIB',   null, 'system');
+includeLib('STATE.LIB',    null, 'system');
 
 ob_end_clean();
 
@@ -73,9 +81,9 @@ ob_end_clean();
 $out = $argv[1].'/SSMC/';
 if (!is_dir($out)) mkdir($out);
 
-foreach ($libs['all'] as $lib) {
+foreach (get('libs')['all'] as $lib) {
 	ob_start();
-	includeLib($lib['file'], $lib['type']);
+	includeLib($lib['file'], $lib['from'], $lib['type']);
 	file_put_contents($out.$lib['file'], ob_get_contents()); ob_end_clean();
 	
 	if ($lib['prg']) {

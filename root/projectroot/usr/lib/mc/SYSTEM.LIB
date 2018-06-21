@@ -48,10 +48,10 @@ end sub
 <?	if (!empty(get('can')))
 		ll('call can_init')?>
 
-<?	foreach($axis as $ax) 
+<?	foreach(get('axis') as $ax) 
 		ll('call '.$ax['name'].'_axisSetup')?>
 
-<?	foreach($robot as $rbt)
+<?	foreach(get('robot') as $rbt)
 		ll('call '.$rbt['name'].'_robotSetup')?>
 
 <?	if (!empty(get('etc')))
@@ -59,7 +59,7 @@ end sub
 <?	if (!empty(get('can')))
 		ll('call can_start')?>
 
-<?	foreach($axis as $ax) 
+<?	foreach(get('axis') as $ax) 
 		if ($ax['simulated']) {
 			ll($ax['name'].'.simulated					= true');
 		} else {
@@ -75,10 +75,10 @@ end sub
 	call debug_init
 	call debug_start
 
-<?	foreach ($libs['app'] as $l) 
+<?	foreach (get('libs')['app'] as $l) 
 		ll('call '.$l['name'].'_init')?>
 
-<?	ll('call '.end($libs['app'])['name'].'_start')?>
+<?	ll('call '.end(get('libs')['app'])['name'].'_start')?>
 end sub
 
 
@@ -96,7 +96,7 @@ end sub
 
 
 <?lib_prgStop()?>
-<?	ll('call '.end($libs['app'])['name'].'_stop')?>
+<?	ll('call '.end(get('libs')['app'])['name'].'_stop')?>
 
 	call debug_stop
 	call simio_stop

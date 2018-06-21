@@ -15,10 +15,50 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+import json, logging
+from tornado import ioloop, gen, websocket
 
-import logging
-from systemd import journal
 
 
-logging.root.addHandler(journal.JournalHandler())
-logging.root.setLevel(logging.INFO)
+class Client:
+	def initialize(self, host, port):
+		self.url = 'ws://{}:{}'.format(host,port)
+	
+	def writeMessageJson(self, data):
+		self.ws.write_message(json.dumps(data))
+	
+	
+	def close(self):
+		self.ws.close()
+	
+	
+	@gen.coroutine
+	def execute(self):
+		self.ws = yield websocket.websocket_connect(self.url)
+		
+		while True:
+			msg = yield self.ws.read_message()
+			
+			if msg is None:
+				self.onClose()
+				break
+			
+			self.onMessage(msg)
+	
+	
+	def onMessage(self, data):
+		self.onMessageJson(json.loads(data))
+	
+	def onMessageJson(self, data):
+		pass
+	
+	def onClose(self):
+		pass
+
+
+
+def run(Client):
+	try:
+		ioloop.IOLoop.current().run_sync(Client().execute)
+	except:
+		logging.exception('websocket: error in client')

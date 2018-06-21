@@ -18,9 +18,9 @@
 dim shared errorQueryIntervalMs		as const long	= 1000
 dim shared healthQueryIntervalMs	as const long	= 10*60*1000
 
-dim shared lastStatusword[<?=count($axis)?>]	as long
-dim shared lastErrorcode[<?=count($axis)?>]		as long
-dim shared lastErrorQuery[<?=count($axis)?>]	as long
+dim shared lastStatusword[<?=count(get('axis'))?>]	as long
+dim shared lastErrorcode[ <?=count(get('axis'))?>]	as long
+dim shared lastErrorQuery[<?=count(get('axis'))?>]	as long
 
 
 
@@ -28,7 +28,7 @@ dim shared lastErrorQuery[<?=count($axis)?>]	as long
 	dim statusword_		as long
 	dim errorcode_		as long
 
-<?foreach($axis as $ax) { if ($ax['simulated']) continue?>
+<?foreach(get('axis') as $ax) { if ($ax['simulated']) continue?>
 
 	statusword_	= <?=$ax['name']?>_deviceRead(0x6041, 0)
 	if (statusword_ band 0x8) then 'drive fault
@@ -73,7 +73,7 @@ end sub
 
 
 <?lib_prgStart()?>
-<?foreach($axis as $ax) { if ($ax['simulated']) continue?>
+<?foreach(get('axis') as $ax) { if ($ax['simulated']) continue?>
 
 	call logLibInfo("<?=$ax['name']?> drive information")
 	
@@ -95,7 +95,7 @@ end sub
 	dim warningsLower_ as string
 	dim warningsUpper_ as string
 
-<?foreach($axis as $ax) { if ($ax['simulated']) continue?>
+<?foreach(get('axis') as $ax) { if ($ax['simulated']) continue?>
 
 	call logLibInfo("<?=$ax['name']?> drive health")
 	

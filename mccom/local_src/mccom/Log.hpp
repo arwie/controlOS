@@ -85,4 +85,11 @@ struct LogDebug		: public Log {
 	static const int priority = 7;
 };
 
+
+const int LogError::priority;
+const int LogWarning::priority;
+const int LogNotice::priority;
+const int LogInfo::priority;
+const int LogDebug::priority;
+
 #endif /* LOG_HPP_ */

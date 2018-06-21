@@ -76,3 +76,8 @@ function ll($basic)		{ echo "\t".$basic."\n"; }
 function lll($basic)	{ echo "\t\t".$basic."\n"; }
 function llll($basic)	{ echo "\t\t\t".$basic."\n"; }
 function lllll($basic)	{ echo "\t\t\t\t".$basic."\n"; }
+
+
+function dump($var, $caption='dump') {
+	file_put_contents('php://stderr', $caption.":\n".print_r($var, true)."\n\n");
+}

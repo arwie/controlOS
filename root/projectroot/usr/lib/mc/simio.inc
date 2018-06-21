@@ -15,9 +15,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-$simio = [];
-
-
 function input($name, $type, $sim=false, $default=null) {
 	$io = simio('in', $name, $type, $sim, $default);
 	
@@ -48,14 +45,14 @@ function output($name, $type, $sim=false, $default=null) {
 }
 
 
-function simio($dir, $name, $type, $sim, $default) { global $simio, $lib, $out;
+function simio($dir, $name, $type, $sim, $default) { global $lib;
 	static $id = 0;
 	
 	$name = $lib['name'].'_'.$name;
 	$sim  = conf('device',$lib['name'],'simulated', (is_string($sim) ? conf('device',$sim,'simulated', false) : $sim));
 	
 	$io = [
-		'id'		=> $id,
+		'id'		=> $id++,
 		'dir'		=> $dir,
 		'name'		=> $name,
 		'type'		=> $type,
@@ -68,10 +65,6 @@ function simio($dir, $name, $type, $sim, $default) { global $simio, $lib, $out;
 		'set'		=> "{$name}S",
 	];
 
-	if (!$out) {
-		$simio[$name] = $io;
-		$id++;
-	}
-
+	set('simio')[$name] = $io;
 	return $io;
 }

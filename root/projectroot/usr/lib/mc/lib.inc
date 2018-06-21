@@ -15,16 +15,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-function libBegin($file, $type='app') { global $lib;
+function libBegin($file, $from, $type) { global $lib;
 	$lib = [
 		'file'	=> basename($file),
 		'name'	=> strtolower(basename($file, '.LIB')),
+		'from'	=> $from,
 		'type'	=> $type,
 	];
 
 	l('common shared '.$lib['name'].'_started as long');
 	l('common shared '.$lib['name'].'_active  as long');
 	l('dim shared libActiveNotify as long');
+}
+
+function lib($what='name') { global $lib;
+	return $lib[$what];
 }
 
 
@@ -133,7 +138,7 @@ function lib_systemError($errors) { global $lib;
 
 
 
-function libEnd() { global $lib, $libs, $out;
+function libEnd() { global $lib;
 	l('public sub '.$lib['name'].'_init');
 	libComOpen('libActiveNotify', 'notify');
 	if ($lib['prg']) {
@@ -146,7 +151,7 @@ function libEnd() { global $lib, $libs, $out;
 	ll('if not '.$lib['name'].'_started then');
 	if ($lib['start']) lll('call libStart');
 	lll($lib['name'].'_started = true');
-	lll('call com_sendSelf(state_comStateServer)');
+	lll('call com_sendSelf(state_websocket)');
 	lll($lib['name'].'_active = true');
 	lll('call com_reset(libActiveNotify)');
 	if ($lib['prg']) {
@@ -181,7 +186,7 @@ function libEnd() { global $lib, $libs, $out;
 		lll('killtask '.$lib['prg']['file']);
 	}
 	lll($lib['name'].'_started = false');
-	lll('call com_sendSelf(state_comStateServer)');
+	lll('call com_sendSelf(state_websocket)');
 	if ($lib['stop']) lll('call libStop');
 	lll('call logLibInfo("'.$lib['name'].' lib stopped")');
 	lll('call logSend');
@@ -223,8 +228,6 @@ function libEnd() { global $lib, $libs, $out;
 	if ($lib['robot'])
 		robotLibEnd($lib['robot']);
 	
-	if (!$out) {
-		$libs['all'][]			= $lib;
-		$libs[$lib['type']][]	= $lib;
-	}
+	set('libs')['all'][]		= $lib;
+	set('libs')[$lib['type']][]	= $lib;
 }

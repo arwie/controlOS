@@ -15,10 +15,44 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-
-import logging
-from systemd import journal
+import server
 
 
-logging.root.addHandler(journal.JournalHandler())
-logging.root.setLevel(logging.INFO)
+
+class TableHandler(server.RequestHandler):
+	def initialize(self, sqlite, tableName, doGet={}, doPost={}):
+		self.table = sqlite.table(tableName)
+		self.db    = sqlite.db
+		self.doGet = {**{
+			'list':		self.doList,
+			'load':		self.doLoad,
+		}, **doGet}
+		self.doPost = {**{
+			'create':	self.doCreate,
+			'remove':	self.doRemove,
+			'save':		self.doSave,
+		}, **doPost}
+	
+	def get(self):
+		self.writeJson(self.doGet[self.get_query_argument('do', 'list')]())
+	
+	def post(self):
+		with self.table.db:
+			self.doPost[self.get_query_argument('do')]()
+	
+	
+	def doList(self):
+		return self.table.list()
+	
+	def doLoad(self):
+		return self.table.load(self.get_query_argument('id'))
+	
+	
+	def doCreate(self):
+		self.table.create()
+	
+	def doRemove(self):
+		self.table.remove(self.get_query_argument('id'))
+	
+	def doSave(self):
+		return self.table.save(self.get_query_argument('id'), self.readJson())
