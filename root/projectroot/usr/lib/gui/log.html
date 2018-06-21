@@ -68,7 +68,7 @@
 		</p>
 		
 		<table class="table table-sm table-hover">
-			<tbody data-bind="foreach: { data: messages, as: 'message' }">
+			<tbody data-bind="foreach:messages">
 				
 				<tr data-bind="css: {'table-danger': priority <= 3, 'table-warning': priority == 4, 'table-info': priority == 5}">
 					<td data-bind="text: timestamp"></td>
@@ -81,16 +81,16 @@
 						<!-- ko if: details -->
 							<p></p>
 							<table class="table table-sm">
-								<tbody data-bind="foreach: {data: keys(), as: 'key'}">
+								<tbody data-bind="foreach:keys()">
 									<tr>
-										<td data-bind="text: key"></td>
-										<td data-bind="text: message.value(key)" style="white-space:pre-wrap"></td>
+										<td data-bind="text:$data"></td>
+										<td data-bind="text:$parent.value($data)" style="white-space:pre-wrap"></td>
 									</tr>
 								</tbody>
 							</table>
 						<!-- /ko -->
-					</td>				
-				</tr>				
+					</td>
+				</tr>
 			</tbody>
 		</table>
 	</div>
