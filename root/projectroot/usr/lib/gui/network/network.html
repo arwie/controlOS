@@ -36,9 +36,11 @@
 	<fieldset data-bind="page:{id:'syswlan', with:syswlan}">
 		<legend data-l10n-id="network_syswlan"></legend>
 		<p>
-			<div class="form-check">
-				<input data-bind="checked:enabled" type="checkbox" class="form-check-input">
-				<label class="form-check-label" data-l10n-id="network_enabled"></label>
+			<div class="form-group">
+				<div class="form-check">
+					<input data-bind="checked:enabled" type="checkbox" class="form-check-input">
+					<label class="form-check-label" data-l10n-id="network_enabled"></label>
+				</div>
 			</div>
 		</p>
 		<div data-bind="visible:enabled">
@@ -72,16 +74,18 @@
 		<legend data-l10n-id="network_lan"></legend>
 		<script type="text/html" id="network_lan">
 			<p>
-				<radiogroup>
-					<div class="form-check form-check-inline">
-						<input data-bind="checked:conf.Network.DHCP" type="radio" value="yes" class="form-check-input">
-						<label class="form-check-label" data-l10n-id="network_dhcp"></label>
-					</div>
-					<div class="form-check form-check-inline">
-						<input data-bind="checked:conf.Network.DHCP" type="radio" value="no" class="form-check-input">
-						<label class="form-check-label" data-l10n-id="network_maunal"></label>
-					</div>
-				</radiogroup>
+				<div class="form-group">
+					<radiogroup>
+						<div class="form-check form-check-inline">
+							<input data-bind="checked:conf.Network.DHCP" type="radio" value="yes" class="form-check-input">
+							<label class="form-check-label" data-l10n-id="network_dhcp"></label>
+						</div>
+						<div class="form-check form-check-inline">
+							<input data-bind="checked:conf.Network.DHCP" type="radio" value="no" class="form-check-input">
+							<label class="form-check-label" data-l10n-id="network_maunal"></label>
+						</div>
+					</radiogroup>
+				</div>
 				<div data-bind="visible:conf.Network.DHCP()!='no'">
 					<div class="form-group">
 						<label data-l10n-id="network_hostname"></label>
@@ -115,9 +119,11 @@
 	<fieldset data-bind="page:{id:'wlan', with:wlan}">
 		<legend data-l10n-id="network_wlan"></legend>
 		<p>
-			<div class="form-check">
-				<input data-bind="checked:enabled" type="checkbox" class="form-check-input">
-				<label class="form-check-label" data-l10n-id="network_enabled"></label>
+			<div class="form-group">
+				<div class="form-check">
+					<input data-bind="checked:enabled" type="checkbox" class="form-check-input">
+					<label class="form-check-label" data-l10n-id="network_enabled"></label>
+				</div>
 			</div>
 		</p>
 		<div data-bind="visible:enabled">

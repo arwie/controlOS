@@ -23,23 +23,27 @@
 {% block html %}
 <legend data-l10n-id="network_smtp"></legend>
 <p>
-	<div class="form-check">
-		<input data-bind="checked:enabled" type="checkbox" class="form-check-input">
-		<label class="form-check-label" data-l10n-id="network_enabled"></label>
+	<div class="form-group">
+		<div class="form-check">
+			<input data-bind="checked:enabled" type="checkbox" class="form-check-input">
+			<label class="form-check-label" data-l10n-id="network_enabled"></label>
+		</div>
 	</div>
 </p>
 <div data-bind="visible:enabled">
 	<p>
-		<radiogroup>
-			<div class="form-check form-check-inline">
-				<input data-bind="checked:conf.smtp.ssl" type="radio" value="yes" class="form-check-input">
-				<label class="form-check-label" data-l10n-id="network_ssl"></label>
-			</div>
-			<div class="form-check form-check-inline">
-				<input data-bind="checked:conf.smtp.ssl" type="radio" value="no" class="form-check-input">
-				<label class="form-check-label" data-l10n-id="network_nossl"></label>
-			</div>
-		</radiogroup>
+		<div class="form-group">
+			<radiogroup>
+				<div class="form-check form-check-inline">
+					<input data-bind="checked:conf.smtp.ssl" type="radio" value="yes" class="form-check-input">
+					<label class="form-check-label" data-l10n-id="network_ssl"></label>
+				</div>
+				<div class="form-check form-check-inline">
+					<input data-bind="checked:conf.smtp.ssl" type="radio" value="no" class="form-check-input">
+					<label class="form-check-label" data-l10n-id="network_nossl"></label>
+				</div>
+			</radiogroup>
+		</div>
 		<div class="form-row">
 			<div class="form-group col">
 				<label data-l10n-id="network_host"></label>

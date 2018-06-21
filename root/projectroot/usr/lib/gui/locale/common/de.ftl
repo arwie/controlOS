@@ -24,6 +24,8 @@ locale = Sprache
 poweroff = Ausschalten
 
 save = Speichern
+connect = Verbinden
+disconnect = Trennen
 
 
 issue = Problembericht
