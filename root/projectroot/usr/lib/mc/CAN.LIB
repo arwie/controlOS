@@ -29,7 +29,7 @@ common shared can_cycletime as const long = 4000	'{4000,2000,1000}[µs]
 		switch ($dev['device']) {
 			case 'stepim':
 				ll('call can_sdoWrite('.$dev['address'].', 0x6040, 0, 16, 128)');
-				ll('call can_sdoWrite('.$dev['address'].', 0x262C, 0, 32, 50000)');									#262Ch – Sync Allowed Window (500µs)
+				ll('call can_sdoWrite('.$dev['address'].', 0x262C, 0, 32, 100000)');								#262Ch – Sync Allowed Window
 				ll('call can_sdoWrite('.$dev['address'].', 0x1017, 0, 16, 0)');
 				ll('call can_sdoWrite('.$dev['address'].', 0x1006, 0, 32, can_cycletime)');
 				ll('call can_sdoWrite('.$dev['address'].', 0x60C2, 1, 8,  can_cycletime/1000)');
