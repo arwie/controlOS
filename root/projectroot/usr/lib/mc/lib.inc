@@ -119,14 +119,27 @@ function lib_debug() { global $lib;
 }
 
 
+function lib_systemError($errors) { global $lib;
+	$lib['systemError'] = $errors;
+	l('public sub '.$lib['name'].'_systemError');
+	ll('call logLibError(system.error)');
+	ll('call com_putLong("/error", system.errornumber)');
+	ll('call log_putCodeFunc(scope)');
+	ll('call log_send');
+	ll('call libSystemError');
+	l('end sub');
+	l('sub libSystemError');
+}
+
+
 
 function libEnd() { global $lib, $libs, $out;
 	l('public sub '.$lib['name'].'_init');
 	libComOpen('libActiveNotify', 'notify');
-	if ($lib['init']) ll('call libInit');
 	if ($lib['prg']) {
 		ll('load '.$lib['prg']['file'].' priority = '.$lib['prg']['prio']);
 	}
+	if ($lib['init']) ll('call libInit');
 	l('end sub');
 		
 	l('public sub '.$lib['name'].'_start');

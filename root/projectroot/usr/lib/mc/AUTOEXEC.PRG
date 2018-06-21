@@ -28,6 +28,14 @@ program continue
 
 
 	onSystemError
+<?
+		foreach ($libs['system'] as $l)
+			if ($l['systemError'])
+				foreach ($l['systemError'] as $e) {
+					lll("catch {$e}");
+					llll("call {$l['name']}_systemError");
+				}
+?>
 		catch else
 			call log_message(log_prioError, system.error)
 			call com_putLong("/error", system.errornumber)

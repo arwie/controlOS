@@ -18,17 +18,21 @@
 common shared etc_busnumber as const long = 0
 common shared etc_cycletime as const long = 4000	'{4000,2000,1000,500}[µs]
 
-dim shared healthQueryIntervalMs as const long	= 15*60*1000
+dim shared healthQueryIntervalMs as const long	= 60*60*1000
+dim shared healthQueryTimeout as long
 
+
+
+<?lib_systemError([19015])?>
+	call etc_stopTrigger
+end sub
 
 
 <?lib_init()?>
-	call logEthercat("init")
-	call com_putString("/slaves", sh("ethercat -v slaves"))
-	call logSend
+	call logEthercat("init", false)
 
 	call dropLong(EC_ETHERCAT_INIT)
-	call sleepActive(1000)
+	call sleepActive(<?=count(get('etc'))?> * 250)
 
 <?
 	foreach(get('etc') as $dev) {
@@ -87,24 +91,42 @@ end sub
 	call dropLong(EC_SET_NEW_STATIC_DISTANCE(300))
 	
 	call EC_STARTMASTER
+	
+	healthQueryTimeout = system.clock + healthQueryIntervalMs
 end sub
 
 
 <?lib_prgLoop()?>
-	call logEthercat("health")
-	call com_putString("/slaves", sh("ethercat slaves"))
-	<?foreach(get('etc') as $dev) {?>
-		call com_putString("/regs_<?=$dev['address']?>", EC_SLAVE_ERROR_REGS(<?=$dev['address']?>))
-	<?}?>
-	call logSend
-	call sleepActive(healthQueryIntervalMs)
+	if system.clock > healthQueryTimeout then
+		healthQueryTimeout = system.clock + healthQueryIntervalMs
+		call logEthercat("health", true)
+	end if
+	call sleepActive(5000)
 end sub
 
 
-sub logEthercat(byval what_ as string)
+<?lib_prgStop()?>
+	call dropString(sh("ethercat rescan"))
+	sleep 3000
+	call logEthercat("stop", false)
+end sub
+
+
+sub logEthercat(byval what_ as string, byval regs_ as long)
 	call logLibInfo("ethercat "+what_)
 	call log_putMessageId("af06a2c1696f46b18b948283b249a04e")
 	call com_putString("/master", sh("ethercat master"))
+	call com_putString("/slaves", sh("ethercat slaves"))
+	call com_putString("/slaves_info", sh("ethercat -v slaves"))
+	if regs_ then
+<?foreach(get('etc') as $dev) {?>
+		try
+			call com_putString("/regs_<?=$dev['address']?>", EC_SLAVE_ERROR_REGS(<?=$dev['address']?>))
+		catch else
+		end try
+<?}?>
+	end if
+	call logSend
 end sub
 
 
@@ -140,6 +162,7 @@ end function
 	if ($valueType) lll('call com_put'.ucfirst($valueType).'("/value", value_)');
 	lll('call logSend');
 	ll('finally');
+	lll('healthQueryTimeout = 0');
 	lll('throw');
 	ll('end try');
 }?>
