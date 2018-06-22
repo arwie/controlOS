@@ -18,6 +18,10 @@
 
 {% extends "base.html" %}
 
+{% block head %}
+	<script src="{{static_url('ace.js')}}"></script>
+{% end %}
+
 {% block html %}
 <nav class="navbar navbar-expand-md fixed-top navbar-light bg-light">
 	<a onclick="requestFullscreen()" class="navbar-brand" data-l10n-id="title"></a>
