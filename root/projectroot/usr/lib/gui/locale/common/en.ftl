@@ -24,6 +24,7 @@ locale = Language
 poweroff = Power Off
 
 save = Save
+apply = Apply
 connect = Connect
 disconnect = Disconnect
 

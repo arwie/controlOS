@@ -24,6 +24,7 @@ locale = Sprache
 poweroff = Ausschalten
 
 save = Speichern
+apply = Anwenden
 connect = Verbinden
 disconnect = Trennen
 

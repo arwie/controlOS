@@ -21,6 +21,7 @@ locale_de	= Deutsch
 locale_se	= Svenska
 locale_ru	= Русский
 locale_cz	= Český
+locale_jp	= 日本の
 
 locale_he	= עִברִית
 

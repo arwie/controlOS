@@ -125,13 +125,12 @@ function GuiPage(pageModel, pageParams, pageGuard, pageRoute) {
 			self.started = false;
 			if (callback) callback();
 		}
-		$(page.element).fadeOut(50, ()=>{
-			if (self.model && self.model.stop && self.started) {
-				self.model.stop(ready);
-				if (self.model.stop.length) return;
-			}
-			ready();
-		});
+		$(page.element).hide();
+		if (self.model && self.model.stop && self.started) {
+			self.model.stop(ready);
+			if (self.model.stop.length) return;
+		}
+		ready();
 	}
 	
 	self.guard = function(page, route, callback) {
