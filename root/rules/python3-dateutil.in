@@ -1,0 +1,11 @@
+## SECTION=python3
+
+config PYTHON3_DATEUTIL
+	tristate
+	select PYTHON3
+	select HOST_PYTHON3_SETUPTOOLS_SCM
+	select PYTHON3_SIX
+	prompt "dateutil"
+	help
+	  The dateutil module provides powerful extensions to the
+	  standard datetime module, available in Python.

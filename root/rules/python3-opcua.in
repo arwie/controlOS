@@ -1,0 +1,17 @@
+## SECTION=python3
+
+config PYTHON3_OPCUA
+	tristate
+	select PYTHON3
+	select HOST_PYTHON3_SETUPTOOLS
+	select PYTHON3_DATEUTIL
+	select PYTHON3_PYTZ
+	select PYTHON3_LXML
+	prompt "OPC-UA"
+	help
+	  OPC Unified Architecture (OPC UA) is a machine to machine
+	  communication protocol for industrial automation
+	  developed by the OPC Foundation.
+	  https://github.com/FreeOpcUa/python-opcua
+
+
