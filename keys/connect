@@ -41,4 +41,4 @@ else
 fi
 
 
-fusermount -u $SSHFSMNT
+fusermount3 -u $SSHFSMNT
