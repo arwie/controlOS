@@ -2,7 +2,7 @@
 
 config IMAGE_INSTALL
 	bool
-	select IMAGE_SYSTEM
+	select IMAGE_KERNEL
 	select HOST_GENIMAGE
 	select HOST_DOSFSTOOLS
 	select HOST_MTOOLS

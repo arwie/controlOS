@@ -42,7 +42,7 @@ $(STATEDIR)/python3-pytz.targetinstall:
 	@$(call install_fixup,python3-pytz,DESCRIPTION,missing)
 
 	@$(call install_glob, python3-pytz, 0, 0, -, \
-		/usr/lib/python$(PYTHON3_MAJORMINOR)/site-packages/pytz,, *.py)
+		/usr/lib/python$(PYTHON3_MAJORMINOR)/site-packages/pytz,, *.py */zoneinfo*)
 
 	@$(call install_finish,python3-pytz)
 

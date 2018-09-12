@@ -26,10 +26,12 @@ ptxdist_clean()
 ptxdist_build()
 {
 	cd $BASEDIR/$1
+	CMD=${2-images}
 	
-	if ! ptxdist images -j$NP; then
-		ptxdist images					|| errexit "Error while building $1"
+	if ! ptxdist go -j$NP; then
+		ptxdist go						|| errexit "Error while building $1"
 	fi
+	eval ptxdist $CMD
 }
 
 
@@ -43,7 +45,8 @@ ptxdist_clean boot
 # Now build all images
 ptxdist_build initramfs
 ptxdist_build root
-ptxdist_build boot
+ptxdist_build boot "--collectionconfig=configs/system  image system.img"
+ptxdist_build boot "--collectionconfig=configs/install image install.img"
 
 
 echo "#############################################"

@@ -1,2 +1,1 @@
 LABEL=INIT        /mnt/init      vfat     noauto,x-systemd.automount,x-systemd.idle-timeout=10,defaults                                0 0
-

@@ -1,5 +1,5 @@
-#!/bin/sh
-
+# -*-makefile-*-
+#
 # Copyright (c) 2016 Artur Wiebe <artur@4wiebe.de>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
@@ -16,18 +16,24 @@
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+#
+# We provide this package
+#
+PACKAGES-$(PTXCONF_INSTALL) += install
 
-# timeout in seconds before the default boot entry is started
-global.autoboot_timeout=5
+INSTALL_VERSION	:= 0.1
 
-# base bootargs
-#global.linux.bootargs.base=""
+# ----------------------------------------------------------------------------
+# Target-Install
+# ----------------------------------------------------------------------------
 
+$(STATEDIR)/install.targetinstall:
+	@$(call targetinfo)
+	@$(call install_init, install)
 
+	@$(call install_alternative_tree, install, 0, 0, /etc/install)
 
-if [ -f /boot/system.img.xz ]; then
-	global.boot.default="install"
-else
-	global.boot.default="debug"
-fi
+	@$(call install_finish,install)
+	@$(call touch)
 
+# vim: syntax=make

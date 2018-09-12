@@ -6,7 +6,3 @@
 
 # run rcS
 ::once:/bin/cttyhack /etc/init.d/rcS
-
-# start console
-::askfirst:/bin/cttyhack /bin/sh
-

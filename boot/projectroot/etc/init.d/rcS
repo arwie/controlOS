@@ -19,21 +19,29 @@
 
 waitfs()
 {
+TIMEOUT=${2-100}
 while ! findfs LABEL=$1 > /dev/null; do
-	echo "waiting for $1 device ..."
-	sleep 0.1; 
+	[ $(( --TIMEOUT )) -gt 0 ] || return 1
+	echo -ne "waiting for $1 device $TIMEOUT ...     \r"
+	sleep 0.1;
 done
 }
 
 
-disk_install()
+install_flash()
 {
-. /etc/install.conf
+BOARD="$(cat /sys/devices/virtual/dmi/id/board_name)@$(cat /sys/devices/virtual/dmi/id/board_vendor)"
+if [ -f /etc/install/$BOARD ]; then
+	. /etc/install/$BOARD
+else
+	echo "ERROR: board $BOARD not supported"
+	return 1
+fi
 
-waitfs INSTALL
+waitfs INSTALL || return 1
 echo "installing system to $DISKDEV"
 
-mount -r /mnt/install
+mount /mnt/install
 
 xzcat /mnt/install/system.img.xz | dd of=$DISKDEV bs=32K
 
@@ -41,6 +49,22 @@ sync
 sleep 3
 blockdev --rereadpt $DISKDEV
 sleep 2
+}
+
+
+install_update()
+{
+waitfs INSTALL || return 1
+waitfs INIT    || return 1
+echo "installing update"
+
+mount /mnt/install
+mount /mnt/init
+
+cp -f /mnt/install/update /mnt/init
+sync
+
+umount /mnt/init
 }
 
 
@@ -134,28 +158,48 @@ kexec --exec
 }
 
 
-recovery()
+shell()
 {
-echo "starting recovery system"
+echo "starting recovery shell"
 
-sleep 3
+waitfs BOOT    30
+waitfs INSTALL 30
 mount -a
 
 run-parts -a start /etc/rc.d
 
-exit
+exec /bin/sh
+}
+
+
+menu()
+{
+echo "Press ENTER to enter menu ..."
+read -t 10 || return 1
+
+read -p "MENU {install/update/shell}: "
+case $REPLY in
+	install)
+		install_flash
+		;;
+	update)
+		install_update
+		;;
+	*)
+		shell
+		;;
+esac
 }
 
 
 
-case $(cat /proc/cmdline) in
-	*install*)	disk_install;;
-	*debug*)	recovery;;
-esac
+if [ -d /etc/install ]; then
+	menu || waitfs BOOT || install_flash || shell
+fi
+
+waitfs BOOT || shell
 
 
-
-waitfs BOOT
 
 BOOTDEV=$(findfs LABEL=BOOT)
 case $BOOTDEV in
@@ -191,10 +235,6 @@ fi
 
 if [ -f /mnt/init/update ]; then
 	root_update
-fi
-
-if [ -f /mnt/init/debug ]; then
-	recovery
 fi
 
 umount /mnt/init
