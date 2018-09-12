@@ -15,6 +15,13 @@
 ' OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+<?
+	$etc = !empty(device_busDevices('etc'));
+	$can = !empty(device_busDevices('can'));
+	$axes = device_axes();
+?>
+
+
 dim shared healthQueryIntervalMs	as const long	= 10*60*1000
 
 
@@ -43,23 +50,19 @@ end sub
 
 
 <?lib_prgStart()?>
-<?	if (!empty(get('etc')))
-		ll('call etc_init')?>
-<?	if (!empty(get('can')))
-		ll('call can_init')?>
+<?	if ($etc) ll('call etc_init')?>
+<?	if ($can) ll('call can_init')?>
 
-<?	foreach(get('axis') as $ax) 
+<?	foreach($axes as $ax) 
 		ll('call '.$ax['name'].'_axisSetup')?>
 
 <?	foreach(get('robot') as $rbt)
 		ll('call '.$rbt['name'].'_robotSetup')?>
 
-<?	if (!empty(get('etc')))
-		ll('call etc_start')?>
-<?	if (!empty(get('can')))
-		ll('call can_start')?>
+<?	if ($etc) ll('call etc_start')?>
+<?	if ($can) ll('call can_start')?>
 
-<?	foreach(get('axis') as $ax) 
+<?	foreach($axes as $ax) 
 		if ($ax['simulated']) {
 			ll($ax['name'].'.simulated					= true');
 		} else {
@@ -83,7 +86,7 @@ end sub
 
 
 
-<?lib_prgLoop()?>
+<?lib_prgLoop(16)?>
 	call sleepActive(healthQueryIntervalMs)
 
 	call logLibInfo("mc system health")
@@ -102,8 +105,6 @@ end sub
 	call simio_stop
 	call drivelog_stop
 
-<?	if (!empty(get('etc')))
-		ll('call etc_stop')?>
-<?	if (!empty(get('can')))
-		ll('call can_stop')?>
+<?	if ($etc) ll('call etc_stop')?>
+<?	if ($can) ll('call can_stop')?>
 end sub

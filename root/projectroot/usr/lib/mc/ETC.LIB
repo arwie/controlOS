@@ -15,6 +15,9 @@
 ' OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+<?$etc = device_busDevices('etc')?>
+
+
 common shared etc_busnumber as const long = 0
 common shared etc_cycletime as const long = 4000	'{4000,2000,1000,500}[µs]
 
@@ -32,10 +35,10 @@ end sub
 	call logEthercat("init", false)
 
 	call dropLong(EC_ETHERCAT_INIT)
-	call sleepActive(<?=count(get('etc'))?> * 250)
+	call sleepActive(<?=count($etc)?> * 250)
 
 <?
-	foreach(get('etc') as $dev) {
+	foreach($etc as $dev) {
 		ll("'--------");
 		switch ($dev['device']) {
 			case 'cdhd':
@@ -54,7 +57,7 @@ end sub
 	call EC_CREATE_MASTER
 
 <?
-	foreach(get('etc') as $dev) {
+	foreach($etc as $dev) {
 		ll("'--------");
 		ll('call EC_SLAVE_ERROR_RESET('.$dev['address'].')');
 		switch ($dev['device']) {
@@ -96,7 +99,7 @@ end sub
 end sub
 
 
-<?lib_prgLoop()?>
+<?lib_prgLoop(16)?>
 	if system.clock > healthQueryTimeout then
 		healthQueryTimeout = system.clock + healthQueryIntervalMs
 		call logEthercat("health", true)
@@ -119,7 +122,7 @@ sub logEthercat(byval what_ as string, byval regs_ as long)
 	call com_putString("/slaves", sh("ethercat slaves"))
 	call com_putString("/slaves_info", sh("ethercat -v slaves"))
 	if regs_ then
-<?foreach(get('etc') as $dev) {?>
+<?foreach($etc as $dev) {?>
 		try
 			call com_putString("/regs_<?=$dev['address']?>", EC_SLAVE_ERROR_REGS(<?=$dev['address']?>))
 		catch else

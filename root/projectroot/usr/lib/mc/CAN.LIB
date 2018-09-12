@@ -15,6 +15,9 @@
 ' OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+<?$can = device_busDevices('can')?>
+
+
 common shared can_busnumber as const long = 1
 common shared can_cycletime as const long = 4000	'{4000,2000,1000}[µs]
 
@@ -25,7 +28,7 @@ common shared can_cycletime as const long = 4000	'{4000,2000,1000}[µs]
 	call sleepActive(300)
 
 <?
-	foreach(get('can') as $dev) {
+	foreach($can as $dev) {
 		switch ($dev['device']) {
 			case 'stepim':
 				ll('call can_sdoWrite('.$dev['address'].', 0x6040, 0, 16, 128)');

@@ -88,8 +88,14 @@ foreach (get('libs')['all'] as $lib) {
 	
 	if ($lib['prg']) {
 		ob_start();
-		include 'libPrg.inc';
+		libPrg($lib, $lib['prg']);
 		file_put_contents($out.$lib['prg']['file'], ob_get_contents()); ob_end_clean();
+		
+		foreach ($lib['prg']['threads']?:[] as $thread) {
+			ob_start();
+			libPrg($lib, $thread);
+			file_put_contents($out.$thread['file'], ob_get_contents()); ob_end_clean();
+		}
 	}
 }
 

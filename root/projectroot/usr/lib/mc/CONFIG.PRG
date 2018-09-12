@@ -15,12 +15,15 @@
 ' OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-system.numberaxes = <?=count(get('axis'))?> 
+<?$axes = device_axes()?>
+
+
+system.numberaxes = <?=count($axes)?> 
 
 <?
 foreach(get('robot') as $rbt) {
 	foreach ($rbt['axes'] as $ax)
-		$axisname .= ' axisname=a'.$axis[$ax]['elementid'];
+		$axisname .= ' axisname=a'.$axes[$ax]['elementid'];
 	l('common shared '.$rbt['name'].' as group '.$axisname.' model='.$rbt['model'].' of '.$rbt['type']);
 }
 ?>
@@ -45,7 +48,7 @@ program
 	system.doubleformat			= 1
 
 <?
-	foreach(get('axis') as $ax)
+	foreach($axes as $ax)
 		ll('a'.$ax['elementid'].'.axisname = '.$ax['name']);
 ?>
 

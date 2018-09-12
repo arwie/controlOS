@@ -33,8 +33,6 @@ function axis($ax) { global $lib;
 
 	device($ax);
 	$lib['axis']		= $ax;
-	
-	set('axis')[$ax['name']]	= $ax;
 }
 
 

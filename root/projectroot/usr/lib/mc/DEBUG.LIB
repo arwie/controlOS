@@ -76,7 +76,7 @@ sub pollData
 		ll('call com_putJoint'.ucfirst($rbt['type']).'("/'.$rbt['name'].'/positionFeedback", '.$rbt['name'].'.positionFeedback)');
 	}
 
-	foreach(get('axis') as $ax) {
+	foreach(device_axes() as $ax) {
 		ll('call com_putBool("/'.$ax['name'].'/enable", '.$ax['name'].'.enable)');
 		ll('call com_putDouble("/'.$ax['name'].'/positionFeedback", '.$ax['name'].'.positionFeedback)');
 		ll('call com_putDouble("/'.$ax['name'].'/torqueFeedback", '.$ax['name'].'.torqueFeedback)');

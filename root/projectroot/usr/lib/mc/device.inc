@@ -18,9 +18,10 @@
 function device(&$dev) { global $lib;
 	static $dio = 64;
 
-	$dev['simulated']	= conf('device',$lib['name'],'simulated', $dev['simulated']);
-	$dev['address']		= conf('device',$lib['name'],'address',   $dev['address']);
-	$dev['bus']			= conf('device',$lib['name'],'bus',       $dev['bus']);
+	$dev['device']		= conf('device',lib(),'device',    $dev['device']);
+	$dev['simulated']	= conf('device',lib(),'simulated', $dev['simulated']);
+	$dev['address']		= conf('device',lib(),'address',   $dev['address'])		?: 0;
+	$dev['bus']			= conf('device',lib(),'bus',       $dev['bus']);
 	
 	$dev['readBit']  = $dev['readBit']  ?: [];
 	$dev['writeBit'] = $dev['writeBit'] ?: [];
@@ -35,42 +36,36 @@ function device(&$dev) { global $lib;
 		$bit['dio'] = $dio;
 		$dio += $bit['size'];
 	}
-
-	if (!$dev['simulated'])
-		switch ($dev['bus']) {
-			case 'etc': set('etc')[$dev['address']] = $dev; break;
-			case 'can': set('can')[$dev['address']] = $dev; break;
-		}
-		
-	set('device')[$lib['name']] = $dev;
-	$lib['device'] = get('device')[$lib['name']];
+	
+	set('device')[lib()] = $dev;
+	$lib['device'] = get('device')[lib()];
 	
 	if ($dev['bus']) {
-		l('common shared '.$lib['name'].'_deviceAddress as const long = '.$dev['address']);
+		l('common shared '.lib().'_deviceAddress as const long = '.get('device')[lib()]['address']);
 	}
 }
 
 
-function deviceLibEnd($dev) { global $lib;
+function deviceLibEnd($dev) {
 	if (!$dev['bus']) return;
 	
-	l('public function '.$lib['name'].'_deviceRead(byval index_ as long, byval subindex_ as long) as long');
-	ll($lib['name'].'_deviceRead = '.$dev['bus'].'_read('.$dev['address'].', index_, subindex_)');
+	l('public function '.lib().'_deviceRead(byval index_ as long, byval subindex_ as long) as long');
+	ll(lib().'_deviceRead = '.$dev['bus'].'_read('.$dev['address'].', index_, subindex_)');
 	l('end function');
-	l('public sub '.$lib['name'].'_deviceWrite(byval index_ as long, byval subindex_ as long, byval size_ as long, byval value_ as long)');
+	l('public sub '.lib().'_deviceWrite(byval index_ as long, byval subindex_ as long, byval size_ as long, byval value_ as long)');
 	ll('call '.$dev['bus'].'_write('.$dev['address'].', index_, subindex_, size_, value_)');
 	l('end sub');
 	
-	l('public function '.$lib['name'].'_deviceReadString(byval index_ as long, byval subindex_ as long) as string');
-	ll($lib['name'].'_deviceReadString = '.$dev['bus'].'_readString('.$dev['address'].', index_, subindex_)');
+	l('public function '.lib().'_deviceReadString(byval index_ as long, byval subindex_ as long) as string');
+	ll(lib().'_deviceReadString = '.$dev['bus'].'_readString('.$dev['address'].', index_, subindex_)');
 	l('end function');
 	
-	$accessBit = function($rwBit) { global $lib;
+	$accessBit = function($rwBit) {
 		ll('dim dio_    as long = -1');
 		ll('dim offset_ as long');
 		ll('dim size_   as long');
 		ll('select case (index_ shl 16) + subindex_');
-		foreach (get('device')[$lib['name']][$rwBit] as $bit) {
+		foreach (get('device')[lib()][$rwBit] as $bit) {
 			ll('case 0x'.dechex(($bit['index'] << 16) + $bit['subindex']));
 			lll('dio_    = '.$bit['dio']);
 			lll('offset_ = '.$bit['offset']);
@@ -79,7 +74,7 @@ function deviceLibEnd($dev) { global $lib;
 		ll('end select');
 		ll('if (dio_ > 0) and (bit_ >= offset_) and (bit_-offset_+range_ <= size_) then');
 		if ($rwBit == 'readBit')
-			lll($lib['name'].'_deviceReadBits = system.din[dio_+bit_-offset_][range_]');
+			lll(lib().'_deviceReadBits = system.din[dio_+bit_-offset_][range_]');
 		else
 			lll('system.dout[dio_+bit_-offset_][range_] = value_');
 		ll('else');
@@ -94,26 +89,51 @@ function deviceLibEnd($dev) { global $lib;
 		ll('end if');
 	};
 	if ($dev['readBit']) {
-		l('public function '.$lib['name'].'_deviceReadBit(byval index_ as long, byval subindex_ as long, byval bit_ as long) as long');
-		ll($lib['name'].'_deviceReadBit = '.$lib['name'].'_deviceReadBits(index_, subindex_, bit_, 1)');
+		l('public function '.lib().'_deviceReadBit(byval index_ as long, byval subindex_ as long, byval bit_ as long) as long');
+		ll(lib().'_deviceReadBit = '.lib().'_deviceReadBits(index_, subindex_, bit_, 1)');
 		l('end function');
-		l('public function '.$lib['name'].'_deviceReadBits(byval index_ as long, byval subindex_ as long, byval bit_ as long, byval range_ as long) as long');
+		l('public function '.lib().'_deviceReadBits(byval index_ as long, byval subindex_ as long, byval bit_ as long, byval range_ as long) as long');
 		$accessBit('readBit');
 		l('end function');
 	}
 	if ($dev['writeBit']) {
-		l('public sub '.$lib['name'].'_deviceWriteBit(byval index_ as long, byval subindex_ as long, byval bit_ as long, byval value_ as long)');
-		ll('call '.$lib['name'].'_deviceWriteBits(index_, subindex_, bit_, 1, value_)');
+		l('public sub '.lib().'_deviceWriteBit(byval index_ as long, byval subindex_ as long, byval bit_ as long, byval value_ as long)');
+		ll('call '.lib().'_deviceWriteBits(index_, subindex_, bit_, 1, value_)');
 		l('end sub');
-		l('public sub '.$lib['name'].'_deviceWriteBits(byval index_ as long, byval subindex_ as long, byval bit_ as long, byval range_ as long, byval value_ as long)');
+		l('public sub '.lib().'_deviceWriteBits(byval index_ as long, byval subindex_ as long, byval bit_ as long, byval range_ as long, byval value_ as long)');
 		$accessBit('writeBit');
 		l('end sub');
 	}
 }
 
 
+function device_order($order) {
+	$address = 1;
+	foreach ($order as $lib) {
+		if (get('device')[$lib] && !get('device')[$lib]['simulated'] && !get('device')[$lib]['address'])
+			set('device')[$lib]['address'] = $address++;
+	}
+}
 
 
+function device_busDevices($bus, $simulated=false) {
+	$busDevs = [];
+	foreach(get('device') as $dev) {
+		if($dev['bus']==$bus && !$dev['simulated'])
+			$busDevs[] = $dev;
+	}
+	return $busDevs;
+}
+
+
+function device_axes() {
+	$axes = [];
+	foreach(get('device') as $dev) {
+		if($dev['elementid'])
+			$axes[$dev['name']] = $dev;
+	}
+	return $axes;
+}
 
 
 

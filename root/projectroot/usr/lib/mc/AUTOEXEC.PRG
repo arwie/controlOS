@@ -29,7 +29,7 @@ program continue
 
 	onSystemError
 <?
-		foreach ($libs['system'] as $l)
+		foreach (get('libs')['system'] as $l)
 			if ($l['systemError'])
 				foreach ($l['systemError'] as $e) {
 					lll("catch {$e}");
