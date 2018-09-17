@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python -Bu
 
 # Copyright (c) 2016 Artur Wiebe <artur@4wiebe.de>
 #
@@ -17,13 +17,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-import argparse, json, datetime, subprocess, logging
-from systemd import journal
+import shared, argparse, json, datetime, subprocess, logging
 from tornado import ioloop, gen, websocket
 
-
-logging.root.addHandler(journal.JournalHandler())
-logging.root.setLevel(logging.INFO)
 
 parser = argparse.ArgumentParser()
 parser.add_argument("host")
@@ -45,6 +41,7 @@ def receive():
 	while True:
 		msgJson = yield gen.with_timeout(datetime.timedelta(seconds=3), state.read_message())
 		if msgJson is None:
+			logging.info('connection closed by server')
 			break
 		msg = json.loads(msgJson)
 		if not msg:
@@ -55,5 +52,5 @@ def receive():
 
 try:
 	ioloop.IOLoop.current().run_sync(receive)
-except Exception as e:
-	logging.error(e)
+except:
+	logging.exception('ERROR in state connection to mc')

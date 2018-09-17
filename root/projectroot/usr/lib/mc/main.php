@@ -32,6 +32,9 @@ function get($what) {
 }
 
 
+set('mc')['type'] = $argv[2];
+
+
 function common($name, $type='long', $init=null) {
 	set('common')[] = [
 		'lib'	=> lib(),
@@ -105,20 +108,20 @@ foreach(glob('*.PRG') as $file) {
 	file_put_contents($out.$file, ob_get_contents()); ob_end_clean();
 }
 
+ob_start();
+	l('DIP=0xFF');
+	l('INP=0x0');
+file_put_contents($out.'/IO.DAT', ob_get_contents()); ob_end_clean();
+
+ob_start();
+	l('ipaddressmask '.gethostbyname('mc').':255.255.255.0');
+file_put_contents($argv[1].'/FWCONFIG', ob_get_contents()); ob_end_clean();
 
 
-if (file_exists('/etc/mc.conf')) {
-	$mc = parse_ini_file('/etc/mc.conf');
-	file_put_contents($argv[1].'/SN', <<<EOT
-program
-	sn "{$mc['sn']}"
-end program
-EOT
-	);
-	file_put_contents($argv[1].'/UAC', <<<EOT
-program
-	uac "{$mc['uac']}"
-end program
-EOT
-	);
+function linkStatic($dir) { global $out;
+	foreach(array_filter(glob(getcwd()."/static/{$dir}/*"), 'is_file') as $file) {
+		symlink($file, $out.basename($file));
+	}
 }
+linkStatic('');
+linkStatic(get('mc')['type']);

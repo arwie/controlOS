@@ -38,6 +38,10 @@ public function sh(byval cmd_ as string) as string
 	sh = SHELL(cmd_)
 end function
 
+public function python(byval cmd_ as string) as string
+	python = sh("python -c "+chr$(34)+cmd_+chr$(34))
+end function
+
 
 public function max(byval a as double, byval b as double) as double
   if a > b then

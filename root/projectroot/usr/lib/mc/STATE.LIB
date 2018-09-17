@@ -33,6 +33,10 @@ end sub
 
 
 
+<?lib_prgStart()?>
+	call sendWatchdog
+end sub
+
 <?lib_prgLoop(14)?>
 	select case com_receive(state_websocket, stateWatchdogIntervalMs)
 	case com_receiveTimeout
@@ -57,4 +61,5 @@ end sub
 sub sendWatchdog
 	call com_clear
 	call com_send(state_websocket)
+	call dropString(python("from socket import *;s=socket(AF_INET,SOCK_DGRAM);"+"s.sendto('mc-state',('<?=gethostbyname('sys')?>',33000))"))
 end sub

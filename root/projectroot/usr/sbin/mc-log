@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python -Bu
 
 # Copyright (c) 2016 Artur Wiebe <artur@4wiebe.de>
 #
@@ -17,13 +17,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+from shared import websocket
 import logging, argparse, time, json, struct, sys
-from systemd import journal
-from tornado import ioloop, gen, websocket
 
-
-logging.root.addHandler(journal.JournalHandler())
-logging.root.setLevel(logging.INFO)
 
 parser = argparse.ArgumentParser()
 parser.add_argument("host")
@@ -56,20 +52,12 @@ def process(msg):
 	export(msg)
 
 
-@gen.coroutine
-def receive():
-	log = yield websocket.websocket_connect('ws://{}:{}'.format(args.host, args.port))
-	logging.info('connected')
-
-	while True:
-		msgJson = yield log.read_message()
-		if msgJson is None:
-			break
-		process(json.loads(msgJson))
+class LogClient(websocket.Client):
+	def __init__(self):
+		self.initialize(args.host, args.port)
+	
+	def onMessageJson(self, msg):
+		process(msg)
 
 
-
-try:
-	ioloop.IOLoop.current().run_sync(receive)
-except Exception as e:
-	logging.error(e)
+websocket.run(LogClient)

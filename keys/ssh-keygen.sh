@@ -24,8 +24,6 @@ BASEDIR=$(dirname $SCRIPT)
 SSHHOME_HOST="$BASEDIR/ssh"
 SSHHOME_TRGT="$BASEDIR/../root/projectroot/root/.ssh"
 SSHDHOME_TRGT="$BASEDIR/../root/projectroot/etc/ssh"
-SSHHOME_TRGT_MC_RT="$BASEDIR/../mc/conf/root/.ssh"
-SSHHOME_TRGT_MC_MC="$BASEDIR/../mc/conf/home/mc/.ssh"
 
 KEYNAME="id_rsa"
 
@@ -45,10 +43,3 @@ ssh-keygen  -f $SSHDHOME_TRGT/ssh_host_rsa_key  -N ""
 
 
 cp  -f  $SSHHOME_HOST/$KEYNAME.pub  $SSHHOME_TRGT/authorized_keys
-
-
-mkdir  -p  $SSHHOME_TRGT_MC_RT
-cp  -f  $SSHHOME_TRGT/$KEYNAME.pub  $SSHHOME_TRGT_MC_RT/authorized_keys
-
-mkdir  -p  $SSHHOME_TRGT_MC_MC
-cp  -f  $SSHHOME_TRGT/$KEYNAME.pub  $SSHHOME_TRGT_MC_MC/authorized_keys

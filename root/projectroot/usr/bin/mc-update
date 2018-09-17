@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/usr/bin/python -Bu
 
-# Copyright (c) 2016 Artur Wiebe <artur@4wiebe.de>
+# Copyright (c) 2018 Artur Wiebe <artur@4wiebe.de>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 # associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -17,66 +17,109 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-MC="mc@mc"
-MCROOT="root@mc"
+from subprocess import run, DEVNULL, PIPE, CalledProcessError
+import shared, logging, argparse, tempfile, socket, os, pexpect
 
-SRC=/usr/lib/mc
-CONF=$SRC/conf
-APP=/tmp/mc-app
 
-PHP="php5 -n -d display_errors=stderr"
-SSH="ssh"
-SCP="scp -r -q"
+parser = argparse.ArgumentParser()
+parser.add_argument("--force", help="force update all files on mc", action="store_true")
+parser.add_argument("--console", help="log also to console", action="store_true")
+args = parser.parse_args()
 
-md5hash() {
-	find $1 -type f | sort | xargs cat | md5sum | cut -d ' ' -f 1
-}
+if args.console:
+	logging.root.addHandler(logging.StreamHandler())
 
-debug() { echo "$1" 1>&2; }
 
-errexit() {
-	debug "ERROR: $1"
-	exit 1
-}
+virginIp   = '90.0.0.1'
+virginPass = 'mc'
 
 
 
-MC_CONFHASH=$($SSH $MCROOT "cat conf.hash || echo 0")					|| errexit "failed to connect to $MCROOT"
-CONFHASH=$(md5hash $CONF)
-
-if [ "$MC_CONFHASH" != "$CONFHASH" ]; then	# copy configuration files
-	$SSH $MCROOT "mount -o remount,rw /"								|| errexit "remount rw rootfs on mc"
-	$SCP $CONF/* $MCROOT:/												|| errexit "copy configuration files to mc"
-	$SSH $MCROOT "echo $CONFHASH > conf.hash"							|| errexit "update conf.hash on mc"
-	REBOOT=yes
-	echo "copied configuration files to mc"
-fi
+def isVirgin():
+	return run(['ping', '-c1', '-W1', virginIp], stdout=DEVNULL).returncode == 0
 
 
-# build application php files
-mkdir -p $APP															|| errexit "mkdir $APP"
-cd $SRC
-$PHP main.php $APP														|| errexit "build application files"
+def deflower():
+	out,status = pexpect.run('ssh -oConnectTimeout=1 mc@{} "mkdir -p ~/.ssh && echo {} > ~/.ssh/authorized_keys && sudo ifconfig eth0:0 {}"'.format(
+			virginIp,
+			open('/root/.ssh/id_rsa.pub').read().strip(),
+			socket.gethostbyname('mc')
+		),
+	events={'(?i)password': virginPass+"\n"},
+	withexitstatus=True)
+	
+	if status != 0:
+		raise Exception('failed to deflower mc: '+out.decode())
 
 
-MC_APPHASH=$($SSH $MC "cat app.hash || echo 0")							|| errexit "failed to connect to $MC"
-APPHASH=$(md5hash $APP)
-
-if [ "$MC_APPHASH" != "$APPHASH" ]; then	# copy app files
-	$SCP $APP/* $MC:/FFS0/												|| errexit "copy application files to mc"
-	$SSH $MC "echo $APPHASH > app.hash"									|| errexit "update app.hash on mc"
-	REBOOT=yes
-	echo "copied application files to mc"
-fi
-
-
-# reboot if necessary
-if [ -n "$REBOOT" ]; then
-	$SSH $MC "sudo reboot"												|| errexit "reboot mc"
-	echo "mc updated successfully"
-else
-	echo "mc is up to date"
-fi
+def getType():
+	detectType = b'''
+		case $(cat /proc/cpuinfo) in
+		*N2800*)
+			echo -n "702"
+			;;
+		*E3825*)
+			echo -n "703"
+			;;
+		*)
+			echo -n "sim"
+			;;
+		esac
+	'''
+	return run(['ssh', 'mc'], input=detectType, stdout=PIPE, stderr=PIPE, check=True).stdout.decode()
 
 
-exit 0
+def build(outdir, mctype):
+	php = run(['php5', '-n', '-ddisplay_errors=stderr', 'main.php', outdir, mctype], cwd='/usr/lib/mc', stdout=DEVNULL, stderr=PIPE, check=True)
+
+
+def reboot():
+	run(['ssh', 'mc', 'sudo reboot'], stderr=PIPE, check=True)
+
+
+def sync(outdir):
+	hashOld = run(['ssh', 'mc', 'cat app.hash || echo'], stdout=PIPE, stderr=PIPE, check=True).stdout
+	hashOldSet = set(hashOld.decode().splitlines())
+	hashNew = run('md5sum $(find ! -type d)', cwd=outdir, shell=True, stdout=PIPE, stderr=PIPE, check=True).stdout
+	hashNewSet = set(hashNew.decode().splitlines())
+	
+	if args.force:
+		hashCopySet = hashNewSet
+	else:
+		hashCopySet = hashNewSet - hashOldSet
+	
+	if not hashCopySet:
+		return False
+	
+	for f in (hashNewSet - hashCopySet):
+		os.remove(outdir+'/'+f.split()[1])
+	run(['scp', '-q', '-r', '.', 'mc:/FFS0'], cwd=outdir, stderr=PIPE, check=True)
+	run(['ssh', 'mc', 'cat > app.hash'], input=hashNew, stderr=PIPE, check=True)
+	return True
+
+
+def update():
+	if isVirgin():
+		logging.info('deflower virgin mc')
+		deflower()
+	
+	mcType = getType()
+	logging.info('build for mc-'+mcType)
+	
+	with tempfile.TemporaryDirectory(prefix='mc-update_') as outdir:
+		build(outdir, mcType)
+		if sync(outdir):
+			reboot()
+			logging.info('mc updated successfully')
+		else:
+			logging.info('mc is up to date')
+
+
+try:
+	update()
+except CalledProcessError as e:
+	logging.exception(e.stderr.decode())
+	exit(1)
+except:
+	logging.exception('ERROR in mc-update')
+	exit(1)

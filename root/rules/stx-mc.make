@@ -33,14 +33,17 @@ $(STATEDIR)/stx-mc.targetinstall:
 
 	@$(call install_alternative_tree, stx-mc, 0, 0, /usr/lib/mc, no)
 	
-	@$(call install_alternative, stx-mc, 0, 0, 0755, /usr/bin/mc-update)
-	@$(call install_alternative, stx-mc, 0, 0, 0644, /usr/lib/systemd/system/mc-update.service)
-	@$(call install_link,        stx-mc, ../mc-update.service, /usr/lib/systemd/system/multi-user.target.wants/mc-update.service)
-	
 	@$(call install_alternative, stx-mc, 0, 0, 0755, /usr/sbin/mc-state)
 	@$(call install_alternative, stx-mc, 0, 0, 0644, /usr/lib/systemd/system/mc-state@.target)
 	@$(call install_alternative, stx-mc, 0, 0, 0644, /usr/lib/systemd/system/mc-state.service)
-	@$(call install_link,        stx-mc, ../mc-state.service, /usr/lib/systemd/system/multi-user.target.wants/mc-state.service)
+	@$(call install_alternative, stx-mc, 0, 0, 0644, /usr/lib/systemd/system/mc-state.socket)
+	@$(call install_link,        stx-mc, ../mc-state.socket, /usr/lib/systemd/system/sockets.target.wants/mc-state.socket)
+	
+	@$(call install_alternative, stx-mc, 0, 0, 0755, /usr/bin/mc-update)
+	@$(call install_alternative, stx-mc, 0, 0, 0644, /usr/lib/systemd/system/mc-update.service)
+	@$(call install_alternative, stx-mc, 0, 0, 0644, /usr/lib/systemd/system/mc-update.timer)
+	@$(call install_link,        stx-mc, ../mc-update.timer,   /usr/lib/systemd/system/timers.target.wants/mc-update.timer)
+	@$(call install_link,        stx-mc, ../mc-update.service, /usr/lib/systemd/system/mc-state@state.target.wants/mc-update.service)
 	
 	@$(call install_alternative, stx-mc, 0, 0, 0755, /usr/sbin/mc-log)
 	@$(call install_alternative, stx-mc, 0, 0, 0644, /usr/lib/systemd/system/mc-log.service)

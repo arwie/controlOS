@@ -52,14 +52,14 @@ program
 		ll('a'.$ax['elementid'].'.axisname = '.$ax['name']);
 ?>
 
-if instr(version, "SIM") then
+<?if (get('mc')['type'] == 'sim') {?>
 	load SIMMC.LIB
-else
+<?} else {?>
 	load ETHERCAT.LIB
 	load CANDS402.LIB
 	load EC_CDHD.LIB
 	load ISMAPPER.LIB
-end if
+<?}?>
 
 <?if (get('config')['modbus']) {?>
 	oload MODBUS.O
