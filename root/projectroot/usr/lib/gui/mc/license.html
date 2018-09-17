@@ -21,22 +21,36 @@
 
 
 {% block html %}
-<div class="row">
-<div class="col-lg-2">
-	<nav data-bind="foreach:$page.children" class="nav nav-pills flex-column">
-		<a data-bind="page-href:$data, css:{active:isVisible}, attr:{'data-l10n-id':'mc_'+getId()}" class="nav-link"></a>
-	</nav>
-</div>
-
-<div class="col">
-	{% module page("mc/license.html") %}
-	{% module page("mc/trnerr.html") %}
-	{% module page("mc/basic.html") %}
-</div>
-</div>
+<legend data-l10n-id="mc_license"></legend>
+<p>
+	<div class="form-row">
+		<div class="form-group col">
+			<label data-l10n-id="mc_sn"></label>
+			<input data-bind="value:license.sn" type="text" class="form-control">
+		</div>
+		<div class="form-group col">
+			<label data-l10n-id="mc_uac"></label>
+			<input data-bind="value:license.uac" type="text" class="form-control">
+		</div>
+	</div>
+</p>
+<p>
+	<button data-bind="click:save" class="btn btn-primary" data-l10n-id="mc_save"></button>
+</p>
 {% end %}
 
 
-{% block route %}
-	return 'trnerr';
+{% block model %}
+class {
+	constructor() {
+		this.license = ko.mapping.fromJS({
+			sn:		'',
+			uac:	'',
+		});
+	}
+	
+	save() {
+		$.post(ajaxUrl('mc.license'), ko.mapping.toJSON(model.license));
+	}
+}
 {% end %}
