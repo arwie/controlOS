@@ -31,8 +31,8 @@ done
 install_flash()
 {
 BOARD="$(cat /sys/devices/virtual/dmi/id/board_name)@$(cat /sys/devices/virtual/dmi/id/board_vendor)"
-if [ -f /etc/install/$BOARD ]; then
-	. /etc/install/$BOARD
+if [ -f "/etc/install/$BOARD" ]; then
+	. "/etc/install/$BOARD"
 else
 	echo "ERROR: board $BOARD not supported"
 	return 1
