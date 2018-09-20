@@ -39,6 +39,7 @@ $(IMAGE_INSTALL_IMAGE):
 	rm -f $(IMAGEDIR)/root.*
 	rm -f $(IMAGEDIR)/linuximage
 	rm -f $(IMAGEDIR)/install.vfat
+	rm -f $(IMAGEDIR)/backup.vfat
 
 	xz -T0 -zf $(IMAGE_INSTALL_IMAGE)
 

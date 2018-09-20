@@ -31,11 +31,12 @@ $(STATEDIR)/system.targetinstall:
 	@$(call targetinfo)
 	@$(call install_init, system)
 
-	@$(call install_copy,        system, 0, 0, 0755, /mnt/install)
 	@$(call install_copy,        system, 0, 0, 0755, /mnt/boot)
 	@$(call install_copy,        system, 0, 0, 0755, /mnt/init)
 	@$(call install_copy,        system, 0, 0, 0755, /mnt/root)
 	@$(call install_copy,        system, 0, 0, 0755, /mnt/data)
+	@$(call install_copy,        system, 0, 0, 0755, /mnt/install)
+	@$(call install_copy,        system, 0, 0, 0755, /mnt/backup)
 
 	@$(call install_finish,system)
 	@$(call touch)
