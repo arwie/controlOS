@@ -65,17 +65,16 @@ function includeLib($file, $from=null, $type='app') {
 
 ob_start();
 
-includeLib('LOG.LIB', null, 'system');
-includeLib('ETC.LIB', null, 'system');
-includeLib('CAN.LIB', null, 'system');
-
-include 'config.inc';
-
+includeLib('LOG.LIB',      null, 'system');
+includeLib('STATE.LIB',    null, 'system');
+includeLib('ETC.LIB',      null, 'system');
+includeLib('CAN.LIB',      null, 'system');
 includeLib('DRIVELOG.LIB', null, 'system');
 includeLib('SIMIO.LIB',    null, 'system');
 includeLib('DEBUG.LIB',    null, 'system');
 includeLib('SYSTEM.LIB',   null, 'system');
-includeLib('STATE.LIB',    null, 'system');
+
+include 'config.inc';
 
 ob_end_clean();
 
@@ -109,9 +108,14 @@ foreach(glob('*.PRG') as $file) {
 }
 
 ob_start();
+include 'INIT.LIB';
+file_put_contents($out.'INIT.LIB', ob_get_contents()); ob_end_clean();
+
+
+ob_start();
 	l('DIP=0xFF');
 	l('INP=0x0');
-file_put_contents($out.'/IO.DAT', ob_get_contents()); ob_end_clean();
+file_put_contents($out.'IO.DAT', ob_get_contents()); ob_end_clean();
 
 ob_start();
 	l('ipaddressmask '.gethostbyname('mc').':255.255.255.0');

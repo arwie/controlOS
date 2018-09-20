@@ -15,31 +15,13 @@
 ' OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-<?$axes = device_axes()?>
-
-
-system.numberaxes = <?=count($axes)?> 
-
+common shared state_websocket as long
 <?
-foreach(get('robot') as $rbt) {
-	foreach ($rbt['axes'] as $ax)
-		$axisname .= ' axisname=a'.$axes[$ax]['elementid'];
-	l('common shared '.$rbt['name'].' as group '.$axisname.' model='.$rbt['model'].' of '.$rbt['type']);
-}
+	foreach (get('libs')['all'] as $l)
+		l('common shared '.$l['name'].'_started as long');
 ?>
 
-<?
-foreach(get('common') as $common)
-	l("common shared {$common['lib']}_{$common['name']} as {$common['type']}".($common['init'] ? " = {$common['init']}" : ''));
-?>
-
-<?
-foreach(get('simio') as $io) {
-	l('common shared '.$io['ord'].' as long = '.($io['sim'] ? '1' : '0'));
-	l('common shared '.$io['app'].' as '.$io['type'].($io['default']!=null ? ' = '.($io['type']=='string' ? '"'.$io['default'].'"' : $io['default']) : ''));
-	l('common shared '.$io['io'].' as '.$io['type']);
-}
-?>
+common shared defaultMotionGroup as generic group
 
 
 program
@@ -47,10 +29,8 @@ program
 	system.errorhandlermode		= 0
 	system.doubleformat			= 1
 
-<?
-	foreach($axes as $ax)
-		ll('a'.$ax['elementid'].'.axisname = '.$ax['name']);
-?>
+	with defaultMotionGroup
+
 
 <?if (get('mc')['type'] == 'sim') {?>
 	load SIMMC.LIB
@@ -71,13 +51,7 @@ program
 	
 	load BASIC.LIB
 
-<?
-	foreach (get('libs')['all'] as $l)
-		ll('load '.$l['file']);
-?>
-
-<?	if (get('robot'))
-		ll('with '.end(get('robot'))['name']);	//make last robot default motion element
-?>
+	load LOG.LIB
+	load STATE.LIB
 
 end program

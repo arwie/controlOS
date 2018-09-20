@@ -45,11 +45,11 @@ function output($name, $type, $sim=false, $default=null) {
 }
 
 
-function simio($dir, $name, $type, $sim, $default) { global $lib;
+function simio($dir, $name, $type, $sim, $default) {
 	static $id = 0;
 	
-	$name = $lib['name'].'_'.$name;
-	$sim  = conf('device',$lib['name'],'simulated', (is_string($sim) ? conf('device',$sim,'simulated', false) : $sim));
+	$name = lib().'_'.$name;
+	$sim  = device_simulated(lib()) || (is_string($sim) ? device_simulated($sim) : $sim);
 	
 	$io = [
 		'id'		=> $id++,

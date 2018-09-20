@@ -19,7 +19,7 @@ function device(&$dev) { global $lib;
 	static $dio = 64;
 
 	$dev['device']		= conf('device',lib(),'device',    $dev['device']);
-	$dev['simulated']	= conf('device',lib(),'simulated', $dev['simulated'])	|| (get('mc')['type']=='sim');
+	$dev['simulated']	= device_simulated(lib())       || $dev['simulated'];
 	$dev['address']		= conf('device',lib(),'address',   $dev['address'])		?: 0;
 	$dev['bus']			= conf('device',lib(),'bus',       $dev['bus']);
 	
@@ -133,6 +133,11 @@ function device_axes() {
 			$axes[$dev['name']] = $dev;
 	}
 	return $axes;
+}
+
+
+function device_simulated($device) {
+	return conf('device',$device,'simulated') || (get('mc')['type']=='sim');
 }
 
 

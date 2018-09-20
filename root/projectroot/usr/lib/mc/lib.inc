@@ -23,7 +23,6 @@ function libBegin($file, $from, $type) { global $lib;
 		'type'	=> $type,
 	];
 
-	l('common shared '.$lib['name'].'_started as long');
 	l('common shared '.$lib['name'].'_active  as long');
 	l('dim shared libActiveNotify as long');
 }

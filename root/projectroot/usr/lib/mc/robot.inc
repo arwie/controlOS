@@ -42,10 +42,11 @@ function robot_setup() { global $lib;
 
 function robotLibEnd($rbt) { global $lib;
 	l('public sub '.$lib['name'].'_robotSetup');
-	ll('attach '.$rbt['name']);
+	ll('defaultMotionGroup = '.$rbt['name']); // TODO: use WITHGLOBAL
+	ll('attach');
 	defaultRobotSetup($rbt);
 	if ($lib['robot']['robotSetup']) ll('call robotSetup');
-	ll('detach '.$rbt['name']);
+	ll('detach');
 	l('end sub');
 
 	l('public sub '.$lib['name'].'_enable');
@@ -75,7 +76,7 @@ function robotLibEnd($rbt) { global $lib;
 
 
 function defaultRobotSetup(&$rbt) {
-	foreach ($rbt['axes'] as $ax) { $j += 1; $jnt = $rbt['name'].'.j'.$j;
+	foreach ($rbt['axes'] as $ax) { $j += 1; $jnt = 'j'.$j;
 		ll($jnt.'.positionmin			= '.$ax.'.positionmin');
 		ll($jnt.'.positionmax			= '.$ax.'.positionmax');
 	}

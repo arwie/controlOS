@@ -130,7 +130,7 @@ sub sendList
 	foreach(get('simio') as $io) {
 		ll('call com_with("/'.$io['id'].'")');
 		lll('call com_putLong("id",  '.$io['id'].')');
-		lll('call com_putLong("sim", '.$io['sim'].')');
+		lll('call com_putLong("sim", '.($io['sim']?1:0).')');
 		lll('call com_putString("dir",  "'.$io['dir'].'")');
 		lll('call com_putString("name", "'.$io['name'].'")');
 		lll('call com_putString("type", "'.$io['type'].'")');

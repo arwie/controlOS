@@ -225,6 +225,7 @@ function reconnectState() {
 	}
 	
 	stateConnection.onerror = function() {
+		pager.navigate('#');
 		$('#stateDisconnected').modal();
 		stateDisconnected = true;
 	}
