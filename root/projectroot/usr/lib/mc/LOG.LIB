@@ -89,7 +89,7 @@ end sub
 
 
 <?lib_prgStart()?>
-	call dropLong(com_receive(this_websocket, 5000))	'wait for log client connection
+	call dropLong(com_receive(this_websocket, 30000))	'wait for log client connection
 end sub
 
 
