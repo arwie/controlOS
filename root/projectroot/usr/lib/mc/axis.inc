@@ -33,6 +33,12 @@ function axis($ax) { global $lib;
 
 	device($ax);
 	$lib['axis']		= $ax;
+	
+	libPartsAdd('debug', function() use ($ax) {
+		ll('call com_putBool("enable", '.$ax['name'].'.enable)');
+		ll('call com_putDouble("positionFeedback", '.$ax['name'].'.positionFeedback)');
+		ll('call com_putDouble("torqueFeedback", '.$ax['name'].'.torqueFeedback)');
+	});
 }
 
 

@@ -294,10 +294,6 @@ extern "C" {
 		mccom_close(channelId);
 	}
 
-	void MCCOM_CLOSE_ALL(void) {
-		mccom_close_all();
-	}
-
 	void MCCOM_CLEAR(int *error) {
 		mccom_clear(error);
 	}
@@ -361,4 +357,9 @@ extern "C" {
 		mccom_put_json(*path, *value, error);
 	}
 
+
+	__attribute__ ((__destructor__))
+	void MCCOM_CLOSE_ALL(void) {
+		mccom_close_all();
+	}
 }

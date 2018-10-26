@@ -46,10 +46,12 @@ function common($name, $type='long', $init=null) {
 
 
 require 'lib.inc';
+require 'com.inc';
 require 'device.inc';
 require 'axis.inc';
 require 'robot.inc';
 require 'simio.inc';
+require 'async.inc';
 
 
 function includeLib($file, $from=null, $type='app') {
@@ -65,6 +67,8 @@ function includeLib($file, $from=null, $type='app') {
 
 ob_start();
 
+include 'config.inc';
+
 includeLib('LOG.LIB',      null, 'system');
 includeLib('STATE.LIB',    null, 'system');
 includeLib('ETC.LIB',      null, 'system');
@@ -73,8 +77,6 @@ includeLib('DRIVELOG.LIB', null, 'system');
 includeLib('SIMIO.LIB',    null, 'system');
 includeLib('DEBUG.LIB',    null, 'system');
 includeLib('SYSTEM.LIB',   null, 'system');
-
-include 'config.inc';
 
 ob_end_clean();
 

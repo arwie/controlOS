@@ -33,7 +33,6 @@ $(STATEDIR)/system.targetinstall:
 	
 	# basics
 	@$(call install_alternative, system, 0, 0, 0644, /boot/boot.conf)
-	@$(call install_alternative, system, 0, 0, 0444, /etc/machine-id)
 	@$(call install_alternative, system, 0, 0, 0644, /usr/lib/systemd/system/etc.mount)
 	
 	# firmware blobs

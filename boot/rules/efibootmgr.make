@@ -26,52 +26,13 @@ EFIBOOTMGR_DIR		:= $(BUILDDIR)/$(EFIBOOTMGR)
 EFIBOOTMGR_LICENSE	:= GPL-2.0-only
 
 # ----------------------------------------------------------------------------
-# Get
-# ----------------------------------------------------------------------------
-
-#$(EFIBOOTMGR_SOURCE):
-#	@$(call targetinfo)
-#	@$(call get, EFIBOOTMGR)
-
-# ----------------------------------------------------------------------------
 # Prepare
 # ----------------------------------------------------------------------------
 
+EFIBOOTMGR_CONF_TOOL	:= NO
 EFIBOOTMGR_MAKE_ENV	:= $(CROSS_ENV)
 EFIBOOTMGR_MAKE_OPT	:= EFIDIR="/boot/EFI"
 EFIBOOTMGR_INSTALL_OPT	:= EFIDIR="/boot/EFI" install
-
-#
-# autoconf
-#
-EFIBOOTMGR_CONF_TOOL	:= NO
-#EFIBOOTMGR_CONF_OPT	:= $(CROSS_AUTOCONF_USR)
-
-#$(STATEDIR)/efibootmgr.prepare:
-#	@$(call targetinfo)
-#	@$(call clean, $(EFIBOOTMGR_DIR)/config.cache)
-#	cd $(EFIBOOTMGR_DIR) && \
-#		$(EFIBOOTMGR_PATH) $(EFIBOOTMGR_ENV) \
-#		./configure $(EFIBOOTMGR_CONF_OPT)
-#	@$(call touch)
-
-# ----------------------------------------------------------------------------
-# Compile
-# ----------------------------------------------------------------------------
-
-#$(STATEDIR)/efibootmgr.compile:
-#	@$(call targetinfo)
-#	@$(call world/compile, EFIBOOTMGR)
-#	@$(call touch)
-
-# ----------------------------------------------------------------------------
-# Install
-# ----------------------------------------------------------------------------
-
-#$(STATEDIR)/efibootmgr.install:
-#	@$(call targetinfo)
-#	@$(call world/install, EFIBOOTMGR)
-#	@$(call touch)
 
 # ----------------------------------------------------------------------------
 # Target-Install
@@ -92,12 +53,5 @@ $(STATEDIR)/efibootmgr.targetinstall:
 
 	@$(call touch)
 
-# ----------------------------------------------------------------------------
-# Clean
-# ----------------------------------------------------------------------------
-
-#$(STATEDIR)/efibootmgr.clean:
-#	@$(call targetinfo)
-#	@$(call clean_pkg, EFIBOOTMGR)
 
 # vim: syntax=make

@@ -15,6 +15,7 @@
 ' OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+common shared prgPriorityRealtime	as const long		= 6
 common shared prgPriorityHigh		as const long		= 8
 common shared prgPriorityNormal		as const long		= 10
 common shared prgPriorityLow		as const long		= 12
@@ -34,6 +35,7 @@ public sub dropString(byval dummy_ as string)
 end sub
 
 
+
 public function sh(byval cmd_ as string) as string
 	sh = SHELL(cmd_)
 end function
@@ -41,6 +43,7 @@ end function
 public function python(byval cmd_ as string) as string
 	python = sh("python -c "+chr$(34)+cmd_+chr$(34))
 end function
+
 
 
 public function max(byval a as double, byval b as double) as double
@@ -97,6 +100,44 @@ public function boundl(byval value_ as long, byval min_ as long, byval max_ as l
 	case else
 		boundl = value_
 	end select
+end function
+
+
+public function inside(byval value_ as double, byval min_ as double, byval max_ as double) as long
+	inside = value_ >= min_ and value_ <= max_
+end function
+
+public function outside(byval value_ as double, byval min_ as double, byval max_ as double) as long
+	outside = value_ < min_ or value_ > max_
+end function
+
+
+public sub increment(value_ as long)
+	value_ = value_ + 1
+end sub
+
+public function incrementUse(value_ as long) as long
+	value_ = value_ + 1
+	incrementUse = value_
+end function
+
+public function useIncrement(value_ as long) as long
+	useIncrement = value_
+	value_ = value_ + 1
+end function
+
+public sub decrement(value_ as long)
+	value_ = value_ - 1
+end sub
+
+public function decrementUse(value_ as long) as long
+	value_ = value_ - 1
+	decrementUse = value_
+end function
+
+public function useDecrement(value_ as long) as long
+	useDecrement = value_
+	value_ = value_ - 1
 end function
 
 

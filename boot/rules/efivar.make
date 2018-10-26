@@ -26,51 +26,12 @@ EFIVAR_DIR	:= $(BUILDDIR)/$(EFIVAR)
 EFIVAR_LICENSE	:= LGPL-2.1-only
 
 # ----------------------------------------------------------------------------
-# Get
-# ----------------------------------------------------------------------------
-
-#$(EFIVAR_SOURCE):
-#	@$(call targetinfo)
-#	@$(call get, EFIVAR)
-
-# ----------------------------------------------------------------------------
 # Prepare
 # ----------------------------------------------------------------------------
 
+EFIVAR_CONF_TOOL	:= NO
 EFIVAR_MAKE_ENV		:= $(CROSS_ENV)
 EFIVAR_INSTALL_OPT	:= libdir="/usr/lib/" install
-
-#
-# autoconf
-#
-EFIVAR_CONF_TOOL	:= NO
-#EFIVAR_CONF_OPT	:= $(CROSS_AUTOCONF_USR)
-
-#$(STATEDIR)/efivar.prepare:
-#	@$(call targetinfo)
-#	@$(call clean, $(EFIVAR_DIR)/config.cache)
-#	cd $(EFIVAR_DIR) && \
-#		$(EFIVAR_PATH) $(EFIVAR_ENV) \
-#		./configure $(EFIVAR_CONF_OPT)
-#	@$(call touch)
-
-# ----------------------------------------------------------------------------
-# Compile
-# ----------------------------------------------------------------------------
-
-#$(STATEDIR)/efivar.compile:
-#	@$(call targetinfo)
-#	@$(call world/compile, EFIVAR)
-#	@$(call touch)
-
-# ----------------------------------------------------------------------------
-# Install
-# ----------------------------------------------------------------------------
-
-#$(STATEDIR)/efivar.install:
-#	@$(call targetinfo)
-#	@$(call world/install, EFIVAR)
-#	@$(call touch)
 
 # ----------------------------------------------------------------------------
 # Target-Install
@@ -94,12 +55,5 @@ $(STATEDIR)/efivar.targetinstall:
 
 	@$(call touch)
 
-# ----------------------------------------------------------------------------
-# Clean
-# ----------------------------------------------------------------------------
-
-#$(STATEDIR)/efivar.clean:
-#	@$(call targetinfo)
-#	@$(call clean_pkg, EFIVAR)
 
 # vim: syntax=make

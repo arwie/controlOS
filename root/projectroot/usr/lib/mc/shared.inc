@@ -66,16 +66,33 @@ function setup($section=null, $key=null) {
 }
 
 
+function awaitCondition($result, $condition, $timeout, $ifnot=false) {
+	ll($result.' = system.clock + '.$timeout);
+	ll('while not ('.$condition.') and system.clock < '.$result);
+	lll('sleep '.min(100, $timeout));
+	ll('end while');
+	ll($result.' = '.$condition);
+	if ($ifnot) {
+	ll('if not '.$result.' then');
+		if (is_string($ifnot)) ll($ifnot); else $ifnot();
+	ll('end if');
+	}
+}
+
+
 function debug() {
 	return file_exists('/etc/app/debug');
 }
 
 
-function l($basic)		{ echo $basic."\n"; }
+function l($basic='')	{ echo $basic."\n"; }
 function ll($basic)		{ echo "\t".$basic."\n"; }
 function lll($basic)	{ echo "\t\t".$basic."\n"; }
 function llll($basic)	{ echo "\t\t\t".$basic."\n"; }
 function lllll($basic)	{ echo "\t\t\t\t".$basic."\n"; }
+
+function ifs($if, $then, $else='') { return $if ? $then : $else; }
+function basicString($str) { return '"'.wordwrap(strtr($str, '"', "'"), 80, '"+"', true).'"';}
 
 
 function dump($var, $caption='dump') {

@@ -45,10 +45,10 @@ function output($name, $type, $sim=false, $default=null) {
 }
 
 
-function simio($dir, $name, $type, $sim, $default) {
+function simio($dir, $localName, $type, $sim, $default) {
 	static $id = 0;
 	
-	$name = lib().'_'.$name;
+	$name = lib().'_'.$localName;
 	$sim  = device_simulated(lib()) || (is_string($sim) ? device_simulated($sim) : $sim);
 	
 	$io = [
@@ -64,6 +64,8 @@ function simio($dir, $name, $type, $sim, $default) {
 		'get'		=> "{$name}G",
 		'set'		=> "{$name}S",
 	];
+
+	libPartsAdd('debug', 'call com_put'.ucfirst($type).'("'.$localName.'", '.($dir=='out'?$io['app']:$name).')');
 
 	set('simio')[$name] = $io;
 	return $io;

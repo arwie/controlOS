@@ -27,7 +27,7 @@ dim shared lastErrorQuery[<?=count($axes)?>]	as long
 
 
 
-<?lib_prgEvent()?>
+<?lib_prgEvent(1)?>
 	dim statusword_		as long
 	dim errorcode_		as long
 
@@ -93,7 +93,7 @@ end sub
 
 
 
-<?lib_prgLoop(16)?>
+<?lib_prgPoll('healthQueryIntervalMs', 16)?>
 	dim statusword_ as long
 	dim warningsLower_ as string
 	dim warningsUpper_ as string
@@ -136,8 +136,6 @@ end sub
 	call logSend
 
 <?}?>
-
-	call sleepActive(healthQueryIntervalMs)
 end sub
 
 

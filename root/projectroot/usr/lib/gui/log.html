@@ -70,17 +70,17 @@
 		<table class="table table-sm table-hover">
 			<tbody data-bind="foreach:messages">
 				
-				<tr data-bind="css: {'table-danger': priority <= 3, 'table-warning': priority == 4, 'table-info': priority == 5}">
+				<tr data-bind="click: toggleDetails, css: {'bg-danger': priority <= 2, 'table-danger': priority == 3, 'table-warning': priority == 4, 'table-info': priority == 5}">
 					<td data-bind="text: timestamp"></td>
 					<td data-bind="text: priorityName(priority)"></td>
 					<td data-bind="text: hostname"></td>
 					<td data-bind="text: identifier"></td>
 					
 					<td width="70%">
-						<a data-bind="click: toggleDetails" href="#"><strong data-bind="text: message" style="white-space:pre-wrap"></strong></a>
+						<strong data-bind="text: message" style="white-space:pre-wrap"></strong>
 						<!-- ko if: details -->
 							<p></p>
-							<table class="table table-sm">
+							<table data-bind="click:function(){}, clickBubble:false" class="table table-sm">
 								<tbody data-bind="foreach:keys()">
 									<tr>
 										<td data-bind="text:$data"></td>

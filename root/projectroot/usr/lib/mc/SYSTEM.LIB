@@ -86,10 +86,8 @@ end sub
 
 
 
-<?lib_prgLoop(16)?>
-	call sleepActive(healthQueryIntervalMs)
-
-	call logLibInfo("mc system health")
+<?lib_prgPoll('healthQueryIntervalMs', 16)?>
+	call logLibDebug("mc system health")
 	'call com_putLong("/peakload", system.peakload)
 	'call com_putLong("/averageload", system.averageload)
 	call log_putMessageId("1ad4145d37eb41aa89ff27237baea260")

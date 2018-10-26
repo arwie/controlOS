@@ -80,7 +80,7 @@ function() {
 		self.ws = new WebSocket(wsUrl('mc', 5610));
 		
 		self.ws.onmessage = function (e) {
-			let msg = JSON.parse(e.data);
+			let msg = JSON.parse(e.data).debug;
 			
 			if (!self.sections().length) {
 				Object.keys(msg).forEach(function (key) {

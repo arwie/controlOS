@@ -15,27 +15,19 @@
 ' OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-dim shared pollIntervalMs as const long		= 250
-
-dim shared simioWebsocket as long
+<?com_websocket(6002)?>
 dim shared simioWebsocketConnected as long
 
 
 
 <?lib_start()?>
-<?	libComOpenServerWebsocket('simioWebsocket', 6002)?>
 	simioWebsocketConnected = false
 end sub
 
 
-<?lib_stop()?>
-	call com_close(simioWebsocket)
-end sub
 
-
-
-<? lib_prgLoop(16) ?>
-	select case com_receive(simioWebsocket, pollIntervalMs)
+<?com_prgReceive('this_websocket', 250, 16)?>
+	select case receive_
 	case com_receiveConnect
 		simioWebsocketConnected = true
 		call sendList
@@ -113,14 +105,14 @@ sub sendUpdate
 	call com_clear
 <?
 	foreach(get('simio') as $io) {
-		ll('call com_with("/'.$io['id'].'")');
+		ll('call com_with("/'.$io['id'].'/")');
 		lll('call com_putLong("id",  '.$io['id'].')');
 		lll('call com_putLong("ord", '.$io['ord'].')');
 		lll('call com_put'.ucfirst($io['type']).'("app", '.$io['app'].')');
 		lll('call com_put'.ucfirst($io['type']).'("io",  '.$io['io'].')');
 	}
 ?>
-	call com_send(simioWebsocket)
+	call com_send(this_websocket)
 end sub
 
 
@@ -128,7 +120,7 @@ sub sendList
 	call com_clear
 <?
 	foreach(get('simio') as $io) {
-		ll('call com_with("/'.$io['id'].'")');
+		ll('call com_with("/'.$io['id'].'/")');
 		lll('call com_putLong("id",  '.$io['id'].')');
 		lll('call com_putLong("sim", '.($io['sim']?1:0).')');
 		lll('call com_putString("dir",  "'.$io['dir'].'")');
@@ -136,5 +128,5 @@ sub sendList
 		lll('call com_putString("type", "'.$io['type'].'")');
 	}
 ?>
-	call com_send(simioWebsocket)
+	call com_send(this_websocket)
 end sub

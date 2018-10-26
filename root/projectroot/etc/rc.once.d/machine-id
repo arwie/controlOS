@@ -1,4 +1,0 @@
-#!/bin/sh
-
-# we use a static machine-id -> do nothing here
-exit 0

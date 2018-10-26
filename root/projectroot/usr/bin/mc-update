@@ -70,7 +70,9 @@ def getType():
 
 
 def build(outdir, mctype):
-	php = run(['php5', '-n', '-ddisplay_errors=stderr', 'main.php', outdir, mctype], cwd='/usr/lib/mc', stdout=DEVNULL, stderr=PIPE, check=True)
+	stderr = run(['php5', '-n', '-ddisplay_errors=stderr', 'main.php', outdir, mctype], cwd='/usr/lib/mc', stdout=DEVNULL, stderr=PIPE, check=True).stderr
+	if stderr:
+		logging.warning("php build:\n"+stderr.decode());
 
 
 def reboot():

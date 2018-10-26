@@ -2,7 +2,7 @@
 
 config EFIVAR
 	tristate
-	select GLIBC_DL
+	select LIBC_DL
 	prompt "efivar"
 	help
 	  Tools and libraries to manipulate EFI variables

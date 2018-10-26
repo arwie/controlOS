@@ -15,6 +15,8 @@
 ' OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+<?com_websocket(5600, ['receive'=>'false'])?>
+
 common shared log_prioCritical	as const long	= 2
 common shared log_prioError		as const long	= 3
 common shared log_prioWarning	as const long	= 4
@@ -27,16 +29,12 @@ common shared log_priorityPrint	as const long	= <?=debug() ? 'log_prioDebug' : '
 
 
 dim shared comLogChannel as long
-dim shared comLogServer  as long
 
 
 
 public sub log_message(byval prio_ as long, byval message_ as string)
-	call log_messageRef(prio_, message_)
-end sub
-
-public sub log_messageRef(byval prio_ as long, message_ as string)
-	call com_clear
+	call com_store
+	call com_putLong("/clock", system.clock)
 	call com_putLong("/priority", prio_)
 	call com_putStringRef("/message", message_)
 end sub
@@ -70,48 +68,35 @@ public sub log_send
 	catch else
 		print "ERROR: log failed to send"
 	end try
-end sub
-
-
-public sub log_debug(byval message_ as string)
-	call log_messageRef(log_prioDebug, message_)
-	call log_send
+	call com_restore
 end sub
 
 
 
 <?lib_init()?>
-<?	libComOpen('comLogChannel', 'log', ['long("/priority", log_priority)'])?> 
-end sub
-
-
-<?lib_start()?>
-<?	libComOpenServerWebsocket('comLogServer', 5600, ['bool("/receive", false)'])?>
-end sub
-
-
-<?lib_stop()?>
-	call com_close(comLogServer)
+	<?com_open('comLogChannel', 'log', function() {?>
+		call com_putLong("/priority", log_priority)
+	<?})?> 
 end sub
 
 
 public sub log_waitDrain
 	call com_clear
 	call com_sendSelf(comLogChannel)
-	call log_waitWhile(log_active)
+	<?waitActive('log')?>
 end sub
 
 
 
 <?lib_prgStart()?>
-	call dropLong(com_receive(comLogServer, 60000))	'wait for log client connection
+	call dropLong(com_receive(this_websocket, 5000))	'wait for log client connection
 end sub
 
 
-<?lib_prgLoop(16)?>
-	select case com_receive(comLogChannel, 250)
+<?com_prgReceive('comLogChannel', 250, 16)?>
+	select case receive_
 	case com_receiveMessage
-		call com_send(comLogServer)
+		call com_send(this_websocket)
 		call printLog
 	case com_receiveNotify
 		call log_stopTrigger

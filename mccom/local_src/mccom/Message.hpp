@@ -48,10 +48,11 @@ public:
 
 	void with(const string& with)
 	{
-		if (with.empty())
-			prefix.clear();
-		else
-			prefix = with + "/";
+		prefix = with;
+		if (prefix.front() != '/')
+			prefix = "/" + prefix;
+		if (prefix.back() != '/')
+			prefix = prefix + "/";
 	}
 
 	json::json_pointer withPath(const string& path) const {
@@ -75,7 +76,7 @@ public:
 
 private:
 	const Event event = Event::notify;
-	string prefix;
+	string prefix = "/";
 };
 
 #endif /* MESSAGE_HPP_ */

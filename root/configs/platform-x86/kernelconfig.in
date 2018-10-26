@@ -79,6 +79,7 @@ CONFIG_KVM_INTEL=m
 # CONFIG_DRM is not set
 # CONFIG_MISC_FILESYSTEMS is not set
 # CONFIG_NETWORK_FILESYSTEMS is not set
+# CONFIG_INTEGRITY is not set
 
 
 ## Pokiki F2

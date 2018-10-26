@@ -20,7 +20,7 @@ dim shared stateWatchdogIntervalMs as const long	= 1000
 
 
 <?lib_init()?>
-<?	libComOpenServerWebsocket('state_websocket', 33000, ['bool("/receive", false)'])?>
+	<?com_openWebsocket('state_websocket', 33000, ['receive'=>'false'])?>
 end sub
 
 
@@ -35,13 +35,17 @@ end sub
 	call sendWatchdog
 end sub
 
-<?lib_prgLoop(14)?>
-	select case com_receive(state_websocket, stateWatchdogIntervalMs)
+<?com_prgReceive('state_websocket', 'stateWatchdogIntervalMs', 14)?>
+	select case receive_
 	case com_receiveTimeout
 		call sendWatchdog
 	case else
 		call sendState
 	end select
+end sub
+
+
+<?lib_prgError()?>
 end sub
 
 

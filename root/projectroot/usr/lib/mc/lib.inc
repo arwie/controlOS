@@ -27,87 +27,141 @@ function libBegin($file, $from, $type) { global $lib;
 	l('dim shared libActiveNotify as long');
 }
 
-function lib($what='name') { global $lib;
+function &lib($what='name') { global $lib;
 	return $lib[$what];
 }
 
-
-function libComOpenServerWebsocket($name, $port, $args=[])	{ libComOpen($name, 'websocket', array_merge(['long("/port", '.$port.')'], $args)); }
-function libComOpenFifo($name, $args=[])					{ libComOpen($name, 'fifo', $args); }
-
-function libComOpen($name, $type, $args=[]) { global $lib;
-	ll('call com_clear');
-	ll('call com_putString("/log/lib",  "'.$lib['name'].'")');
-	ll('call com_putString("/log/name", "'.$name.'")');
-	foreach ($args as $arg) {
-		ll('call com_put'.ucfirst($arg)); 
+function libPartsAdd($where, $part) {
+	lib($where)[] = $part;
+}
+function libPartsExec($where, $reverse=false) {
+	$parts = lib($where)?:[];
+	foreach ($reverse?array_reverse($parts):$parts as $part) {
+		if (is_string($part)) ll($part); else $part();
 	}
-	ll($name.' = com_open(com_channel'.ucfirst($type).')');
 }
 
 
 
+function engage($libs) {
+	$libs = array_filter($libs);
+	libPartsAdd('start', function() use ($libs) {
+		foreach ($libs as $l) lll('call '.$l.'_start');
+	});
+	$libs = array_reverse($libs);
+	libPartsAdd('stop', function() use ($libs) {
+		foreach ($libs as $l) lll('call '.$l.'_stopTrigger');
+		foreach ($libs as $l) lll('call '.$l.'_stop');
+	});
+}
+
+function waitActive($lib, $while='true', $interval=100) {
+	lll('while '.lib().'_active and not '.$lib.'_wait('.$interval.') and ('.$while.')');
+	lll('end while');
+	if ($lib != lib())
+		libPartsAdd('stopTrigger', 'call '.$lib.'_stopTrigger');
+}
+function engageActive($lib, $while='true', $interval=100) {
+	lll('call '.$lib.'_start');
+	waitActive($lib, $while, $interval);
+	lll('call '.$lib.'_stop');
+}
+
+function logMessage($prio, $message, $report=false, $log=false) {
+	ll('call log_message('.$prio.', "'.$message.'")');
+	if ($report)
+		ll('call log_putReport("'.$report.'")');
+	if ($log)
+		$log();
+	ll('call log_putCodeFunc(scope)');
+	ll('call com_putString("/lib", "'.lib().'")');
+	ll('call '.lib().'_putDebug');
+	ll('call log_send');
+}
+function logCritical($message, $report=false, $log=false) { logMessage('log_prioCritical', $message, $report, $log); }
+function logError   ($message, $report=false, $log=false) { logMessage('log_prioError',    $message, $report, $log); }
+function logWarning ($message, $report=false, $log=false) { logMessage('log_prioWarning',  $message, $report, $log); }
+function logNotice  ($message, $report=false, $log=false) { logMessage('log_prioNotice',   $message, $report, $log); }
+function logInfo    ($message, $report=false, $log=false) { logMessage('log_prioInfo',     $message, $report, $log); }
+function logDebug   ($message, $report=false, $log=false) { logMessage('log_prioDebug',    $message, $report, $log); }
+
+function throwErrorApplication($message, $report=false, $log=false) {
+	logError($message, $report, $log);
+	ll('throw errorApplication');
+}
+
 function end_try($finally=false) {
-	l('catch else');
+	ll('catch errorApplication.num');
+	ll('catch else');
 	lll('call logLibError(error)');
 	lll('call com_putLong("/error", errornumber)');
 	lll('call log_putCodeFunc(scope)');
 	lll('call logSend');
 	if ($finally) {
 		ll('finally');
-		lll($finally);
+		$finally();
 	}
 	ll('end try');
 }
 
 
 
-function lib_init() { global $lib;
-	$lib['init'] = true;
+function lib_init() {
+	libPartsAdd('init', 'call libInit');
 	l('sub libInit');
 }
 
 
-function lib_start() { global $lib;
-	$lib['start'] = true;
+function lib_start() {
+	libPartsAdd('start', 'call libStart');
 	l('sub libStart');
 }
 
 
-function lib_stopTrigger() { global $lib;
-	$lib['stopTrigger'] = true;
+function lib_stopTrigger() {
+	libPartsAdd('stopTrigger', 'call libStopTrigger');
 	l('sub libStopTrigger');
 }
 
 
-function lib_stop() { global $lib;
-	$lib['stop'] = true;
+function lib_stop() {
+	libPartsAdd('stop', 'call libStop');
 	l('sub libStop');
 }
 
 
-function lib_prg($prio='prgPriorityNormal') { global $lib;
-	$lib['prg']['name'] = $lib['name'];
-	$lib['prg']['file'] = strtoupper($lib['name'].'.PRG');
-	$lib['prg']['prio'] = $prio;
-	l('public sub '.$lib['name'].'_prg');
+function lib_prg($prio='prgPriorityNormal') {
+	lib('prg')['name'] = lib();
+	lib('prg')['file'] = strtoupper(lib().'.PRG');
+	lib('prg')['prio'] = $prio;
+	l('public sub '.lib().'_prg');
 }
-function lib_prgLoop($prio='prgPriorityNormal') { global $lib;
-	$lib['prg']['loop'] = true;
+function lib_prgPoll($interval, $prio='prgPriorityNormal') {
 	lib_prg($prio);
+	ll('do');
+	lll('call prgLoop');
+	if ($interval)
+		ll('loop until com_receive(libActiveNotify, '.$interval.')');
+	else
+		ll('loop while '.lib().'_active');
+	l('end sub');
+	l('sub prgLoop');
+}
+function lib_prgLoop($prio='prgPriorityNormal') {
+	lib_prgPoll(false, $prio);
 }
 
-function lib_prgStart() { global $lib;
-	$lib['prg']['start'] = true;
-	l('public sub '.$lib['name'].'_prgStart');
+function lib_prgStart() {
+	libPartsAdd('prgStart', 'call libPrgStart');
+	l('sub libPrgStart');
 }
 
-function lib_prgStop() { global $lib;
-	$lib['prg']['stop'] = true;
-	l('public sub '.$lib['name'].'_prgStop');
+function lib_prgStop() {
+	libPartsAdd('prgStop', 'call libPrgStop');
+	l('sub libPrgStop');
 }
 
-function lib_prgEvent($scantime=1) { global $lib;
+function lib_prgEvent($scantime=5) { global $lib;
 	$lib['prg']['event'] = $scantime;
 	l('public sub '.$lib['name'].'_prgEvent');
 }
@@ -139,9 +193,9 @@ function lib_prgThread($name, $prio='prgPriorityNormal') { global $lib;
 }
 
 
-function lib_debug() { global $lib;
-	$lib['debug'] = true;
-	l('public sub '.$lib['name'].'_debug');
+function lib_debug() {
+	libPartsAdd('debug', 'call libPutDebug');
+	l('sub libPutDebug');
 }
 
 
@@ -151,7 +205,7 @@ function lib_systemError($errors) { global $lib;
 	ll('call logLibError(system.error)');
 	ll('call com_putLong("/error", system.errornumber)');
 	ll('call log_putCodeFunc(scope)');
-	ll('call log_send');
+	ll('call logSend');
 	ll('call libSystemError');
 	l('end sub');
 	l('sub libSystemError');
@@ -160,19 +214,21 @@ function lib_systemError($errors) { global $lib;
 
 
 function libEnd() { global $lib;
+	libPartsExec('end');
+	
 	l('public sub '.$lib['name'].'_init');
-	libComOpen('libActiveNotify', 'notify');
-	if ($lib['prg']) {
+	com_openNotify('libActiveNotify');
+	if ($lib['prg'] && $lib['prg']['prio']) {
 		ll('load '.$lib['prg']['file'].' priority = '.$lib['prg']['prio']);
 		foreach ($lib['prg']['threads']?:[] as $thread)
 			ll('load '.$thread['file'].' priority = '.$thread['prio']);
 	}
-	if ($lib['init']) ll('call libInit');
+	libPartsExec('init');
 	l('end sub');
-		
+	
 	l('public sub '.$lib['name'].'_start');
 	ll('if not '.$lib['name'].'_started then');
-	if ($lib['start']) lll('call libStart');
+	libPartsExec('start');
 	lll($lib['name'].'_started = true');
 	lll('call com_sendSelf(state_websocket)');
 	lll($lib['name'].'_active = true');
@@ -185,19 +241,17 @@ function libEnd() { global $lib;
 	ll('end if');
 	l('end sub');
 
-	l('public sub '.$lib['name'].'_stopTrigger');
-	ll($lib['name'].'_active = false');
-	ll('call com_send(libActiveNotify)');
-	if ($lib['stopTrigger']) ll('call libStopTrigger');
+	l('public sub '.lib().'_stopTrigger');
+	ll('if '.lib().'_active then');
+	lll(lib().'_active = false');
+	lll('call com_send(libActiveNotify)');
+	libPartsExec('stopTrigger', true);
+	ll('end if');
 	l('end sub');
 
 	l('public function '.$lib['name'].'_wait(byval timeout_ as long) as long');
 	ll($lib['name'].'_wait = com_receive(libActiveNotify, timeout_)');
 	l('end function');
-	l('public sub '.$lib['name'].'_waitWhile(while_ as long)');
-	ll('while not com_receive(libActiveNotify, 100) and while_');
-	ll('end while');
-	l('end sub');
 
 	l('public sub '.$lib['name'].'_stop');
 	ll('if '.$lib['name'].'_started then');
@@ -210,36 +264,53 @@ function libEnd() { global $lib;
 	}
 	lll($lib['name'].'_started = false');
 	lll('call com_sendSelf(state_websocket)');
-	if ($lib['stop']) lll('call libStop');
+	libPartsExec('stop', true);
 	lll('call logLibInfo("'.$lib['name'].' lib stopped")');
 	lll('call logSend');
 	ll('end if');
 	l('end sub');
+	
+	l('public sub '.lib().'_putDebug');
+	ll('call com_with("/debug/'.lib().'/")');
+	ll('call com_putBool("started", '.lib().'_started)');
+	ll('call com_putBool("active", '.lib().'_active)');
+	libPartsExec('debug');
+	l('end sub');
 
 	foreach (['Error', 'Warning', 'Notice', 'Info', 'Debug'] as $prio) {
 		l('sub logLib'.$prio.'(byval message as string)');
-		ll('call logLib(log_prio'.$prio.', message)');
+		ll('call log_message(log_prio'.$prio.', message)');
 		l('end sub');
 	}
-	l('sub logLib(byval prio as long, message as string)');
-	ll('call com_store');
-	ll('call log_messageRef(prio, message)');
-	ll('call com_putString("/lib", "'.$lib['name'].'")');
-	l('end sub');
-
 	l('sub logSend');
+	ll('call com_putString("/lib", "'.$lib['name'].'")');
+	ll('call '.lib().'_putDebug');
 	ll('call log_send');
-	ll('call com_restore');
 	l('end sub');
 
 	l('sub sleepActive(byval milliseconds_ as long)');
 	ll('dim dummy_ as long = com_receive(libActiveNotify, milliseconds_)');
 	l('end sub');
 
-	if ($lib['prg']) {
+	if (lib('prg'))
+	{
+		l('public sub '.lib().'_prgStart');
+			logDebug(lib().' prg started', false, function(){
+				ll('call com_putString("/prg", "'.lib().'")');
+			});
+			libPartsExec('prgStart');
+		l('end sub');
+		
+		l('public sub '.lib().'_prgStop');
+			libPartsExec('prgStop', true);
+		l('end sub');
+		
 		l('function prgRunning as long');
 		ll('prgRunning = (('.$lib['prg']['file'].'.state band 0xF) = TASK_RUNNING)');
 		l('end function');
+		l('sub prgExit');
+		ll('idletask '.$lib['prg']['file']);
+		l('end sub');
 	}
 
 	if ($lib['device'])
@@ -260,11 +331,6 @@ function libEnd() { global $lib;
 function libPrg($lib, $thread) {
 ?>
 program
-	call log_message(log_prioDebug, "<?=$thread['name']?> prg started")
-	call com_putString("/prg", "<?=$thread['name']?>")
-	call com_putString("/lib", "<?=$lib['name']?>")
-	call log_send
-
 	onError
 		catch else
 			call log_message(<?=$lib['prg']['error']?'log_prioError':'log_prioCritical'?>, <?=$thread['file']?>.error)
@@ -290,41 +356,30 @@ program
 <?} else {?>
 
 <?if ($lib['prg']['event']) {?>
-	onevent <?=$lib['name']?>_prgEvent scantime=<?=$lib['prg']['event']?> 
+	onevent <?=$lib['name']?>_prgEvent scantime=<?=$lib['prg']['event']?> priority=<?=$lib['prg']['prio']?>-1
 		call <?=$lib['name']?>_prgEvent
 	end onevent
 <?}?>
 
-<?if ($lib['prg']['start']) {?>
 	call <?=$lib['name']?>_prgStart
-<?}?>
 
 <?if ($lib['prg']['event']) {?>
 	eventon <?=$lib['name']?>_prgEvent
 <?}?>
 
-<?if ($lib['prg']['loop']) {?>
-	while <?=$lib['name']?>_active
+	if <?=$lib['name']?>_active then
 		call <?=$lib['name']?>_prg
-	end while
-<?} else {?>
-	call <?=$lib['name']?>_prg
-	call <?=$lib['name']?>_stopTrigger
-<?}?>
+		call <?=$lib['name']?>_stopTrigger
+	end if
 
 <?if ($lib['prg']['event']) {?>
 	eventoff <?=$lib['name']?>_prgEvent
 <?}?>
 
-<?if ($lib['prg']['stop']) {?>
 	call <?=$lib['name']?>_prgStop
-<?}?>
 
 <?}?>
 
-	call log_message(log_prioDebug, "<?=$thread['name']?> prg stopped")
-	call com_putString("/lib", "<?=$lib['name']?>")
-	call log_send
 end program
 <?
 }

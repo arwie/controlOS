@@ -94,24 +94,21 @@ end sub
 	call dropLong(EC_SET_NEW_STATIC_DISTANCE(300))
 	
 	call EC_STARTMASTER
-	
-	healthQueryTimeout = system.clock + healthQueryIntervalMs
 end sub
 
 
-<?lib_prgLoop(16)?>
+<?lib_prgPoll(5000, 16)?>
 	if system.clock > healthQueryTimeout then
 		healthQueryTimeout = system.clock + healthQueryIntervalMs
 		call logEthercat("health", true)
 	end if
-	call sleepActive(5000)
 end sub
 
 
 <?lib_prgStop()?>
 	call dropString(sh("ethercat rescan"))
 	sleep 3000
-	call logEthercat("stop", false)
+	call logEthercat("stop", true)
 end sub
 
 
@@ -121,6 +118,7 @@ sub logEthercat(byval what_ as string, byval regs_ as long)
 	call com_putString("/master", sh("ethercat master"))
 	call com_putString("/slaves", sh("ethercat slaves"))
 	call com_putString("/slaves_info", sh("ethercat -v slaves"))
+	call com_putString("/dmesg", sh("dmesg | tail -n40"))
 	if regs_ then
 <?foreach($etc as $dev) {?>
 		try

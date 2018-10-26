@@ -50,7 +50,6 @@ public:
 		{ lock_guard<mutex> lock(blockMtx);
 			state = false;
 		}
-		Channel::reset();
 	}
 
 

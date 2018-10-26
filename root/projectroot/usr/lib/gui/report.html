@@ -22,7 +22,7 @@
 {% block html %}
 <table class="table table-hover">
 	<tbody data-bind="foreach:messages">
-		<tr data-bind="css: {'table-danger': priority <= 3, 'table-warning': priority == 4, 'table-info': priority == 5}">
+		<tr data-bind="css: {'bg-danger': priority <= 2, 'table-danger': priority == 3, 'table-warning': priority == 4, 'table-info': priority == 5}">
 			<td data-bind="text:timestamp"></td>
 			<td width="85%">
 				<strong data-bind="attr:{'data-l10n-id':report}" style="white-space:pre-line"></strong>

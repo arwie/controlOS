@@ -14,7 +14,7 @@ include_directories(include)
 
 
 
-find_library(BOOST_SYSTEM_PATH libboost_system-mt.a)
+find_library(BOOST_SYSTEM_PATH libboost_system.a)
 add_library(libboost_system STATIC IMPORTED)
 set_target_properties(libboost_system PROPERTIES
 	IMPORTED_LOCATION ${BOOST_SYSTEM_PATH}

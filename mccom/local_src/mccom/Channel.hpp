@@ -28,8 +28,8 @@ public:
 	virtual int receive(MessagePtr& message, chrono::milliseconds timeout)	{ throw logic_error("receive() not implemented"); }
 
 	virtual void open()		{ logMsg(LogDebug("channel opened")); }
-	virtual void reset()	{ logMsg(LogDebug("channel reset")); }
-	virtual ~Channel()		{ logMsg(LogDebug("channel destroyed")); }
+	virtual void reset()	{}
+	virtual ~Channel()		{}
 
 	virtual void close()
 	{
@@ -96,8 +96,6 @@ public:
 		{ lock_guard<mutex> lock(blockMtx);
 			swap(receiveQueue, emptyQueue);
 		}
-
-		Channel::reset();
 	}
 
 

@@ -1,6 +1,7 @@
 [Unit]
 StopWhenUnneeded=true
 ConditionPathExists=/etc/hostapd.conf.d/local.conf
+After=network.target
 
 [Service]
 RuntimeDirectory=hostapd

@@ -64,8 +64,10 @@ function pageUrl(url, params=null) {
 
 function webSocket(url, onMessageJson) {
 	let ws = new WebSocket(url);
+	let first = true;
 	ws.onmessage = (e)=>{
-		onMessageJson(JSON.parse(e.data));
+		onMessageJson(JSON.parse(e.data), first);
+		first = false;
 	};
 	ws.sendJson = (data)=>{
 		ws.send(JSON.stringify(data));

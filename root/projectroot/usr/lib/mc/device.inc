@@ -136,7 +136,8 @@ function device_axes() {
 }
 
 
-function device_simulated($device) {
+function device_simulated($device=null) {
+	$device = $device ?: lib();
 	return conf('device',$device,'simulated') || (get('mc')['type']=='sim');
 }
 

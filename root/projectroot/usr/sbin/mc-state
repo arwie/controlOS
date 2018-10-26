@@ -28,9 +28,16 @@ args = parser.parse_args()
 
 
 
-def process(msg):
-	for k, v in msg.items():
+def systemctl(msg):
+	for k,v in msg.items():
 		subprocess.run(['/bin/systemctl', '--no-block', 'start' if v else 'stop', 'mc-state@{}.target'.format(k)])
+
+
+state = False
+def process(msg):
+	global state
+	systemctl({k:v for k,v in msg.items() if v != state[k]} if state else {k:v for k,v in msg.items() if v})
+	state = msg
 
 
 @gen.coroutine
