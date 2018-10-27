@@ -1,7 +1,0 @@
-[Match]
-#     >PokiniF2         >iEi
-Path= pci-0000:02:00.0  pci-0000:02:00.0
-OriginalName=eth*
-
-[Link]
-Name=lan
