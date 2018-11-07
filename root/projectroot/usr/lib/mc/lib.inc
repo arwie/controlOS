@@ -71,8 +71,12 @@ function logMessage($prio, $message, $report=false, $log=false) {
 	ll('call log_message('.$prio.', "'.$message.'")');
 	if ($report)
 		ll('call log_putReport("'.$report.'")');
-	if ($log)
+	if ($log) {
+		ll('try');
 		$log();
+		ll('catch else');
+		ll('end try');
+	}
 	ll('call log_putCodeFunc(scope)');
 	ll('call com_putString("/lib", "'.lib().'")');
 	ll('call '.lib().'_putDebug');
@@ -271,10 +275,14 @@ function libEnd() { global $lib;
 	l('end sub');
 	
 	l('public sub '.lib().'_putDebug');
-	ll('call com_with("/debug/'.lib().'/")');
-	ll('call com_putBool("started", '.lib().'_started)');
-	ll('call com_putBool("active", '.lib().'_active)');
+	ll('try');
+	lll('call com_with("/debug/'.lib().'/")');
+	lll('call com_putBool("started", '.lib().'_started)');
+	lll('call com_putBool("active", '.lib().'_active)');
 	libPartsExec('debug');
+	ll('catch else');
+	lll('call com_putString("-", error)');
+	ll('end try');
 	l('end sub');
 
 	foreach (['Error', 'Warning', 'Notice', 'Info', 'Debug'] as $prio) {

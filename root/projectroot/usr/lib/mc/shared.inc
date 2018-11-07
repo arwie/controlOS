@@ -73,9 +73,9 @@ function awaitCondition($result, $condition, $timeout, $ifnot=false) {
 	ll('end while');
 	ll($result.' = '.$condition);
 	if ($ifnot) {
-	ll('if not '.$result.' then');
-		if (is_string($ifnot)) ll($ifnot); else $ifnot();
-	ll('end if');
+		ll('if not '.$result.' then');
+			if (is_callable($ifnot)) $ifnot(); else lll($ifnot);
+		ll('end if');
 	}
 }
 
