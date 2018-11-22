@@ -72,6 +72,11 @@ public sub log_send
 end sub
 
 
+public sub log_debugMessage(byval message_ as string)
+	call log_message(log_prioDebug, message_)
+	call log_send
+end sub
+
 
 <?lib_init()?>
 	<?com_open('comLogChannel', 'log', function() {?>

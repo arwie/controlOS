@@ -17,9 +17,15 @@
 
 dim shared stateWatchdogIntervalMs as const long	= 1000
 
+dim shared this_udpBeacon as long
+
 
 
 <?lib_init()?>
+	<?com_open('this_udpBeacon', 'udp', function() {?>
+		call com_putString("/send/address", "<?=gethostbyname('sys')?>")
+		call com_putLong("/send/port", 33000)
+	<?})?> 
 	<?com_openWebsocket('state_websocket', 33000, ['receive'=>'false'])?>
 end sub
 
@@ -30,10 +36,6 @@ end sub
 end sub
 
 
-
-<?lib_prgStart()?>
-	call sendWatchdog
-end sub
 
 <?com_prgReceive('state_websocket', 'stateWatchdogIntervalMs', 14)?>
 	select case receive_
@@ -52,6 +54,7 @@ end sub
 
 sub sendState
 	call com_clear
+	call com_send(this_udpBeacon)
 <?
 	foreach (get('libs')['all'] as $l) 
 		ll('call com_putBool("/'.$l['name'].'", '.$l['name'].'_started)')
@@ -62,6 +65,6 @@ end sub
 
 sub sendWatchdog
 	call com_clear
+	call com_send(this_udpBeacon)
 	call com_send(state_websocket)
-	call dropString(python("from socket import *;s=socket(AF_INET,SOCK_DGRAM);"+"s.sendto('mc-state',('<?=gethostbyname('sys')?>',33000))"))
 end sub

@@ -27,8 +27,8 @@ function libBegin($file, $from, $type) { global $lib;
 	l('dim shared libActiveNotify as long');
 }
 
-function &lib($what='name') { global $lib;
-	return $lib[$what];
+function &lib($what='name', $add=false) { global $lib;
+	if ($add) $lib[$what][] = $add; else return $lib[$what];
 }
 
 function libPartsAdd($where, $part) {

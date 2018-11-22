@@ -57,7 +57,6 @@ $(STATEDIR)/mccom.targetinstall:
 	@$(call install_fixup, mccom, DESCRIPTION, missing)
 
 	$(call install_copy, mccom, 0, 0, 0644, -, /FFS0/SSMC/MCCOM.O)
-	$(call install_copy, mccom, 0, 0, 0644, -, /FFS0/SSMC/MCCOM.LIB)
 
 	@$(call install_finish, mccom)
 

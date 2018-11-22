@@ -15,6 +15,9 @@
 ' OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+system.numberaxes = <?=count(device_axes())?> 
+
+
 common shared state_websocket as long
 <?
 	foreach (get('libs')['all'] as $l)

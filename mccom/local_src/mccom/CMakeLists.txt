@@ -36,7 +36,8 @@ if(${PLATFORM} STREQUAL "iMX6")
 	target_link_libraries(mccom
 		libstdcpp
 	)
-else()
+endif()
+if(${PLATFORM} STREQUAL "i586")
 	MESSAGE(STATUS "Building for i586")
 	add_library(libstdcpp STATIC IMPORTED)
 	set_target_properties(libstdcpp PROPERTIES
@@ -68,9 +69,5 @@ set_target_properties(mccom PROPERTIES
 
 install(
 	TARGETS mccom
-	DESTINATION /FFS0/SSMC
-)
-install(
-	FILES MCCOM.LIB
 	DESTINATION /FFS0/SSMC
 )
