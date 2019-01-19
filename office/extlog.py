@@ -32,7 +32,7 @@ class Handler(server.RequestHandler):
 	def importJournal(self):
 		self.clearJournal()
 		subprocess.run(
-			'xzcat | /usr/lib/systemd/systemd-journal-remote --output={}/extlog.journal -'.format(extlogDir.name),
+			'xzcat | /lib/systemd/systemd-journal-remote --output={}/extlog.journal -'.format(extlogDir.name),
 			shell=True,
 			input=self.request.files['extlog'][0]['body']
 		)

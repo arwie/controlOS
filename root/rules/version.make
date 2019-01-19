@@ -31,8 +31,9 @@ $(STATEDIR)/version.targetinstall: FORCE
 	@$(call targetinfo)
 	@$(call install_init, version)
 
-	@$(call install_alternative, version, 0, 0, 0644, /version-id)
-	@$(call install_replace,     version, /version-id, @ID@, $(shell date +%Y%m%d%H%M))
+	@$(call install_alternative, version, 0, 0, 0644, /version)
+	@$(call install_replace,     version, /version, @NAME@, $(shell git tag --points-at=HEAD))
+	@$(call install_replace,     version, /version, @ID@,   $(shell date +%Y%m%d%H%M))
 
 	@$(call install_finish,version)
 	@$(call touch)
