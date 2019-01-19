@@ -28,9 +28,9 @@ ptxdist_build()
 
 
 # Now build all images
-#ptxdist_build "--platformconfig=configs/iMX6/platformconfig --toolchain=/opt/OSELAS.Toolchain-2016.06.1/arm-v7a-linux-gnueabihf/gcc-5.4.0-glibc-2.23-binutils-2.26-kernel-4.6-sanitized/bin"
-ptxdist_build "--platformconfig=configs/i586/platformconfig --toolchain=/opt/OSELAS.Toolchain-2016.06.1/i586-unknown-linux-gnu/gcc-5.4.0-glibc-2.23-binutils-2.26-kernel-4.6-sanitized/bin"
-ptxdist_build "--platformconfig=configs/i686/platformconfig --toolchain=/opt/OSELAS.Toolchain-2016.06.1/i586-unknown-linux-gnu/gcc-5.4.0-glibc-2.23-binutils-2.26-kernel-4.6-sanitized/bin"
+#ptxdist_build --platformconfig=configs/iMX6/platformconfig
+ptxdist_build --platformconfig=configs/i586/platformconfig
+ptxdist_build --platformconfig=configs/i686/platformconfig
 
 
 echo "#############################################"

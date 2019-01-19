@@ -51,6 +51,7 @@ static void logMsg(Log&&);
 #include "ChannelFifo.hpp"
 #include "ChannelWebsocket.hpp"
 #include "ChannelUdp.hpp"
+#include "ChannelFile.hpp"
 #include "Manager.hpp"
 
 #include "amcs.h"
@@ -72,6 +73,7 @@ static int mccom_open(int channelType, int *error) noexcept
 			case  4: return manager.openChannel(make_shared<ChannelFifo>			(*messagePtr));
 			case  5: return manager.openChannel(make_shared<ChannelWebsocket>		(*messagePtr));
 			case  6: return manager.openChannel(make_shared<ChannelUdp>				(*messagePtr));
+			case  7: return manager.openChannel(make_shared<ChannelFile>			(*messagePtr));
 			default: throw runtime_error("unknown channel type");
 		}
 	} catch (exception& e) {
@@ -259,7 +261,9 @@ static void mccom_put_json(SYS_STRING* path, SYS_STRING* value, int *error) noex
 {
 	*error = 0;
 	try {
-		(*messagePtr)[messagePtr->withPath(amcsGetString(path))] = json::parse(amcsGetString(value));
+		auto valueStr = amcsGetString(value);
+		replace(valueStr.begin(), valueStr.end(), '`', '"');	//allow coding json strings in basic
+		(*messagePtr)[messagePtr->withPath(amcsGetString(path))] = json::parse(valueStr);
 	} catch (exception& e) {
 		*error = 1;
 		logMsg(LogError(e.what()).func(__func__).log("path", amcsGetString(path)));
