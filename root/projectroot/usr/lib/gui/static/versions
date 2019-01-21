@@ -1,11 +1,11 @@
 knockout			3.5.0-rc2
 pager				1.1.0
-jquery				3.2.1
+jquery				3.3.1
 popper				1.14.3
-bootstrap			4.1.3
+bootstrap			4.2.1
 l20n				5.0.0
 pep					0.4.3
 font-awesome		4.7.0
 three				r96
-ace (noconflict)	1.3.3
+ace (noconflict)	1.4.2
 chart				2.7.2

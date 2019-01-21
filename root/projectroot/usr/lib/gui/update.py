@@ -1,4 +1,4 @@
-# Copyright (c) 2016 Artur Wiebe <artur@4wiebe.de>
+# Copyright (c) 2019 Artur Wiebe <artur@4wiebe.de>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 # associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -16,23 +16,34 @@
 
 
 import server
-import os, json
-from tornado.web import RequestHandler
+from shared import system
+import os, shutil
 
 
-class Handler(RequestHandler):
-	
+class Handler(server.RequestHandler):
 	def get(self):
-		info = {}
-		with open('/version-id', 'r') as f:
-			info['version-id'] = f.read()
-		self.write(json.dumps(info).encode('utf8'))
+		self.write(open('/version', encoding='utf8').read())
 	
 	def put(self):
-		with open('/mnt/init/.update', 'wb') as f:
+		with open('/mnt/init/..update', 'wb') as f:
 			f.write(self.request.files['update'][0]['body'])
-		os.rename('/mnt/init/.update', '/mnt/init/update')
+		shutil.move('/mnt/init/..update', '/mnt/init/.update')
+		system.restart('update-apply.service')
+
+
+class RevertHandler(server.RequestHandler):
+	def get(self):
+		try:
+			self.write(str(os.path.getmtime('/mnt/init/revert')))
+		except: pass
+	
+	def post(self):
+		shutil.move('/mnt/init/revert/update', '/mnt/init/update')
+		shutil.move('/mnt/init/revert/data',   '/mnt/init/data')
+		shutil.rmtree('/mnt/init/revert')
+		system.reboot()
 
 
 
-server.addAjax(__name__, Handler)
+server.addAjax(__name__,				Handler)
+server.addAjax(__name__+'/revert',		RevertHandler)

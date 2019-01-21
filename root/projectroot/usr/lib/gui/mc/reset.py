@@ -1,4 +1,3 @@
-{% comment 
 # Copyright (c) 2018 Artur Wiebe <artur@4wiebe.de>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
@@ -14,45 +13,20 @@
 # IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-%}
-
-{% extends "../page.html" %}
 
 
-
-{% block html %}
-<legend data-l10n-id="mc_trnerr"></legend>
-<p>
-	<div class="card bg-light">
-		<div class="card-body">
-			<pre data-bind="text:trnerr"></pre>
-		</div>
-	</div>
-</p>
-<p>
-	<button data-bind="click:load" class="btn btn-secondary" data-l10n-id="mc_reload"></button>
-</p>
-{% end %}
+import server
+from shared import system
+from subprocess import run
+from tornado import gen
 
 
-{% block model %}
-class {
-	constructor() {
-		this.trnerr		= ko.observable();
-	}
+class Handler(server.RequestHandler):
 	
-	load() {
-		return $.get(ajaxUrl('mc.trnerr')).done((data)=>{
-			model.trnerr(data);
-		});
-	}
-	
-	start(started) {
-		model.load().done(started);
-	}
-	
-	stop() {
-		model.trnerr(null);
-	}
-}
-{% end %}
+	@gen.coroutine
+	def post(self):
+		run(['ssh', 'mc', 'rm -f /home/mc/{*.hash,*.drivecache}'], check=True)
+		system.restart('mc-update.service')
+
+
+server.addAjax(__name__, Handler)

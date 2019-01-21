@@ -20,35 +20,56 @@
 
 
 {% block html %}
-	<p>
+<p>
 	<div class="card">
-		<div class="card-header" data-l10n-id="update-current"></div>
+		<div class="card-header" data-l10n-id="update-version"></div>
 		<div class="card-body">
-			<dl>
+			<dl data-bind="with:version">
+				<dt data-l10n-id="update-version-name"></dt>
+				<dd data-bind="text:name"></dd>
 				<dt data-l10n-id="update-version-id"></dt>
-				<dd data-bind="text: versionId"></dd>
+				<dd data-bind="text:id"></dd>
 			</dl>
 		</div>
 	</div>
-	</p>
-	
+</p>
+
+<ul data-bind="foreach:$page.children" class="nav nav-tabs nav-justified mb-3">
+	<li class="nav-item">
+		<a data-bind="page-href:$data, attr:{'data-l10n-id':'update-'+getId()}, css:{active:isVisible}" class="nav-link"></a>
+	</li>
+</ul>
+
+<div data-bind="page:{id:'file', role:'start'}">
 	<p>
-	<label class="btn btn-primary btn-block">
-		<span data-l10n-id="update-file"></span> 
-		<input type="file" data-bind="event: {change: function() { upload($element.files[0]) }}" style="display: none;">
-	</label>
+		<label class="btn btn-primary">
+			<span data-l10n-id="update-file"></span> 
+			<input type="file" data-bind="event:{change:function(){upload($element.files[0])}}" style="display:none;">
+		</label>
 	</p>
+</div>
+
+<!-- ko if:revertDate -->
+<div data-bind="page:{id:'revert'}">
+	<p>
+		<dl>
+			<dt data-l10n-id="update-revert-date"></dt>
+			<dd data-bind="text:revertDate"></dd>
+		</dl>
+	</p>
+	<p>
+		<button data-bind="click:revert" class="btn btn-danger" data-l10n-id="update-revert"></button>
+	</p>
+</div>
+<!-- /ko -->
 {% end %}
 
 
 {% block model %}
 class {
 	constructor() {
-		this.versionId = ko.observable();
-		
-		$.getJSON(ajaxUrl('update'), (data) => {
-			this.versionId(data['version-id']);
-		});
+		this.version    = ko.observable();
+		this.revertDate = ko.observable();
 	}
 	
 	upload(file) {
@@ -60,10 +81,26 @@ class {
 			data: formData,
 			processData: false,
 			contentType: false,
-		})
-		.done(function() {
-			pager.navigate('');
 		});
+	}
+	
+	revert() {
+		$.post(ajaxUrl('update/revert'));
+	}
+	
+	start(started) {
+		$.getJSON(ajaxUrl('update'), (data)=>{
+			model.version(data);
+		}).always(started);
+		$.get(ajaxUrl('update/revert'), (data)=>{
+			if (!data) return;
+			model.revertDate(new Date(parseInt(data)*1000).toLocaleString(navigator.language, {hour12:false}));
+		});
+	}
+	
+	stop() {
+		model.version(null);
+		model.revertDate(null);
 	}
 }
 {% end %}

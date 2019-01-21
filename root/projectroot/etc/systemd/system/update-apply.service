@@ -1,7 +1,0 @@
-[Unit]
-ConditionPathExists=/mnt/init/update
-
-[Service]
-Type=oneshot
-ExecStartPre=-/bin/sleep 3
-ExecStart=/bin/systemctl --no-block reboot

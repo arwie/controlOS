@@ -1,4 +1,4 @@
-# Copyright (c) 2018 Artur Wiebe <artur@4wiebe.de>
+# Copyright (c) 2019 Artur Wiebe <artur@4wiebe.de>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 # associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -15,49 +15,33 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-import os, json, collections, glob, re
+import collections
 from shared.conf import Conf
 
 
-def _construct():
-	confFile	= '/etc/app/setup.conf'
-	dir			= '/usr/share/setup/'
-	ext			= '.json'
 
-	def decode(name):
-		return json.load(open(dir+name+ext))
+def _defaultdict():
+	return collections.defaultdict(_defaultdict)
 
-	def replaceRecursive(d, u):
-		for k, v in u.items():
-			if isinstance(v, collections.Mapping):
-				d[k] = replaceRecursive(d.get(k, {}), v)
-			else:
-				d[k] = v
-		return d
-	
-	setup = decode('setup')
-	
-	if os.path.exists(confFile):
-		conf = Conf(confFile)
-		type = conf.get('setup','type')
-		rev  = conf.get('setup','revision')
-
-		setup = replaceRecursive(setup, decode(type))
-
-		patches = []
-		for path in glob.glob(dir+type+'-*'+ext):
-			match = re.match(r'.*-(\d*)\..*', path)
-			if match:
-				patch = int(match.group(1))
-				if patch >= int(rev):
-					patches.append(patch)
-		patches.sort(reverse=True)
-		for patch in patches:
-			setup = replaceRecursive(setup, decode(type+'-'+str(patch)))
-
-		setup = replaceRecursive(setup, conf.dict())
-
-	return setup
+setup = _defaultdict()
 
 
-setup = _construct()
+try:
+	conf = Conf('/etc/app/setup.conf')
+except:
+	conf = None
+
+
+try:
+	from shared import setup_app
+	setup_app.setup_app(setup, conf)
+except ImportError: pass
+
+
+if conf and conf.has_section('setup'):
+	for path,value in conf.items('setup'):
+		path = path.split('/')
+		item = setup
+		for key in path[:-1]:
+			item = item[key]
+		item[path[-1]] = value

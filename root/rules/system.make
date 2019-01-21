@@ -49,9 +49,10 @@ $(STATEDIR)/system.targetinstall:
 	
 	# update
 	@$(call install_copy,        system, 0, 0, 0755, /mnt/init)
-	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/system/update-apply.service)
-	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/system/update-apply.path)
-	@$(call install_link,        system, ../update-apply.path, /etc/systemd/system/mnt-init.mount.wants/update-apply.path)
+	@$(call install_copy,        system, 0, 0, 0755, /mnt/root)
+	@$(call install_alternative, system, 0, 0, 0755, /usr/sbin/update-apply)
+	@$(call install_alternative, system, 0, 0, 0644, /usr/lib/systemd/system/update-apply.service)
+	@$(call install_alternative, system, 0, 0, 0644, /usr/lib/systemd/system/reboot.service)
 
 	# sshd root key
 	@$(call install_copy,        system, 0, 0, 0700, /root/.ssh)
@@ -74,7 +75,6 @@ $(STATEDIR)/system.targetinstall:
 	@$(call install_alternative, system, 0, 0, 0644, /usr/lib/systemd/system/journal-cleanup.timer)
 	@$(call install_link,        system, ../journal-cleanup.timer, /usr/lib/systemd/system/timers.target.wants/journal-cleanup.timer)
 
-	@$(call install_alternative_tree, system, 0, 0, /usr/share/setup)
 	@$(call install_alternative, system, 0, 0, 0644, /etc/issue.conf)
 	@$(call install_copy,        system, 0, 0, 0755, /etc/app)
 

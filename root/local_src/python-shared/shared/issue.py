@@ -94,6 +94,14 @@ class Issue(MIMEMultipart):
 		self['To']		= conf.get('issue', 'to')
 		self['Subject']	= conf.get('issue', 'subject', fallback='issue report')
 		
+		# attach version
+		try:
+			self.attach(MIMEApplication(
+				open('/version', encoding='utf8').read(),
+				name='version'
+			))
+		except: pass
+		
 		# attach backup
 		self.attach(MIMEApplication(
 			backup.store(),
@@ -102,7 +110,7 @@ class Issue(MIMEMultipart):
 		
 		# attach full journal export
 		self.attach(MIMEApplication(
-			subprocess.run('journalctl --merge --no-pager --output=export --since=-28days | xz -3', shell=True, stdout=subprocess.PIPE).stdout,
+			subprocess.run('journalctl --merge --no-pager --output=export --since=-28days | xz -T0', shell=True, stdout=subprocess.PIPE).stdout,
 			name='journal.xz'
 		))
 		

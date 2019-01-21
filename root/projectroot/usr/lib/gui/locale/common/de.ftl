@@ -29,6 +29,15 @@ connect = Verbinden
 disconnect = Trennen
 
 
+update = Update
+update-version = Aktuelle Version
+update-version-name = Version
+update-version-id = ID
+update-file = Update von Datei
+update-revert = Update widerrufen
+update-revert-date = Datum des letzten Updates
+
+
 issue = Problembericht
 issue_description = Beschreibung des Problems
 issue_contact = Kontaktperson

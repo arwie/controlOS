@@ -1,4 +1,3 @@
-{% comment 
 # Copyright (c) 2018 Artur Wiebe <artur@4wiebe.de>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
@@ -14,30 +13,24 @@
 # IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-%}
-
-{% extends "../page.html" %}
 
 
-
-{% block html %}
-<div class="row">
-<div class="col-lg-2">
-	<nav data-bind="foreach:$page.children" class="nav nav-pills flex-column">
-		<a data-bind="page-href:$data, css:{active:isVisible}, attr:{'data-l10n-id':'mc_'+getId()}" class="nav-link"></a>
-	</nav>
-</div>
-
-<div class="col">
-	{% module page("mc/license.html") %}
-	{% module page("mc/basic.html") %}
-	{% module page("mc/term.html") %}
-	{% module page("mc/reset.html") %}
-</div>
-</div>
-{% end %}
+import server
+import subprocess
+from tornado import gen
 
 
-{% block route %}
-	return 'basic';
-{% end %}
+
+class Handler(server.RequestHandler):
+	
+	@gen.coroutine
+	def post(self):
+		
+		def term(cmd):
+			return subprocess.run(['ssh', 'mc', cmd], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=5).stdout
+		
+		out = yield server.executor.submit(term, self.request.body)
+		self.write(out)
+
+
+server.addAjax(__name__, Handler)

@@ -1,5 +1,6 @@
-{% comment 
-# Copyright (c) 2018 Artur Wiebe <artur@4wiebe.de>
+#!/usr/bin/sh
+
+# Copyright (c) 2019 Artur Wiebe <artur@4wiebe.de>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 # associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -14,30 +15,16 @@
 # IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-%}
-
-{% extends "../page.html" %}
 
 
 
-{% block html %}
-<div class="row">
-<div class="col-lg-2">
-	<nav data-bind="foreach:$page.children" class="nav nav-pills flex-column">
-		<a data-bind="page-href:$data, css:{active:isVisible}, attr:{'data-l10n-id':'mc_'+getId()}" class="nav-link"></a>
-	</nav>
-</div>
-
-<div class="col">
-	{% module page("mc/license.html") %}
-	{% module page("mc/basic.html") %}
-	{% module page("mc/term.html") %}
-	{% module page("mc/reset.html") %}
-</div>
-</div>
-{% end %}
+set -e	#exit script on first error
 
 
-{% block route %}
-	return 'basic';
-{% end %}
+rm -rf /mnt/init/revert
+mkdir  /mnt/init/revert
+
+tar -cC/mnt/root  .			| xz -T0 > /mnt/init/revert/update
+tar -cC/var       etc		| xz -T0 > /mnt/init/revert/data
+
+mv /mnt/init/.update /mnt/init/update

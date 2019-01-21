@@ -1,3 +1,4 @@
+{% comment 
 # Copyright (c) 2018 Artur Wiebe <artur@4wiebe.de>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
@@ -13,24 +14,24 @@
 # IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+%}
 
-
-import server
-import subprocess
-from tornado import gen
+{% extends "../page.html" %}
 
 
 
-class Handler(server.RequestHandler):
-	
-	@gen.coroutine
-	def get(self):
-		
-		def catTrnerr():
-			return subprocess.run(['ssh', 'mc', 'cat /RAM/TRN.ERR'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout
-		
-		trnerr = yield server.executor.submit(catTrnerr)
-		self.write(trnerr)
+{% block html %}
+<legend data-l10n-id="mc_reset"></legend>
+<p>
+	<button data-bind="click:reset" class="btn btn-primary" data-l10n-id="mc_reset"></button>
+</p>
+{% end %}
 
 
-server.addAjax(__name__, Handler)
+{% block model %}
+class {
+	reset() {
+		$.post(ajaxUrl('mc.reset'));
+	}
+}
+{% end %}

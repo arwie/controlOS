@@ -29,6 +29,15 @@ connect = Connect
 disconnect = Disconnect
 
 
+update = Update
+update-version = Current version
+update-version-name = Version
+update-version-id = ID
+update-file = Update from file
+update-revert = Revert last update
+update-revert-date = Date of last update
+
+
 issue = Issue report
 issue_description = Issue description
 issue_contact = Contact person
