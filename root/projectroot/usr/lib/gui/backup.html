@@ -20,28 +20,19 @@
 
 
 {% block html %}
-	
-	<ol class="breadcrumb">
-		<li class="breadcrumb-item active" data-l10n-id="backup"></li>
-	</ol>
-	<hr>
-	
-	<div class="btn-group d-flex">
-		<a href="{{ajax_url('backup')}}" class="btn btn-primary w-100" data-l10n-id="backup-download"></a>
-		<label class="btn btn-warning btn-file w-100">
-			<span data-l10n-id="backup-restore"></span> 
-			<input type="file" data-bind="event: {change: function() { upload($element.files[0]) }}" style="display: none;">
-		</label>
-	</div>
-	
+<p>
+	<a href="{{ajax_url('backup')}}" class="btn btn-primary" data-l10n-id="backup-download"></a>
+	<label class="btn btn-warning mt-2">
+		<span data-l10n-id="backup-restore"></span> 
+		<input type="file" data-bind="event:{change:()=>{ upload($element.files[0]) }}" hidden>
+	</label>
+</p>
 {% end %}
 
 
 {% block model %}
-function() {
-	let self = this;
-	
-	self.upload = function(file) {
+class {
+	upload(file) {
 		let formData = new FormData();
 		formData.append('backup', file);
 		$.ajax({
@@ -50,16 +41,7 @@ function() {
 			data: formData,
 			processData: false,
 			contentType: false,
-		})
-		.done(function() {
-			pager.navigate('');
 		});
-	}
-	
-	self.start = function()	{
-	}
-	
-	self.stop = function() {
 	}
 }
 {% end %}
