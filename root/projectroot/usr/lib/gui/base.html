@@ -86,6 +86,34 @@ ko.subscribeTree = function(model, notify) {
 	}).subscribe(notify);
 };
 
+ko.bindingHandlers.clickConfirm = {
+	init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+		return ko.bindingHandlers.click.init.call(this, element, function() {
+			return (data, event)=>{
+				if (element.clickConfirm === undefined) {
+					element.clickConfirm = false;
+					element.classList.add("active");
+					element.clickConfirmDisarm = ()=>{
+						clearInterval(element.clickConfirmInterval);
+						clearTimeout(element.clickConfirmTimeout);
+						element.classList.remove("active");
+						delete element.clickConfirm;
+					}
+					setTimeout(()=>{
+						element.clickConfirmInterval = setInterval(()=>{element.classList.toggle("active");}, 333);
+						element.clickConfirmTimeout  = setTimeout(element.clickConfirmDisarm, 3000);
+						element.clickConfirm = true;
+					}, 500);
+				}
+				if (element.clickConfirm) {
+					element.clickConfirmDisarm();
+					return ko.unwrap(valueAccessor())(data, event);
+				}
+			};
+		}, allBindings, viewModel, bindingContext);
+	}
+};
+
 
 function GuiPage(pageModel, pageParams, pageGuard, pageRoute) {
 	let self = this;
