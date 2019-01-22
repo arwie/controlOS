@@ -98,6 +98,7 @@ BOOST_JAM	:= \
 	-sZLIB_INCLUDE=$(SYSROOT)/usr/include \
 	-sZLIB_LIBPATH=$(SYSROOT)/usr/lib \
 	link=static \
+	cxxflags=-fPIC \
 	variant=release \
 	debug-symbols=on \
 	threading=multi \
