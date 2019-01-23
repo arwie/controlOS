@@ -61,6 +61,9 @@ def getType():
 		*E3825*)
 			echo -n "703"
 			;;
+		*ARMv7*)
+			echo -n "301"
+			;;
 		*)
 			echo -n "sim"
 			;;

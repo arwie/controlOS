@@ -57,6 +57,7 @@ endif()
 
 set_target_properties(mccom PROPERTIES
 	LINK_FLAGS "-Wl,--strip-all"
+#	LINK_FLAGS "-Wl,--strip-all -static-libgcc -static-libstdc++"
 )
 
 
