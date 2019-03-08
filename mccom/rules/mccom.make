@@ -18,56 +18,15 @@ PACKAGES-$(PTXCONF_MCCOM) += mccom
 #
 MCCOM_VERSION	:= 1
 MCCOM			:= mccom-$(MCCOM_VERSION)
-MCCOM_URL		:= file://$(PTXDIST_WORKSPACE)/local_src/mccom
+MCCOM_URL		:= lndir://$(PTXDIST_WORKSPACE)/local_src/mccom
 MCCOM_DIR		:= $(BUILDDIR)/$(MCCOM)
 MCCOM_LICENSE	:= unknown
-
-# ----------------------------------------------------------------------------
-# Get
-# ----------------------------------------------------------------------------
-
-#$(MCCOM_SOURCE):
-#	@$(call targetinfo)
-#	@$(call get, MCCOM)
 
 # ----------------------------------------------------------------------------
 # Prepare
 # ----------------------------------------------------------------------------
 
-#MCCOM_CONF_ENV	:= $(CROSS_ENV)
-
-#
-# cmake
-#
-MCCOM_CONF_TOOL	:= cmake
-
-MCCOM_CONF_OPT	:= $(CROSS_CMAKE_USR) -DCMAKE_BUILD_TYPE=Release -DPLATFORM=$(PTXCONF_PLATFORM)
-
-# ----------------------------------------------------------------------------
-# Target-Install
-# ----------------------------------------------------------------------------
-
-$(STATEDIR)/mccom.targetinstall:
-	@$(call targetinfo)
-
-	@$(call install_init, mccom)
-	@$(call install_fixup, mccom, PRIORITY, optional)
-	@$(call install_fixup, mccom, SECTION, base)
-	@$(call install_fixup, mccom, AUTHOR, "Artur Wiebe")
-	@$(call install_fixup, mccom, DESCRIPTION, missing)
-
-	$(call install_copy, mccom, 0, 0, 0644, -, /FFS0/SSMC/MCCOM.O)
-
-	@$(call install_finish, mccom)
-
-	@$(call touch)
-
-# ----------------------------------------------------------------------------
-# Clean
-# ----------------------------------------------------------------------------
-
-#$(STATEDIR)/mccom.clean:
-#	@$(call targetinfo)
-#	@$(call clean_pkg, MCCOM)
+MCCOM_CONF_TOOL	:= NO
+MCCOM_MAKE_ENV	:= $(CROSS_ENV) PLATFORM=$(PTXCONF_PLATFORM) TOOLCHAIN=$(PTXDIST_PLATFORMDIR)/selected_toolchain/..
 
 # vim: syntax=make

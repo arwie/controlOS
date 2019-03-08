@@ -3,7 +3,7 @@
 SCRIPT=$(readlink -f $0)
 BASEDIR=$(dirname $SCRIPT)
 
-NP=$(nproc)
+PLATFORMS='configs/i586/platformconfig configs/i686/platformconfig configs/iMX6/platformconfig'
 
 cd $BASEDIR
 
@@ -16,21 +16,15 @@ errexit() {
 }
 
 
-ptxdist_build()
-{
-	ptxdist $1 -q clean					|| errexit "Error while cleaning $1"
-	
-	if ! ptxdist $1 go -j$NP; then
-		ptxdist $1 go					|| errexit "Error while building $1"
-	fi
-}
+for P in $PLATFORMS
+do
+	ptxdist --platformconfig=$P -q clean				|| errexit "Error while cleaning $P"
+done
 
-
-
-# Now build all images
-#ptxdist_build --platformconfig=configs/iMX6/platformconfig
-ptxdist_build --platformconfig=configs/i586/platformconfig
-ptxdist_build --platformconfig=configs/i686/platformconfig
+for P in $PLATFORMS
+do
+	ptxdist --platformconfig=$P -j go					|| errexit "Error while building $P"
+done
 
 
 echo "#############################################"
