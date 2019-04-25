@@ -37,6 +37,7 @@ public sub log_message(byval prio_ as long, byval message_ as string)
 	call com_putLong("/clock", system.clock)
 	call com_putLong("/priority", prio_)
 	call com_putStringRef("/message", message_)
+	call com_putString("/prg", programname)
 end sub
 
 

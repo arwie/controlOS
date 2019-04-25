@@ -53,6 +53,14 @@ public function EC_SDO_READ_STRING(byval slaveaddres as long, byval index as lon
 end function
 
 
+public function EC_MASTER as string
+	throw simmc_error
+end function
+
+public function EC_SLAVES as string
+	throw simmc_error
+end function
+
 public function EC_ETHERCAT_INIT as long
 	throw simmc_error
 end function

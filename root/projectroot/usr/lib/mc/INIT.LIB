@@ -36,8 +36,3 @@ foreach(get('simio') as $io) {
 	l('common shared '.$io['io'].' as '.$io['type']);
 }
 ?>
-
-
-
-public function init_dummy as long
-end function

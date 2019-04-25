@@ -22,29 +22,29 @@ function async($prio='prgPriorityNormal')
 	l('dim shared asyncNotify   as long');
 	l('dim shared asyncFunction as string = "{}"');
 	
-	libPartsAdd('init', function(){
+	lib('init', function(){
 		com_openFifo('asyncBuffer');
 		com_openNotify('asyncNotify');
 	});
 	
-	libPartsAdd('stopTrigger', function(){
+	lib('stopTrigger', function(){
 		ll('call com_clear');
 		ll('call com_send(asyncNotify)');
 		ll('call com_send(asyncBuffer)');
 	});
 	
-	libPartsAdd('stop', function(){
+	lib('stop', function(){
 		ll('call com_reset(asyncBuffer)');
 		ll(lib().'_asyncBusy = false');
 		ll('asyncFunction = "{}"');
 	});
 	
-	libPartsAdd('debug', function(){
-		ll('call com_putJson("asyncFunction", asyncFunction)');
-		ll('call com_putLong("asyncBusy", '.lib().'_asyncBusy)');
-	});
+	lib('debug', [
+		'call com_putJson("asyncFunction", asyncFunction)',
+		'call com_putLong("asyncBusy", '.lib().'_asyncBusy)',
+	]);
 	
-	libPartsAdd('end', function() use ($prio) {
+	lib('end', function() use ($prio) {
 		com_prgReceive('asyncBuffer', 250, $prio);
 		ll('select case receive_');
 		ll('case com_receiveMessage');
@@ -66,7 +66,7 @@ function async($prio='prgPriorityNormal')
 		ll('if '.lib().'_asyncBusy then');
 		lll('call com_reset(asyncNotify)');
 		lll('if '.lib().'_active then');
-		llll('call com_clear');
+		llll('call com_store');
 		llll('call asyncExec(-1)');
 		llll('while not com_receive(asyncNotify, 100) and '.lib().'_active');
 		llll('end while');
@@ -80,6 +80,7 @@ function async($prio='prgPriorityNormal')
 		l('sub asyncExec(byval cmd_ as long)');
 		ll('call com_putLong("/cmd", cmd_)');
 		ll('call com_send(asyncBuffer)');
+		ll('call com_restore');
 		ll('increment('.lib().'_asyncBusy)');
 		l('end sub');
 	});
@@ -110,9 +111,9 @@ function async_function($name, $args=[], $pre=false, $post=false)
 	lib('async')['functions'][] = $f;
 	
 	l('public sub '.lib().'_'.$f['name'].$pp($paramsPure));
-	if ($pre) $pre();
+	call($pre);
 	ll('if '.lib().'_started then');
-	lll('call com_clear');
+	lll('call com_store');
 	lll('call com_putString("/function", "'.$name.'")');
 	foreach ($comPut?:[] as $p) lll($p);
 	lll('call asyncExec('.$f['cmd'].')');
@@ -120,7 +121,7 @@ function async_function($name, $args=[], $pre=false, $post=false)
 	ll('else');
 	lll('call '.$f['nameSync'].$pp($paramsCall));
 	ll('end if');
-	if (is_callable($post)) $post();
+	call($post);
 	l('end sub');
 	
 	l('sub '.$f['nameSync'].$pp($params));

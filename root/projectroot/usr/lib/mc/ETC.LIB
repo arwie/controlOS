@@ -22,112 +22,104 @@ common shared etc_busnumber as const long = 0
 common shared etc_cycletime as const long = 4000	'{4000,2000,1000,500}[µs]
 
 dim shared healthQueryIntervalMs as const long	= 60*60*1000
-dim shared healthQueryTimeout as long
 
 
 
-<?lib_systemError([19015])?>
+<?lib_systemError([19015], 'call putEthercatFatal')?>
 	call etc_stopTrigger
 end sub
 
 
 <?lib_init()?>
-	call logEthercat("init", false)
+	try
+		call dropLong(EC_ETHERCAT_INIT)
+		sleep <?=count($etc)?> * 250
 
-	call dropLong(EC_ETHERCAT_INIT)
-	call sleepActive(<?=count($etc)?> * 250)
+		<?foreach($etc as $dev) {
+			ll("'--------");
+			switch ($dev['device']) {
+				case 'cdhd':
+					ll('call EC_REMAP_CDHD_DEFAULT_PDOS('.$dev['address'].')');
+					break;
+				case 'stepim':
+					ll('call setupPdoMapping_stepim('.$dev['address'].')');
+					break;
+			}
+		}?>
 
-<?
-	foreach($etc as $dev) {
-		ll("'--------");
-		switch ($dev['device']) {
-			case 'cdhd':
-				ll('call EC_REMAP_CDHD_DEFAULT_PDOS('.$dev['address'].')');
-				break;
-			case 'stepim':
-				ll('call setupPdoMapping_stepim('.$dev['address'].')');
-				break;
-		}
-	}
-?>
+		call dropLong(EC_RESCAN_SLAVES)
+		sleep 500
+		call dropLong(CHECK_TOPOLOGY)
+		call EC_CREATE_MASTER
 
-	call dropLong(EC_RESCAN_SLAVES)
-	call sleepActive(500)
-	call dropLong(CHECK_TOPOLOGY)
-	call EC_CREATE_MASTER
-
-<?
-	foreach($etc as $dev) {
-		ll("'--------");
-		ll('call EC_SLAVE_ERROR_RESET('.$dev['address'].')');
-		switch ($dev['device']) {
-			case 'cdhd':
-				ll('call EC_CDHD_SET_PDOS('.$dev['address'].', etc_busnumber, 0, CDHD_OPMODE_SYNC_POSITION)');
-				ll('call EC_USE_SLAVE('.$dev['address'].', EC_SLAVES_INFO['.$dev['address'].']->vendor_id, EC_SLAVES_INFO['.$dev['address'].']->product_code, "ECAT_AXIS_SLAVE", true)');
-				ll('call etc_sdoWrite('.$dev['address'].', 0x6060, 0, 8,  CDHD_OPMODE_SYNC_POSITION)');
-				ll('call etc_sdoWrite('.$dev['address'].', 0x60C2, 1, 8,  etc_cycletime/100)');
-				ll('call etc_sdoWrite('.$dev['address'].', 0x60C2, 2, 8,  -4)');
-				ll('call etc_sdoWrite('.$dev['address'].', 0x60C0, 0, 16, 2)');
-				ll('call etc_sdoWrite('.$dev['address'].', 0x6040, 0, 16, 128)');
-				break;
-			case 'stepim':
-				ll('call EC_CDHD_SET_PDOS('.$dev['address'].', etc_busnumber, 0, CDHD_OPMODE_SYNC_POSITION)');
-				ll('call EC_USE_SLAVE('.$dev['address'].', EC_SLAVES_INFO['.$dev['address'].']->vendor_id, EC_SLAVES_INFO['.$dev['address'].']->product_code, "ECAT_AXIS_SLAVE", true)');
-				ll('call etc_sdoWrite('.$dev['address'].', 0x6060, 0, 8,  CDHD_OPMODE_SYNC_POSITION)');
-				ll('call etc_sdoWrite('.$dev['address'].', 0x60C2, 1, 8,  etc_cycletime/100)');
-				ll('call etc_sdoWrite('.$dev['address'].', 0x60C2, 2, 8,  -4)');
-				ll('call etc_sdoWrite('.$dev['address'].', 0x6040, 0, 16, 128)');
-				break;
-			default:
-				ll('call EC_USE_SLAVE('.$dev['address'].', EC_SLAVES_INFO['.$dev['address'].']->vendor_id, EC_SLAVES_INFO['.$dev['address'].']->product_code, "ECAT_IOMODULE_SLAVE", true)');
-				break;
-		}
-		foreach (array_merge($dev['readBit'], $dev['writeBit']) as $bit)
-			ll('call EC_ASSOCIATE_PDO_TO_SYS_DIO('.$dev['address'].', 0x'.dechex($bit['index']).', '.$bit['subindex'].', '.$bit['dio'].', '.$bit['size'].', '.$bit['offset'].')');
-	}
-?>
+		<?foreach($etc as $dev) {
+			ll("'--------");
+			ll('call EC_SLAVE_ERROR_RESET('.$dev['address'].')');
+			switch ($dev['device']) {
+				case 'cdhd':
+				case 'stepim':
+					ll('call EC_CDHD_SET_PDOS('.$dev['address'].', etc_busnumber, 0, CDHD_OPMODE_SYNC_POSITION)');
+					ll('call EC_USE_SLAVE('.$dev['address'].', EC_SLAVES_INFO['.$dev['address'].']->vendor_id, EC_SLAVES_INFO['.$dev['address'].']->product_code, "ECAT_AXIS_SLAVE", true)');
+					ll('call etc_sdoWrite('.$dev['address'].', 0x60C2, 1, 8,  etc_cycletime/100)');
+					ll('call etc_sdoWrite('.$dev['address'].', 0x60C2, 2, 8,  -4)');
+					ll('call etc_sdoWrite('.$dev['address'].', 0x6040, 0, 16, 128)');
+					break;
+				default:
+					ll('call EC_USE_SLAVE('.$dev['address'].', EC_SLAVES_INFO['.$dev['address'].']->vendor_id, EC_SLAVES_INFO['.$dev['address'].']->product_code, "ECAT_IOMODULE_SLAVE", true)');
+					break;
+			}
+			foreach (array_merge($dev['readBit'], $dev['writeBit']) as $bit)
+				ll('call EC_ASSOCIATE_PDO_TO_SYS_DIO('.$dev['address'].', 0x'.dechex($bit['index']).', '.$bit['subindex'].', '.$bit['dio'].', '.$bit['size'].', '.$bit['offset'].')');
+		}?>
+	<?catchLogThrow('call putEthercatFatal')?>
 end sub
 
 
 <?lib_start()?>
-	call EC_SET_BUS_CYCLETIME(etc_cycletime)
-	call dropLong(EC_SET_NEW_STATIC_DISTANCE(300))
-	
-	call EC_STARTMASTER
+	try
+		call EC_SET_BUS_CYCLETIME(etc_cycletime)
+		call dropLong(EC_SET_NEW_STATIC_DISTANCE(300))
+		call EC_STARTMASTER
+	<?catchLogThrow('call putEthercatFatal')?>
 end sub
 
 
-<?lib_prgPoll(5000, 16)?>
-	if system.clock > healthQueryTimeout then
-		healthQueryTimeout = system.clock + healthQueryIntervalMs
-		call logEthercat("health", true)
-	end if
+<?lib_prgPoll('healthQueryIntervalMs', 16)?>
+	<?logInfo(['ethercat health'], function(){?>
+		call putEthercatDebug
+		call putEthercatHealth
+	<?})?>
 end sub
 
 
 <?lib_prgStop()?>
 	call dropString(sh("ethercat rescan"))
 	sleep 3000
-	call logEthercat("stop", true)
+	<?logNotice(['ethercat stop'], function(){?>
+		call putEthercatDebug
+		call putEthercatError
+		call putEthercatHealth
+	<?})?>
 end sub
 
 
-sub logEthercat(byval what_ as string, byval regs_ as long)
-	call logLibInfo("ethercat "+what_)
-	call log_putMessageId("af06a2c1696f46b18b948283b249a04e")
-	call com_putString("/master", sh("ethercat master"))
-	call com_putString("/slaves", sh("ethercat slaves"))
+sub putEthercatFatal
+	call putEthercatDebug
+	call putEthercatError
+end sub
+
+sub putEthercatError
+	call com_putString("/dmesg", sh("dmesg | tail -n64"))
 	call com_putString("/slaves_info", sh("ethercat -v slaves"))
-	call com_putString("/dmesg", sh("dmesg | tail -n40"))
-	if regs_ then
-<?foreach($etc as $dev) {?>
-		try
-			call com_putString("/regs_<?=$dev['address']?>", EC_SLAVE_ERROR_REGS(<?=$dev['address']?>))
-		catch else
-		end try
-<?}?>
-	end if
-	call logSend
+end sub
+
+sub putEthercatDebug
+	call com_putString("/slaves", EC_SLAVES)
+	call com_putString("/master", EC_MASTER)
+end sub
+
+sub putEthercatHealth
+	<?foreach($etc as $dev) ll('call com_putString("/regs_'.$dev['address'].'", EC_SLAVE_ERROR_REGS('.$dev['address'].'))')?>
 end sub
 
 
@@ -153,19 +145,13 @@ end function
 <?$etc_xdoReadWriteBody = function($cmd, $valueType=false) {
 	ll('try');
 	lll($cmd);
-	ll('catch else');
-	lll('call logLibError(scope+": "+error)');
-	lll('call com_putLong("/error", errornumber)');
-	lll('call log_putCodeFunc(scope)');
-	lll('call com_putLong("/slave", slave_)');
-	lll('call com_putString("/index", hex$(index_)+"h")');
-	lll('call com_putLong("/subindex", subindex_)');
-	if ($valueType) lll('call com_put'.ucfirst($valueType).'("/value", value_)');
-	lll('call logSend');
-	ll('finally');
-	lll('healthQueryTimeout = 0');
-	lll('throw');
-	ll('end try');
+	catchLogThrow([
+		'call com_putLong("/slave", slave_)',
+		'call com_putString("/index", hex$(index_)+"h")',
+		'call com_putLong("/subindex", subindex_)',
+		($valueType) ? 'call com_put'.ucfirst($valueType).'("/value", value_)' : false,
+		'call putEthercatDebug',
+	]);
 }?>
 
 

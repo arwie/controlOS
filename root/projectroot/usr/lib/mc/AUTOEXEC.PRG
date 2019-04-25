@@ -26,7 +26,7 @@ program continue
 			call log_message(log_prioError, AUTOEXEC.PRG.error)
 			call com_putLong("/error", AUTOEXEC.PRG.errornumber)
 			call log_putTrnErr
-			call logSend
+			call log_send
 	end onError
 
 
@@ -39,7 +39,7 @@ program continue
 	if system.numberaxes < <?=count($axes)?> then
 		call log_message(log_prioCritical, "MC license not sufficient!")
 		call com_putLong("/numberaxes", system.numberaxes)
-		call logSend
+		call log_send
 	end if
 
 <?
@@ -54,7 +54,7 @@ program continue
 	loadGlobal CAN.LIB
 
 <?
-	foreach (get('libs')['app'] as $l)
+	foreach (array_reverse(get('libs')['app']) as $l)
 		ll('loadGlobal '.$l['file']);
 ?>
 
@@ -66,9 +66,3 @@ program continue
 	load INIT.PRG
 
 terminate program
-
-
-sub logSend
-	call com_putString("/prg", "autoexec")
-	call log_send
-end sub

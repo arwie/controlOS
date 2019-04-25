@@ -20,8 +20,8 @@ system.numberaxes = <?=count(device_axes())?>
 
 common shared state_websocket as long
 <?
-	foreach (get('libs')['all'] as $l)
-		l('common shared '.$l['name'].'_started as long');
+	foreach (get('lib') as $l=>$lib)
+		l('common shared '.$l.'_started as long');
 ?>
 
 common shared defaultMotionGroup as generic group

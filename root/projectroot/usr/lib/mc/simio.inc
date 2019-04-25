@@ -65,7 +65,7 @@ function simio($dir, $localName, $type, $sim, $default) {
 		'set'		=> "{$name}S",
 	];
 
-	libPartsAdd('debug', 'call com_put'.ucfirst($type).'("'.$localName.'", '.($dir=='out'?$io['app']:$name).')');
+	lib('debug', 'call com_put'.ucfirst($type).'("'.$localName.'", '.($dir=='out'?$io['app']:$name).')');
 
 	set('simio')[$name] = $io;
 	return $io;

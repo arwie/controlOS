@@ -15,11 +15,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-function axis($ax) { global $lib;
+function axis($ax) {
 	static $elementid = 1;
 
 	$ax['elementid']	= $elementid++;
-	$ax['name']			= $lib['name'];
+	$ax['name']			= lib();
 	
 	$ax['setup']		= $ax['setup']		?: strtoupper($ax['name']).'.DAT';
 	$ax['firmware']		= $ax['firmware']	?: strtoupper($ax['device']).'.O';
@@ -32,95 +32,158 @@ function axis($ax) { global $lib;
 	}
 
 	device($ax);
-	$lib['axis']		= $ax;
 	
-	libPartsAdd('debug', function() use ($ax) {
-		ll('call com_putBool("enable", '.$ax['name'].'.enable)');
-		ll('call com_putDouble("positionFeedback", '.$ax['name'].'.positionFeedback)');
-		ll('call com_putDouble("torqueFeedback", '.$ax['name'].'.torqueFeedback)');
+	lib('debug', [
+		'call com_putBool("enable", '.$ax['name'].'.enable)',
+		'call com_putDouble("positionFeedback", '.$ax['name'].'.positionFeedback)',
+		'call com_putDouble("torqueFeedback", '.$ax['name'].'.torqueFeedback)',
+	]);
+
+	lib('end', function() use ($ax) {
+		_axisSetup($ax);
+
+		l('public sub '.lib().'_enable');
+			ll('while not '.lib().'.enable');
+			lll(lib().'.enable = true');
+			lll('sleep bus[0].cycletime/1000');
+			ll('end while');
+			ll('sleep 5*bus[0].cycletime/1000');	#bug in MC
+		l('end sub');
+		l('public sub '.lib().'_enableAttach');
+			ll('call '.lib().'_enable');
+			ll('attach '.lib());
+		l('end sub');
+
+		l('public sub '.lib().'_disable');
+			ll('while '.lib().'.isMoving > 0');
+			lll('sleep bus[0].cycletime/1000');
+			ll('end while');
+			ll('while '.lib().'.enable');
+			lll(lib().'.enable = false');
+			lll('sleep bus[0].cycletime/1000');
+			ll('end while');
+		l('end sub');
+		l('public sub '.lib().'_disableDetach');
+			ll('detach '.lib());
+			ll('call '.lib().'_disable');
+		l('end sub');
 	});
 }
 
 
-function drive_setup() { global $lib;
-	$lib['axis']['driveSetup'] = true;
+function drive_update($hash) {
+	lib('driveUpdate')['hash'][] = $hash;
+	lib('driveUpdate', 'call driveUpdate');
+	l('sub driveUpdate');
+}
+
+function driveCache($expr, $type='double') {
+	$hash = hashsum([$expr, $type]);
+	lib('driveCache', 'call com_put'.$type.'("/'.$hash.'", '.$expr.')');
+	return 'com_get'.$type.'("/'.$hash.'")';
+}
+
+function drive_setup() {
+	lib('driveSetup', 'call driveSetup');
 	l('sub driveSetup');
 }
 
-
-function axis_setup() { global $lib;
-	$lib['axis']['axisSetup'] = true;
+function axis_setup() {
+	lib('axisSetup', 'call axisSetup');
 	l('sub axisSetup');
 }
 
 
-function axisLibEnd($ax) { global $lib;
-	l('public sub '.$lib['name'].'_axisSetup');
-	ll('attach '.$ax['name']);
-	if (!$ax['simulated']) {
-		defaultDriveSetup($ax);
-		if ($lib['axis']['driveSetup']) ll('call driveSetup');
+
+function _axisSetup($ax) {
+	l('public sub '.lib().'_axisSetup');
+	ll('dim driveUpdate_ as long = true');
+	ll('dim driveCache_ as long');
+	ll('dim driveHash_ as string');
+	
+	ll('with '.lib()); #withGlobal
+	ll('attach');
+	
+	if (!$ax['simulated'])
+	{
+		com_openFile('driveCache_', '/home/mc/'.lib().'.drivecache');
+		ll('driveHash_ = '.s(hashsum([libGet('driveUpdate'), libGet('driveCache')])).'+str$('.lib().'_deviceRead(0x1018, 4))');
+		ll('try');
+		lll('if com_receive(driveCache_, 0) then');
+			llll('driveUpdate_ = driveHash_ <> com_getString("/#")');
+		lll('end if');
+		catchLog();
+		ll('if driveUpdate_ then');
+			logInfo([lib().' drive parameters update']);
+			
+			lll('call com_clear');
+			_defaultDriveUpdate($ax);
+			switch ($ax['device']) {
+				case 'cdhd':
+					lll('call '.lib().'_deviceWrite(0x1010, 1, 32, 0x65766173)');	#SAVE ALL
+					lll('call '.lib().'_deviceWrite(0x2002, 0, 8, 1)');				#CONFIG
+				break;case 'stepim':
+					lll('call '.lib().'_deviceWrite(0x1010, 1, 32, 0x65766173)');	#SAVE
+			}
+			call(libGet('driveCache'));
+			lll('call com_putString("/#", driveHash_)');
+			lll('call com_send(driveCache_)');
+			
+		ll('end if');
+		ll('call com_close(driveCache_)');
+		
+		_defaultDriveSetup($ax);
 	}
-	defaultAxisSetup($ax);
-	if ($lib['axis']['axisSetup']) ll('call axisSetup');
-	ll('detach '.$ax['name']);
-	l('end sub');
-
-	l('public sub '.$lib['name'].'_enable');
-	ll('while not '.$ax['name'].'.enable');
-	lll($ax['name'].'.enable = true');
-	lll('sleep bus[0].cycletime/1000');
-	ll('end while');
-	ll('sleep 5*bus[0].cycletime/1000');	#bug in MC
-	l('end sub');
-	l('public sub '.$lib['name'].'_enableAttach');
-	ll('call '.$lib['name'].'_enable');
-	ll('attach '.$ax['name']);
-	l('end sub');
-
-	l('public sub '.$lib['name'].'_disable');
-	ll('while '.$ax['name'].'.isMoving > 0');
-	lll('sleep bus[0].cycletime/1000');
-	ll('end while');
-	ll('while '.$ax['name'].'.enable');
-	lll($ax['name'].'.enable = false');
-	lll('sleep bus[0].cycletime/1000');
-	ll('end while');
-	l('end sub');
-	l('public sub '.$lib['name'].'_disableDetach');
-	ll('detach '.$ax['name']);
-	ll('call '.$lib['name'].'_disable');
+	
+	_defaultAxisSetup($ax);
+	
+	ll('detach');
+	ll('end with');
 	l('end sub');
 }
 
 
-function defaultDriveSetup(&$ax) {
-	ll($ax['name'].'.motionbusvelocityscale		= 0');
-	ll($ax['name'].'.motionbusvelocitybase		= 1000');
+function _defaultDriveUpdate($ax) { lib('driveUpdate')['hash'][] = 4;
+	switch ($ax['device']) {
+		case 'cdhd':
+		break;case 'stepim':
+	}
+	call(libGet('driveUpdate'));
+}
+
+
+function _defaultDriveSetup($ax) {
+	ll('call '.lib().'_deviceWrite(0x6060, 0, 8, 8)');					#Modes of Operation: 8 = cyclic synchronous position mode
+
+	ll('motionbusvelocityscale		= 0');
+	ll('motionbusvelocitybase		= 1000');
 	
 	switch ($ax['device']) {
 		case 'cdhd':
-			ll($ax['name'].'.positionerrordelay			= 4.11');
-			break;
-		case 'stepim':
-			ll($ax['name'].'.positionfactor				= 4096');
-			ll($ax['name'].'.positionerrordelay			= 5');
-			break;
+			ll('call '.lib().'_deviceWrite(0x60C0, 0, 16, 2)');			#Interpolation: 2 = Cubic interpolation with position only – strict
+			ll('positionfactor				= '.driveCache(lib().'_deviceRead(0x6092, 1)/'.lib().'_deviceRead(0x6092, 2)', 'double'));
+			ll('positionerrordelay			= 4.11');
+		break;case 'stepim':
+			ll('positionfactor				= 4096');
+			ll('positionerrordelay			= 5');
 	}
+	call(libGet('driveSetup'));
 }
 
 
-function defaultAxisSetup(&$ax) {
+function _defaultAxisSetup($ax) {
 	if ($ax['simulated']) {
-		ll($ax['name'].'.positionerrordelay		= 4');
-		ll($ax['name'].'.positionerrormax		= MAXDOUBLE');
+		ll('positionerrordelay		= 4');
+		ll('positionerrormax		= MAXDOUBLE');
 	}
 	
-	ll($ax['name'].'.velocityfactor				= '.$ax['name'].'.positionfactor / 1000');
-	ll($ax['name'].'.accelerationfactor			= '.$ax['name'].'.positionfactor / 1000000');
-	ll($ax['name'].'.jerkfactor					= '.$ax['name'].'.positionfactor / 1000000000');
-	ll($ax['name'].'.velocityexternalfactor		= '.$ax['name'].'.positionexternalfactor / 1000');
+	ll('velocityfactor				= positionfactor / 1000');
+	ll('accelerationfactor			= positionfactor / 1000000');
+	ll('jerkfactor					= positionfactor / 1000000000');
+	ll('velocityexternalfactor		= positionexternalfactor / 1000');
 	
-	ll($ax['name'].'.smoothFactor				= -1');
+	ll('smoothFactor				= -1');
+	
+	call(libGet('axisSetup'));
 }
 

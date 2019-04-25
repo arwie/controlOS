@@ -78,10 +78,10 @@ end sub
 	call debug_init
 	call debug_start
 
-<?	foreach (get('libs')['app'] as $l) 
+<?	foreach (array_reverse(get('libs')['app']) as $l) 
 		ll('call '.$l['name'].'_init')?>
 
-<?	ll('call '.end(get('libs')['app'])['name'].'_start')?>
+<?	ll('call '.reset(get('libs')['app'])['name'].'_start')?>
 end sub
 
 
@@ -97,7 +97,7 @@ end sub
 
 
 <?lib_prgStop()?>
-<?	ll('call '.end(get('libs')['app'])['name'].'_stop')?>
+<?	ll('call '.reset(get('libs')['app'])['name'].'_stop')?>
 
 	call debug_stop
 	call simio_stop

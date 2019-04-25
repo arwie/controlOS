@@ -40,28 +40,10 @@ function conf($file=null, $section=null, $key=null, $default=null) {
 
 
 function setup($section=null, $key=null) {
-	static $setup = null;
-	
-	if (is_null($setup)) {
-		$dir = '/usr/share/setup/'; $ext = '.json';
-		$type = conf('setup','setup','type');
-		$rev  = conf('setup','setup','revision');
-		$decode = function($name) use ($dir, $ext) { return json_decode(file_get_contents($dir.$name.$ext), true); };
-		
-		$setup = array_replace_recursive($decode('setup'), $decode($type));
-		
-		$patches = [];
-		foreach (glob($dir.$type.'-*'.$ext) as $path) 
-			if (preg_match("/.*-(\d*)\..*/", $path, $match))
-				if (intval($match[1]) >= intval($rev))
-					$patches[] = $match[1];
-		rsort($patches, SORT_NUMERIC);
-		foreach ($patches as $patch)
-			$setup = array_replace_recursive($setup, $decode($type.'-'.$patch));
-		
-		$setup = array_replace_recursive($setup, conf()['setup']);
+	static $setup;
+	if (!isset($setup)) {
+		$setup = json_decode(exec('python -c "from shared.setup import setup; import sys,json; json.dump(setup,sys.stdout)"'), true) ?: [];
 	}
-	
 	return is_null($section) ? $setup : (is_null($key) ? $setup[$section] : $setup[$section][$key]);
 }
 
@@ -74,7 +56,7 @@ function awaitCondition($result, $condition, $timeout, $ifnot=false) {
 	ll($result.' = '.$condition);
 	if ($ifnot) {
 		ll('if not '.$result.' then');
-			if (is_callable($ifnot)) $ifnot(); else lll($ifnot);
+			call($ifnot);
 		ll('end if');
 	}
 }
@@ -91,8 +73,33 @@ function lll($basic)	{ echo "\t\t".$basic."\n"; }
 function llll($basic)	{ echo "\t\t\t".$basic."\n"; }
 function lllll($basic)	{ echo "\t\t\t\t".$basic."\n"; }
 
+function s($str) {
+	if (!is_string($str))
+		$str = json_encode($str);
+	return '"'.wordwrap(strtr($str, '`"', "'`"), 80, '"+"', true).'"';
+}
 function ifs($if, $then, $else='') { return $if ? $then : $else; }
-function basicString($str) { return '"'.wordwrap(strtr($str, '"', "'"), 80, '"+"', true).'"';}
+
+function call($parts, $reverse=false) {
+	if (is_array($parts)) {
+		foreach ($reverse?array_reverse($parts):$parts as $k=>$v)
+			if (is_int($k))
+				call($v);
+	} elseif (is_callable($parts)) {
+		$parts();
+	} elseif (is_string($parts)) {
+		lll($parts);
+	}
+}
+
+function hashsum($whatever) {
+	if (is_callable($whatever)) {
+		ob_start();
+		$whatever();
+		return hashsum(ob_get_clean());
+	}
+	return md5(serialize($whatever));
+}
 
 
 function dump($var, $caption='dump') {

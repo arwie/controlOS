@@ -56,8 +56,8 @@ sub sendState
 	call com_clear
 	call com_send(this_udpBeacon)
 <?
-	foreach (get('libs')['all'] as $l) 
-		ll('call com_putBool("/'.$l['name'].'", '.$l['name'].'_started)')
+	foreach (get('lib') as $l=>$lib) 
+		ll('call com_putBool("/'.$l.'", '.$l.'_started)')
 ?>
 	call com_send(state_websocket)
 end sub

@@ -37,16 +37,16 @@ function com_websocket($port, $args=[], $name=false)
 		l('dim shared '.$name.' as long');
 	}
 	
-	libPartsAdd('start', function() use ($port, $args, $name) {
+	lib('start', function() use ($port, $args, $name) {
 		com_openWebsocket($name, $port, $args);
 	});
 	
-	libPartsAdd('stopTrigger', function() use ($name) {
+	lib('stopTrigger', function() use ($name) {
 		lll('call com_clear');
 		lll('call com_sendSelf('.$name.')');
 	});
 	
-	libPartsAdd('stop', function() use ($name) {
+	lib('stop', function() use ($name) {
 		lll('call com_close('.$name.')');
 	});
 }
@@ -57,7 +57,7 @@ function com_open($name, $type, $args=false) {
 	lll('call com_clear');
 	lll('call com_putString("/log/lib",  "'.lib().'")');
 	lll('call com_putString("/log/name", "'.$name.'")');
-	if (is_callable($args)) $args();
+	call($args);
 	lll($name.' = com_open(com_channel'.ucfirst($type).')');
 }
 
@@ -78,4 +78,8 @@ function com_openFifo($name) {
 
 function com_openNotify($name) {
 	com_open($name, 'notify');
+}
+
+function com_openFile($name, $filename) {
+	com_open($name, 'file', 'call com_putString("/file", '.s($filename).')');
 }

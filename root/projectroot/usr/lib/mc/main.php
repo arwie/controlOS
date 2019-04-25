@@ -71,6 +71,7 @@ include 'config.inc';
 
 includeLib('LOG.LIB',      null, 'system');
 includeLib('STATE.LIB',    null, 'system');
+includeLib('INIT.LIB',     null, 'system');
 includeLib('ETC.LIB',      null, 'system');
 includeLib('CAN.LIB',      null, 'system');
 includeLib('DRIVELOG.LIB', null, 'system');
@@ -85,43 +86,33 @@ ob_end_clean();
 $out = $argv[1].'/SSMC/';
 if (!is_dir($out)) mkdir($out);
 
-foreach (get('libs')['all'] as $lib) {
+foreach (get('lib') as $lib) {
 	ob_start();
 	includeLib($lib['file'], $lib['from'], $lib['type']);
-	file_put_contents($out.$lib['file'], ob_get_contents()); ob_end_clean();
+	file_put_contents($out.$lib['file'], ob_get_clean());
 	
 	if ($lib['prg']) {
 		ob_start();
-		libPrg($lib, $lib['prg']);
-		file_put_contents($out.$lib['prg']['file'], ob_get_contents()); ob_end_clean();
-		
-		foreach ($lib['prg']['threads']?:[] as $thread) {
-			ob_start();
-			libPrg($lib, $thread);
-			file_put_contents($out.$thread['file'], ob_get_contents()); ob_end_clean();
-		}
+		libPrg($lib);
+		file_put_contents($out.$lib['prg']['file'], ob_get_clean());
 	}
 }
 
 foreach(glob('*.PRG') as $file) {
 	ob_start();
 	include $file;
-	file_put_contents($out.$file, ob_get_contents()); ob_end_clean();
+	file_put_contents($out.$file, ob_get_clean());
 }
-
-ob_start();
-include 'INIT.LIB';
-file_put_contents($out.'INIT.LIB', ob_get_contents()); ob_end_clean();
 
 
 ob_start();
 	l('DIP=0xFF');
 	l('INP=0x0');
-file_put_contents($out.'IO.DAT', ob_get_contents()); ob_end_clean();
+file_put_contents($out.'IO.DAT', ob_get_clean());
 
 ob_start();
 	l('ipaddressmask '.gethostbyname('mc').':255.255.255.0');
-file_put_contents($argv[1].'/FWCONFIG', ob_get_contents()); ob_end_clean();
+file_put_contents($argv[1].'/FWCONFIG', ob_get_clean());
 
 
 function linkStatic($dir) { global $out;

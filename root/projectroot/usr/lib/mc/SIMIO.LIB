@@ -83,7 +83,7 @@ sub handleOverride
 	}
 ?>
 		end select
-	<?end_try()?>
+	<?catchLog()?>
 end sub
 
 

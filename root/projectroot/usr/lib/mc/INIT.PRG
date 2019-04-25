@@ -34,24 +34,27 @@ program continue
 			call log_message(log_prioError, system.error)
 			call com_putLong("/error", system.errornumber)
 			call log_putCodeFunc("onSystemError")
-			call logSend
+			call log_send
 			logErrorHistory = true
 	end onSystemError
 
 
+	call init_init
+	call init_start
 	call system_init
 	call system_start
 
-	while not system_wait(1000)
+	while not init_wait(1000)
 		if logErrorHistory then
 			logErrorHistory = false
 			call log_message(log_prioNotice, "mc error history")
 			call com_putString("/errorhistory", vesexecute("?errorhistorydelta"))
-			call logSend
+			call log_send
 		end if
 	end while
 
 	call system_stopTimeout(10000)
+	call init_stop
 
 
 	call logSystemStop
@@ -71,20 +74,12 @@ sub logSystemStart
 	call com_putString("/version", version)
 	call com_putString("/sn",  system.serialNumber)
 	call com_putString("/uac", system.userAuthorizationCode)
-	call log_putMessageId("94cb9b9f452e4309a1265c857c5321a2")
-	call logSend
+	call log_send
 end sub
 
 
 sub logSystemStop
 	call log_message(log_prioNotice, "mc system stop")
 	call com_putString("/errorhistory", vesexecute("?errorhistorydelta"))
-	call log_putMessageId("e0dc5bc5c2914fab953d61df01c9d5eb")
-	call logSend
-end sub
-
-
-sub logSend
-	call com_putString("/prg", "init")
 	call log_send
 end sub

@@ -32,10 +32,10 @@ function robot($rbt) { global $lib;
 
 	set('robot')[$rbt['name']]	= $rbt;
 
-	libPartsAdd('debug', function() use ($rbt) {
-		ll('call com_putBool("enable", '.$rbt['name'].'.enable)');
-		ll('call com_putJoint'.ucfirst($rbt['type']).'("positionFeedback", '.$rbt['name'].'.positionFeedback)');
-	});
+	lib('debug', [
+		'call com_putBool("enable", '.$rbt['name'].'.enable)',
+		'call com_putJoint'.ucfirst($rbt['type']).'("positionFeedback", '.$rbt['name'].'.positionFeedback)',
+	]);
 }
 
 

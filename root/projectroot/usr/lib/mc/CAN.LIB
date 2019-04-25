@@ -37,7 +37,6 @@ common shared can_cycletime as const long = 8000	'{4000,2000,1000}[µs]
 				ll('call can_sdoWrite('.$dev['address'].', 0x1006, 0, 32, can_cycletime)');
 				ll('call can_sdoWrite('.$dev['address'].', 0x60C2, 1, 8,  can_cycletime/1000)');
 				ll('call can_sdoWrite('.$dev['address'].', 0x60C2, 2, 8,  -3)');
-				ll('call can_sdoWrite('.$dev['address'].', 0x6060, 0, 8, 8)');
 				ll('call IntergratedStepperMapPDO('.$dev['address'].')');
 				break;
 		}
