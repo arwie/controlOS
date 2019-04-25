@@ -47,7 +47,6 @@ function axis($ax) {
 			lll(lib().'.enable = true');
 			lll('sleep bus[0].cycletime/1000');
 			ll('end while');
-			ll('sleep 5*bus[0].cycletime/1000');	#bug in MC
 		l('end sub');
 		l('public sub '.lib().'_enableAttach');
 			ll('call '.lib().'_enable');
