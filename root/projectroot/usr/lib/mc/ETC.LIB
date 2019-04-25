@@ -48,7 +48,6 @@ end sub
 		}?>
 
 		call dropLong(EC_RESCAN_SLAVES)
-		sleep 500
 		call dropLong(CHECK_TOPOLOGY)
 		call EC_CREATE_MASTER
 
@@ -93,8 +92,7 @@ end sub
 
 
 <?lib_prgStop()?>
-	call dropString(sh("ethercat rescan"))
-	sleep 3000
+	call dropLong(EC_RESCAN_SLAVES)
 	<?logNotice(['ethercat stop'], function(){?>
 		call putEthercatDebug
 		call putEthercatError
