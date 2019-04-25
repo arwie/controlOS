@@ -15,7 +15,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-import collections
+import collections, logging
 from shared.conf import Conf
 
 
@@ -36,6 +36,8 @@ try:
 	from shared import setup_app
 	setup_app.setup_app(setup, conf)
 except ImportError: pass
+except:
+	logging.exception('application setup failed')
 
 
 if conf and conf.has_section('setup'):

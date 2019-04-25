@@ -175,10 +175,8 @@ function GuiPage(pageModel, pageParams, pageGuard, pageRoute) {
 gui = new function() {
 	let self = this;
 
-	self.state		= ko.observable(null);
-	self.isState	= function(state) {
-		return self.state() && (state in self.state()) && self.state()[state]();
-	}
+	self.state		= ko.observableArray();
+	self.isState	= (state)=>{ return self.state().includes(state); }
 	self.subscribeState = function(state, notify, initialCall=true) {
 		if (initialCall) notify(gui.isState(state));
 		return ko.pureComputed(()=>{
@@ -210,62 +208,38 @@ gui = new function() {
 
 <script>(function(){
 
-let stateWatchdog;
-let stateConnection;
-let stateDisconnected	= false;
+let stateWatchdog = true;
+function resetWatchdog(activate=true) {
+	clearTimeout(stateWatchdog);
+	if (activate && stateWatchdog !== false)
+		stateWatchdog = setTimeout(disconnected, 10000);
+	else
+		stateWatchdog = false;
+}
+resetWatchdog();
+
+function disconnected() {
+	resetWatchdog(false);
+	$('#stateDisconnected').modal();
+	pager.navigate('#');
+	setInterval(()=>{
+		$.post(ajaxUrl('state')).done(()=>{
+			location.reload();
+		});
+	}, 1000);
+}
 
 function updateState(msg) {
-	if (msg) {
-		if (!gui.state())
-			gui.state(ko.mapping.fromJS(msg));
-		else
-			ko.mapping.fromJS(msg, gui.state());
-	} else {
-		gui.state(null);
-	}
-	
+	gui.state(msg);
 	pager.goTo(pager.activePage$().path());
 }
 
-function resetWatchdog() {
-	clearTimeout(stateWatchdog);
-	stateWatchdog = setTimeout(function(){
-		console.log('ERROR: lost connection -> reconnecting...');
-		try {
-			stateConnection.close();
-		} catch(e) {}
-		updateState();
-		reconnectState();
-	}, 5000+1000);
-}
-
-function reconnectState() {
+let stateWs = webSocket(wsUrl(null, null, 'state'), (msg)=>{
 	resetWatchdog();
-
-	stateConnection = new WebSocket(wsUrl(null, null, 'state'));
-	
-	stateConnection.onopen = function() {
-		if (stateDisconnected)
-			location.reload();
-	}
-	
-	stateConnection.onerror = function() {
-		pager.navigate('#');
-		$('#stateDisconnected').modal();
-		stateDisconnected = true;
-	}
-	
-	stateConnection.onmessage = function (e) {
-		let msg = JSON.parse(e.data);
-
-		if (!$.isEmptyObject(msg))
-			updateState(msg);
-
-		resetWatchdog();
-	}
-}
-
-reconnectState();
+	if (Array.isArray(msg))
+		updateState(msg);
+});
+stateWs.onclose = stateWs.onerror = disconnected;
 
 pager.extendWithPage(gui);
 ko.applyBindings(gui);

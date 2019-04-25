@@ -34,7 +34,7 @@ def export(msg):
 			value = json.dumps(value)
 		if '\n' in value:
 			print(key.upper())
-			value = value.encode()
+			value = value.translate({ord(c):None for c in '\r'}).encode()
 			sys.stdout.buffer.write(struct.pack('<Q', len(value)))
 			sys.stdout.buffer.write(value)
 			print()
@@ -56,8 +56,8 @@ class LogClient(websocket.Client):
 	def __init__(self):
 		self.initialize(args.host, args.port)
 	
-	def onMessageJson(self, msg):
+	async def onMessageJson(self, msg):
 		process(msg)
 
 
-websocket.run(LogClient)
+websocket.run(LogClient())

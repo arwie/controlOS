@@ -21,6 +21,7 @@
 locale = Sprache
 
 
+help = Hilfe
 poweroff = Ausschalten
 
 save = Speichern

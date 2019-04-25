@@ -18,8 +18,7 @@ git update-index --assume-unchanged \
 	root/projectroot/etc/systemd/network/sys.network.d/1-address.conf \
 	root/projectroot/etc/systemd/network/1-*.link \
 	root/projectroot/etc/hosts \
-	root/rules/app.make \
-	root/projectroot/usr/share/setup/setup.json
+	root/rules/app.make
 
 
 export PROMPT_COMMAND="PS1=git-af:\$(realpath --relative-to=$BASEDIR/.. .)'\\$ '"

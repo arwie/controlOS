@@ -18,7 +18,6 @@
 import server
 from shared.issue import Issue
 from shared import network
-from tornado import gen
 
 
 text = """\
@@ -39,20 +38,19 @@ class Handler(server.RequestHandler):
 		})
 	
 	
-	@gen.coroutine
-	def post(self):
+	async def post(self):
 		issueText = text.format(
 			description	= self.get_body_argument("description"),
 			name		= self.get_body_argument("name"),
 			email		= self.get_body_argument("email"),
 			telephone	= self.get_body_argument("telephone"),
 		)
-		issue = yield server.executor.submit(Issue, issueText)
+		issue = await server.run_in_executor(Issue, issueText)
 		issue['Reply-To'] = self.get_body_argument("email")
 		
 		action = self.get_query_argument('action', 'download')
 		if action.startswith('send'):
-			yield server.executor.submit(network.sendEmail, issue)
+			await server.run_in_executor(network.sendEmail, issue)
 		else:
 			self.set_header('Content-Type',			'message/rfc822')
 			self.set_header('Content-Disposition',	'attachment; filename=issue.eml')

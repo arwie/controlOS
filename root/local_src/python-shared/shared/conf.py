@@ -15,7 +15,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-import configparser, os
+import configparser, os, pathlib
 
 
 
@@ -33,7 +33,7 @@ class Conf(configparser.ConfigParser):
 			else:
 				self.read_dict(fromDict)
 		else:
-			data = open(confFile, encoding='utf8').read()
+			data = pathlib.Path(confFile).read_text(encoding='utf8')
 			if not section:
 				try:
 					self.read_string(data)

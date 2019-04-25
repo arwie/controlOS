@@ -17,19 +17,17 @@
 
 import server
 import subprocess
-from tornado import gen
 
 
 
 class Handler(server.RequestHandler):
 	
-	@gen.coroutine
-	def post(self):
+	async def post(self):
 		
 		def term(cmd):
 			return subprocess.run(['ssh', 'mc', cmd], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=5).stdout
 		
-		out = yield server.executor.submit(term, self.request.body)
+		out = await server.run_in_executor(term, self.request.body)
 		self.write(out)
 
 

@@ -1,4 +1,4 @@
-# Copyright (c) 2017 Artur Wiebe <artur@4wiebe.de>
+# Copyright (c) 2019 Artur Wiebe <artur@4wiebe.de>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 # associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -15,27 +15,27 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-import server
-from tornado import gen, websocket
+import server, asyncio
 
 
 
 class Handler(server.WebSocketHandler):
+	def post(self):
+		pass	# connection test
 	
-	@gen.coroutine
-	def sendWatchdog(self):
-		try:
-			while self.active:
-				self.write_message('{}')
-				yield gen.sleep(1)
-		except websocket.WebSocketClosedError: pass
-
 	def open(self):
-		self.active = True
-		gen.Task(self.sendWatchdog)
-
+		self.task = asyncio.create_task(self.sendState())
+	
 	def on_close(self):
-		self.active = False
+		self.task.cancel()
+	
+	async def sendState(self):
+		while not self.task.cancelled():
+			try:
+				await asyncio.sleep(1)
+			except asyncio.CancelledError:
+				break
+			self.write_messageJson(None)
 
 
 

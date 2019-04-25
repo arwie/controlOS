@@ -16,8 +16,8 @@
 
 
 import shared
-import os, socket, json, logging, base64
-from tornado import web, httpserver, ioloop, gen, websocket
+import asyncio, os, socket, json, logging, base64
+from tornado import web, httpserver, ioloop, websocket
 from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor
 
@@ -42,23 +42,21 @@ class WebsocketJsonProxy(websocket.WebSocketHandler):
 		self.url = url
 		self.closed = False
 
-	@gen.coroutine
-	def receiveFromClient(self):
+	async def receiveFromClient(self):
 		try:
 			while not self.closed:
-				msg = yield self.clientConn.read_message()
+				msg = await self.clientConn.read_message()
 				if msg is None: break
 				self.write_message(msg)
 		except websocket.WebSocketClosedError: pass
 		self.clientConn.close()
 		self.close()
 
-	@gen.coroutine
-	def open(self):
+	async def open(self):
 		self.set_nodelay(True)
 		try:
-			self.clientConn = yield websocket.websocket_connect(self.url)
-			gen.Task(self.receiveFromClient)
+			self.clientConn = await websocket.websocket_connect(self.url)
+			asyncio.create_task(self.receiveFromClient())
 		except Exception as e:
 			logging.debug(e)
 			self.close()
@@ -74,24 +72,20 @@ class WebsocketJsonProxy(websocket.WebSocketHandler):
 
 
 
-class HttpWebsocketJsonProxy(web.RequestHandler):
+class HttpWebsocketProxy(web.RequestHandler):
 
 	def initialize(self, url):
 		self.url = url
 
-	@gen.coroutine
-	def prepare(self):
-		self.clientConn = yield websocket.websocket_connect(self.url)
+	async def prepare(self):
+		self.clientConn = await websocket.websocket_connect(self.url)
 
-	@gen.coroutine
-	def post(self):
-		rx = json.loads(self.request.body.decode('utf8'))
-		self.clientConn.write_message(json.dumps(rx).encode('utf8'))
-		yield self.get()
+	async def post(self):
+		self.clientConn.write_message(self.request.body)
+		await self.get()
 
-	@gen.coroutine
-	def get(self):
-		tx = yield self.clientConn.read_message()
+	async def get(self):
+		tx = await self.clientConn.read_message()
 		if tx is not None:
 			self.write(tx)
 
@@ -142,6 +136,11 @@ def etc_hosts(handler):
 	return json.dumps(hosts)
 
 
+ioloop.IOLoop.current().set_default_executor(ThreadPoolExecutor())
+def run_in_executor(func, *args):
+	return ioloop.IOLoop.current().run_in_executor(None, func, *args)
+
+
 def run(port=None):
 	application = web.Application(handlers, **settings)
 	server = httpserver.HTTPServer(application, max_buffer_size=128*1024*1024)
@@ -176,6 +175,3 @@ settings = {
 handlers = []
 
 addAjax('locale/(.*).ftl',		LocaleHandler)
-
-
-executor = ThreadPoolExecutor()

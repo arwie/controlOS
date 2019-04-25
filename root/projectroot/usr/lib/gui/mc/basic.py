@@ -17,14 +17,12 @@
 
 import server
 import subprocess, shlex
-from tornado import gen
 
 
 
 class Handler(server.RequestHandler):
 	
-	@gen.coroutine
-	def get(self):
+	async def get(self):
 		
 		def listFiles():
 			lists = subprocess.run(['ssh', 'mc', 'cd /FFS0/SSMC && ls -1 *.LIB && echo "###" && ls -1 *.PRG && echo "###" && ls -1 *.DAT'], stdout=subprocess.PIPE).stdout.decode().split('###')
@@ -35,10 +33,10 @@ class Handler(server.RequestHandler):
 		
 		filename = self.get_query_argument('file', False)
 		if filename:
-			code = yield server.executor.submit(loadFile, filename)
+			code = await server.run_in_executor(loadFile, filename)
 			self.write(code)
 		else:
-			files = yield server.executor.submit(listFiles)
+			files = await server.run_in_executor(listFiles)
 			self.writeJson(files)
 
 

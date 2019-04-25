@@ -17,22 +17,19 @@
 
 import server
 from shared		import backup
-from tornado	import gen
 
 
 
 class Handler(server.RequestHandler):
 
-	@gen.coroutine
-	def get(self):
+	async def get(self):
 		self.set_header('Content-Type',        'application/octet-stream')
 		self.set_header('Content-Disposition', 'attachment; filename=backup.txz')
-		self.write((yield server.executor.submit(backup.store)))
+		self.write(await server.run_in_executor(backup.store))
 	
 
-	@gen.coroutine
-	def put(self):
-		yield server.executor.submit(backup.restore, self.request.files['backup'][0]['body'])
+	async def put(self):
+		await server.run_in_executor(backup.restore, self.request.files['backup'][0]['body'])
 
 
 

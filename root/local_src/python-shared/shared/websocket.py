@@ -15,50 +15,82 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-import json, logging
-from tornado import ioloop, gen, websocket
+import asyncio, json, logging
+from tornado import websocket
 
 
 
 class Client:
-	def initialize(self, host, port):
+	def initialize(self, host, port, messageTimeout=None):
 		self.url = 'ws://{}:{}'.format(host,port)
+		self.messageTimeout = messageTimeout
+	
+	def __enter__(self):
+		return self
+	
+	def __exit__(self, exc_type, exc_value, traceback):
+		self.close()
+	
+	async def connect(self):
+		self.ws = await websocket.websocket_connect(self.url)
+		await self.onOpen()
+		
+	async def execute(self):
+		while self.ws:
+			try:
+				msg = await asyncio.wait_for(self.ws.read_message(), self.messageTimeout)
+			except asyncio.TimeoutError:
+				msg = False
+			
+			if msg is False:
+				await self.onMessageTimeout()
+				continue
+			
+			if msg is None:
+				await self.onClose()
+				break
+				
+			await self.onMessage(msg)
+	
+	
+	def close(self):
+		if self.ws:
+			self.ws.close()
+			self.ws = None
 	
 	def writeMessageJson(self, data):
 		self.ws.write_message(json.dumps(data))
 	
+	async def onMessage(self, data):
+		await self.onMessageJson(json.loads(data))
 	
-	def close(self):
-		self.ws.close()
-	
-	
-	@gen.coroutine
-	def execute(self):
-		self.ws = yield websocket.websocket_connect(self.url)
-		
-		while True:
-			msg = yield self.ws.read_message()
-			
-			if msg is None:
-				self.onClose()
-				break
-			
-			self.onMessage(msg)
-	
-	
-	def onMessage(self, data):
-		self.onMessageJson(json.loads(data))
-	
-	def onMessageJson(self, data):
+	async def onMessageJson(self, data):
 		pass
 	
-	def onClose(self):
+	async def onMessageTimeout(self):
+		logging.error('websocket: message timeout')
+		self.close()
+	
+	async def onInit(self):
+		pass
+	
+	async def onOpen(self):
+		pass
+	
+	async def onClose(self):
 		pass
 
 
 
-def run(Client):
+def run(client):
+	async def execute():
+		await client.onInit()
+		await client.connect()
+		with client:
+			await client.execute()
+	
 	try:
-		ioloop.IOLoop.current().run_sync(Client().execute)
+		asyncio.run(execute())
 	except:
 		logging.exception('websocket: error in client')
+		exit(1)

@@ -15,29 +15,28 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-import server
+import server, asyncio
 from shared.conf import Conf
 from shared import network, system
-from tornado import gen, websocket
+from tornado import websocket
 import os, subprocess, re
 
 
 
 class StatusHandler(server.WebSocketHandler):
-	@gen.coroutine
-	def sendStatus(self):
+	async def sendStatus(self):
 		try:
-			while self.active:
-				self.write_message((yield server.executor.submit(network.status)))
-				yield gen.sleep(3)
-		except websocket.WebSocketClosedError: pass
+			while not self.task.cancelled():
+				self.write_message(await server.run_in_executor(network.status))
+				await asyncio.sleep(3)
+		except asyncio.CancelledError:
+			pass
 
 	def open(self):
-		self.active = True
-		gen.Task(self.sendStatus)
+		self.task = asyncio.create_task(self.sendStatus())
 
 	def on_close(self):
-		self.active = False
+		self.task.cancel()
 
 
 

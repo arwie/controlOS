@@ -30,19 +30,15 @@ class {
 			contentType: false,
 		})
 		.always(()=>{
-			this.refresh();
+			location.reload();
 		});
 	}
 	
 	clearJournal() {
 		$.post(ajaxUrl('extlog'))
 		.always(()=>{
-			this.refresh();
+			location.reload();
 		});
-	}
-	
-	refresh() {
-		pager.navigate(this.page.path());
 	}
 }
 {% end %}

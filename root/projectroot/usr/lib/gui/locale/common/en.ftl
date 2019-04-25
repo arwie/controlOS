@@ -21,6 +21,7 @@
 locale = Language
 
 
+help = Help
 poweroff = Power Off
 
 save = Save

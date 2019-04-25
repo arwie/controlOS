@@ -17,8 +17,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-import shared, argparse, json, datetime, subprocess, logging
-from tornado import ioloop, gen, websocket
+from shared import websocket
+import argparse, subprocess, logging
 
 
 parser = argparse.ArgumentParser()
@@ -30,7 +30,7 @@ args = parser.parse_args()
 
 def systemctl(msg):
 	for k,v in msg.items():
-		subprocess.run(['/bin/systemctl', '--no-block', 'start' if v else 'stop', 'mc-state@{}.target'.format(k)])
+		subprocess.run(['/bin/systemctl', '--no-block', 'start' if v else 'stop', 'mc@{}.target'.format(k)])
 
 
 state = False
@@ -40,24 +40,20 @@ def process(msg):
 	state = msg
 
 
-@gen.coroutine
-def receive():
-	state = yield websocket.websocket_connect('ws://{}:{}'.format(args.host, args.port))
-	logging.info('connected')
 
-	while True:
-		msgJson = yield gen.with_timeout(datetime.timedelta(seconds=3), state.read_message())
-		if msgJson is None:
-			logging.info('connection closed by server')
-			break
-		msg = json.loads(msgJson)
-		if not msg:
-			continue
-		process(msg)
+class StateClient(websocket.Client):
+	def __init__(self):
+		self.initialize(args.host, args.port, messageTimeout=3)
+	
+	async def onMessageJson(self, msg):
+		if msg:
+			process(msg)
+	
+	async def onOpen(self):
+		logging.info('connected')
+	
+	async def onClose(self):
+		logging.info('connection closed by server')
 
 
-
-try:
-	ioloop.IOLoop.current().run_sync(receive)
-except:
-	logging.exception('ERROR in state connection to mc')
+websocket.run(StateClient())

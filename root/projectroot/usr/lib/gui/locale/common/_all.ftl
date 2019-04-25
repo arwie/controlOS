@@ -16,12 +16,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 %}
 
-locale_en	= English
-locale_de	= Deutsch
-locale_se	= Svenska
-locale_ru	= Русский
-locale_cz	= Český
-locale_jp	= 日本の
+locale_en	= English (en)
+locale_de	= Deutsch (de)
+locale_se	= Svenska (se)
+locale_ru	= Русский (ru)
+locale_cz	= Český (cz)
+locale_jp	= 日本の (jp)
 
 locale_he	= עִברִית
 

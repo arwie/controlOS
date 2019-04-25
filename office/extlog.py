@@ -17,7 +17,6 @@
 
 import server
 import os, tempfile, subprocess, glob
-from tornado import gen
 
 
 extlogDir = tempfile.TemporaryDirectory(prefix='office.', suffix='.extlog', dir='/var/tmp')
@@ -37,9 +36,8 @@ class Handler(server.RequestHandler):
 			input=self.request.files['extlog'][0]['body']
 		)
 	
-	@gen.coroutine
-	def put(self):
-		yield server.executor.submit(self.importJournal)
+	async def put(self):
+		await server.run_in_executor(self.importJournal)
 	
 	def post(self):
 		self.clearJournal()

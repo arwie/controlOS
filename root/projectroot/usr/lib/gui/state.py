@@ -1,4 +1,4 @@
-# Copyright (c) 2017 Artur Wiebe <artur@4wiebe.de>
+# Copyright (c) 2019 Artur Wiebe <artur@4wiebe.de>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 # associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -15,8 +15,34 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-import server
+import server, asyncio
+from shared import state
 
 
 
-server.addAjax(__name__, server.WebsocketJsonProxy, {'url': 'ws://mc:33000'})
+class Handler(server.WebSocketHandler):
+	def post(self):
+		pass	# connection test
+	
+	def open(self):
+		self.set_nodelay(True)
+		self.observer = state.subscribe()
+		self.task = asyncio.create_task(self.sendState())
+	
+	def on_close(self):
+		self.task.cancel()
+		state.unsubscribe(self.observer)
+	
+	async def sendState(self):
+		while not self.task.cancelled():
+			try:
+				msg = list(await asyncio.wait_for(state.update(self.observer), 1))
+			except asyncio.TimeoutError:
+				msg = None	# watchdog
+			except asyncio.CancelledError:
+				break
+			self.write_messageJson(msg)
+
+
+
+server.addAjax(__name__, Handler)
