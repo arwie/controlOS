@@ -40,7 +40,6 @@ $(STATEDIR)/system.targetinstall:
 
 	# networking
 	@$(call install_alternative_tree, system, 0, 0, /etc/systemd/network)
-	@$(call install_alternative, system, 0, 0, 0644, /etc/hostapd.conf)
 	@$(call install_alternative_tree, system, 0, 0,  /etc/hostapd.conf.d)
 	@$(call install_alternative, system, 0, 0, 0644, /usr/lib/systemd/system/hostapd.service)
 	@$(call install_alternative, system, 0, 0, 0644, /usr/lib/systemd/system/sys-subsystem-net-devices-syswlan.device)

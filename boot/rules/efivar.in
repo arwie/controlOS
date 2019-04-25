@@ -1,8 +1,0 @@
-## SECTION=shell_and_console
-
-config EFIVAR
-	tristate
-	select LIBC_DL
-	prompt "efivar"
-	help
-	  Tools and libraries to manipulate EFI variables

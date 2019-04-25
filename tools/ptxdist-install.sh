@@ -18,7 +18,7 @@ apt-get update
 apt-get install pengutronix-archive-keyring
 
 apt-get install -y \
-	build-essential libncurses-dev gawk flex bison texinfo file gettext python-dev python3-dev pkg-config bc libelf-dev ccache zip bzip2 xz-utils \
+	build-essential libncurses-dev gawk flex bison texinfo file gettext python-dev python3-dev python3-setuptools pkg-config bc libelf-dev ccache zip bzip2 xz-utils \
 	python3-systemd python3-tornado systemd-journal-remote \
 	sudo git man bash-completion less vim
 

@@ -17,8 +17,8 @@ PACKAGES-$(PTXCONF_OPENSSH) += openssh
 #
 # Paths and names
 #
-OPENSSH_VERSION	:= 7.6p1
-OPENSSH_MD5	:= 06a88699018e5fef13d4655abfed1f63
+OPENSSH_VERSION	:= 7.9p1
+OPENSSH_MD5	:= c6af50b7a474d04726a5aa747a5dce8f
 OPENSSH		:= openssh-$(OPENSSH_VERSION)
 OPENSSH_SUFFIX	:= tar.gz
 OPENSSH_URL	:= \
@@ -69,7 +69,6 @@ OPENSSH_CONF_OPT	:= \
 	--without-rpath \
 	--without-Werror \
 	--with-zlib=$(SYSROOT) \
-	--without-skey \
 	--without-ldns \
 	--without-libedit \
 	--without-audit \
