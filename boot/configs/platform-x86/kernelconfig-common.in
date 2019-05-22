@@ -1,5 +1,5 @@
 CONFIG_CMDLINE_BOOL=y
-CONFIG_CMDLINE="console=tty0 console=ttyUSB0,115200n8"
+CONFIG_CMDLINE="mitigations=off console=tty0 console=ttyUSB0,115200n8"
 
 CONFIG_FB=y
 CONFIG_FRAMEBUFFER_CONSOLE=y
