@@ -85,22 +85,22 @@ ko.bindingHandlers.clickConfirm = {
 	init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
 		return ko.bindingHandlers.click.init.call(this, element, function() {
 			return (data, event)=>{
-				if (element.clickConfirm === undefined) {
-					element.clickConfirm = false;
-					element.classList.add("active");
+				if (!element.clickConfirm) {
+					element.disabled = true;
 					element.clickConfirmDisarm = ()=>{
 						clearInterval(element.clickConfirmInterval);
 						clearTimeout(element.clickConfirmTimeout);
-						element.classList.remove("active");
+						element.classList.remove("active", "btn-dark");
 						delete element.clickConfirm;
 					}
 					setTimeout(()=>{
-						element.clickConfirmInterval = setInterval(()=>{element.classList.toggle("active");}, 333);
+						element.clickConfirmInterval = setInterval(()=>{element.classList.toggle("btn-dark");}, 333);
 						element.clickConfirmTimeout  = setTimeout(element.clickConfirmDisarm, 3000);
 						element.clickConfirm = true;
+						element.disabled = false;
+						element.classList.add("active");
 					}, 500);
-				}
-				if (element.clickConfirm) {
+				} else {
 					element.clickConfirmDisarm();
 					return ko.unwrap(valueAccessor())(data, event);
 				}
