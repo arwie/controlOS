@@ -120,9 +120,14 @@ function _axisSetup($ax) {
 			switch ($ax['device']) {
 				case 'cdhd':
 					lll('call '.lib().'_deviceWrite(0x1010, 1, 32, 0x65766173)');	#SAVE ALL
-					lll('call '.lib().'_deviceWrite(0x2002, 0, 8, 1)');				#CONFIG
+					//lll('call '.lib().'_deviceWrite(0x2002, 0, 8, 1)');				#CONFIG
 				break;case 'stepim':
-					lll('call '.lib().'_deviceWrite(0x1010, 1, 32, 0x65766173)');	#SAVE
+					switch ($ax['bus']) {
+						case 'etc':
+							lll(lib().'_deviceWrite(0x2E04, 1, 32, 0x65766173)');	#SAVE
+						break;case 'can':
+							lll(lib().'_deviceWrite(0x1010, 1, 32, 0x65766173)');	#SAVE
+					}
 			}
 			call(libGet('driveCache'));
 			lll('call com_putString("/#", driveHash_)');
