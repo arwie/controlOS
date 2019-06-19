@@ -24,15 +24,11 @@ common shared state_websocket as long
 		l('common shared '.$l.'_started as long');
 ?>
 
-common shared defaultMotionGroup as generic group
-
 
 program
 
 	system.errorhandlermode		= 0
 	system.doubleformat			= 1
-
-	with defaultMotionGroup
 
 
 <?if (get('mc')['type'] == 'sim') {?>

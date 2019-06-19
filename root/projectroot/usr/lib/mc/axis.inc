@@ -15,7 +15,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-function axis($ax) {
+function axis($ax) { global $lib;
 	static $elementid = 1;
 
 	$ax['elementid']	= $elementid++;
@@ -26,45 +26,45 @@ function axis($ax) {
 
 	switch ($ax['device']) {
 		case 'cdhd':
-			$ax['readBit']  = [['index'=>0x60FD, 'subindex'=>0, 'size'=>32]];
 			//$ax['writeBit'] = [['index'=>0x60FE, 'subindex'=>1, 'size'=>6,  'offset'=>16]];
 			break;
 	}
 
+	$lib['axis']		= true;
 	device($ax);
 	
 	lib('debug', [
-		'call com_putBool("enable", '.$ax['name'].'.enable)',
-		'call com_putDouble("positionFeedback", '.$ax['name'].'.positionFeedback)',
-		'call com_putDouble("torqueFeedback", '.$ax['name'].'.torqueFeedback)',
+		'com_putBool("enable",				enable)',
+		'com_putDouble("positionFeedback",	positionFeedback)',
+		'com_putDouble("torqueFeedback",	torqueFeedback)',
 	]);
 
 	lib('end', function() use ($ax) {
 		_axisSetup($ax);
 
 		l('public sub '.lib().'_enable');
-			ll('while not '.lib().'.enable');
-			lll(lib().'.enable = true');
+			ll('while not enable');
+			lll('enable = true');
 			lll('sleep bus[0].cycletime/1000');
 			ll('end while');
 		l('end sub');
 		l('public sub '.lib().'_enableAttach');
-			ll('call '.lib().'_enable');
-			ll('attach '.lib());
+			ll(lib().'_enable()');
+			ll('attach');
 		l('end sub');
 
 		l('public sub '.lib().'_disable');
-			ll('while '.lib().'.isMoving > 0');
+			ll('while isMoving > 0');
 			lll('sleep bus[0].cycletime/1000');
 			ll('end while');
-			ll('while '.lib().'.enable');
-			lll(lib().'.enable = false');
+			ll('while enable');
+			lll('enable = false');
 			lll('sleep bus[0].cycletime/1000');
 			ll('end while');
 		l('end sub');
 		l('public sub '.lib().'_disableDetach');
-			ll('detach '.lib());
-			ll('call '.lib().'_disable');
+			ll('detach');
+			ll(lib().'_disable()');
 		l('end sub');
 	});
 }
@@ -100,7 +100,6 @@ function _axisSetup($ax) {
 	ll('dim driveCache_ as long');
 	ll('dim driveHash_ as string');
 	
-	ll('with '.lib()); #withGlobal
 	ll('attach');
 	
 	if (!$ax['simulated'])
@@ -142,7 +141,6 @@ function _axisSetup($ax) {
 	_defaultAxisSetup($ax);
 	
 	ll('detach');
-	ll('end with');
 	l('end sub');
 }
 

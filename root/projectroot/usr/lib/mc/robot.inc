@@ -33,8 +33,8 @@ function robot($rbt) { global $lib;
 	set('robot')[$rbt['name']]	= $rbt;
 
 	lib('debug', [
-		'call com_putBool("enable", '.$rbt['name'].'.enable)',
-		'call com_putJoint'.ucfirst($rbt['type']).'("positionFeedback", '.$rbt['name'].'.positionFeedback)',
+		'com_putBool("enable",	enable)',
+		'com_putJoint'.ucfirst($rbt['type']).'("positionFeedback", positionFeedback)',
 	]);
 }
 
@@ -46,35 +46,34 @@ function robot_setup() { global $lib;
 
 
 function robotLibEnd($rbt) { global $lib;
-	l('public sub '.$lib['name'].'_robotSetup');
-	ll('defaultMotionGroup = '.$rbt['name']); // TODO: use WITHGLOBAL
+	l('public sub '.lib().'_robotSetup');
 	ll('attach');
 	defaultRobotSetup($rbt);
-	if ($lib['robot']['robotSetup']) ll('call robotSetup');
+	if ($lib['robot']['robotSetup']) ll('robotSetup()');
 	ll('detach');
 	l('end sub');
 
-	l('public sub '.$lib['name'].'_enable');
-	ll('while not '.$rbt['name'].'.enable');
-	lll($rbt['name'].'.enable = true');
+	l('public sub '.lib().'_enable');
+	ll('while not enable');
+	lll('enable = true');
 	lll('sleep bus[0].cycletime/1000');
 	ll('end while');
 	l('end sub');
-	l('public sub '.$lib['name'].'_enableAttach');
-	ll('call '.$lib['name'].'_enable');
-	ll('attach '.$rbt['name']);
+	l('public sub '.lib().'_enableAttach');
+	ll(lib().'_enable()');
+	ll('attach');
 	l('end sub');
 
-	l('public sub '.$lib['name'].'_disable');
-	ll('while '.$rbt['name'].'.isMoving > 0');
+	l('public sub '.lib().'_disable');
+	ll('while isMoving > 0');
 	lll('sleep bus[0].cycletime/1000');
 	ll('end while');
-	ll($rbt['name'].'.enable = false');
+	ll('enable = false');
 	ll('sleep 5*bus[0].cycletime/1000');
 	l('end sub');
-	l('public sub '.$lib['name'].'_disableDetach');
-	ll('detach '.$rbt['name']);
-	ll('call '.$lib['name'].'_disable');
+	l('public sub '.lib().'_disableDetach');
+	ll('detach');
+	ll(lib().'_disable()');
 	l('end sub');
 }
 
