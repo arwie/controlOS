@@ -54,8 +54,11 @@ program continue
 	loadGlobal CAN.LIB
 
 <?
-	foreach (array_reverse(get('libs')['app']) as $l)
+	foreach (array_reverse(get('libs')['app']) as $l) {
+		if ($l['axis'] || $l['robot'])
+			ll('error_ = vesexecute("withGlobal '.$l['name'].'")');
 		ll('loadGlobal '.$l['file']);
+	}
 ?>
 
 	loadGlobal DRIVELOG.LIB
