@@ -34,7 +34,9 @@ class TableHandler(server.RequestHandler):
 		}, **doPost}
 	
 	def get(self):
-		self.writeJson(self.doGet[self.get_query_argument('do', 'list')]())
+		result = self.doGet[self.get_query_argument('do', 'list')]()
+		if result is not None:
+			self.writeJson(result)
 	
 	def post(self):
 		with self.table.db:

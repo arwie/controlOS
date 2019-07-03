@@ -21,7 +21,7 @@
 
 {% block html %}
 <p>
-	<a href="{{ajax_url('backup')}}" class="btn btn-primary" data-l10n-id="backup-download"></a>
+	<a download href="{{ajax_url('backup')}}" class="btn btn-primary" data-l10n-id="backup-download"></a>
 	<label class="btn btn-warning mt-2">
 		<span data-l10n-id="backup-restore"></span> 
 		<input type="file" data-bind="event:{change:()=>{ upload($element.files[0]) }}" hidden>
