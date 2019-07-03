@@ -1,351 +1,284 @@
-' Copyright (c) 2016 Artur Wiebe <artur@4wiebe.de>
-'
-' Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
-' associated documentation files (the "Software"), to deal in the Software without restriction,
-' including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
-' and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
-' subject to the following conditions:
-'
-' The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-'
-' THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-' INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-' IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-' WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-' OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+<?# Copyright (c) 2019 Artur Wiebe <artur@4wiebe.de>
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+# associated documentation files (the "Software"), to deal in the Software without restriction,
+# including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+# WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+?>
 
 
-<?$axes = device_axes()?>
+<?$axes = array_filter(device_axes(), function($ax) { return !$ax['simulated']; })?>
 
 
-dim shared errorQueryIntervalMs		as const long	= 1000
-dim shared healthQueryIntervalMs	as const long	= 10*60*1000
+dim shared healthQueryIntervalMs	as const long	= 32*60*1000 / 64
+dim shared errorHistoryDelayMs		as const long	= 300
 
-dim shared lastStatusword[<?=count($axes)?>]	as long
-dim shared lastErrorcode[ <?=count($axes)?>]	as long
-dim shared lastErrorQuery[<?=count($axes)?>]	as long
+dim shared this_logHistoryBuffer	as long
+dim shared this_logHealthId			as long = -32
 
+
+
+<?lib_init()?>
+	<?com_openFifo('this_logHistoryBuffer')?> 
+end sub
 
 
 <?lib_prgEvent(1)?>
-	dim statusword_		as long
-	dim errorcode_		as long
-
-<?foreach($axes as $ax) { if ($ax['simulated']) continue?>
-
-	statusword_	= <?=$ax['name']?>_deviceRead(0x6041, 0)
-	if (statusword_ band 0x8) then 'drive fault
-		if (system.clock-lastErrorQuery[<?=$ax['elementid']?>] >= errorQueryIntervalMs) then
-			lastErrorQuery[<?=$ax['elementid']?>] = system.clock
-			errorcode_ = <?=$ax['name']?>_deviceRead(0x603F, 0)
-			if errorcode_ <> lastErrorcode[<?=$ax['elementid']?>] then
-				call logStatusChange("<?=$ax['name']?>", statusword_, errorcode_)
-			end if
-			lastErrorcode[<?=$ax['elementid']?>] = errorcode_
+	<?foreach($axes as $ax=>$axis) {?>
+		if <?=$ax?>_driveLogError then
+			com_clear()
+			com_putLong("/id", <?=$axis['elementid']?>)
+			com_putLong("/clock", system.clock+errorHistoryDelayMs)
+			com_send(this_logHistoryBuffer)
 		end if
-	else
-		lastErrorQuery[<?=$ax['elementid']?>] = 0
-		lastErrorcode[<?=$ax['elementid']?>] = 0
-		if (statusword_ band 0x4) <> (lastStatusword[<?=$ax['elementid']?>] band 0x4) then 'drive enabled/idle
-			call logStatusChange("<?=$ax['name']?>", statusword_, 0)
-		end if
-		lastStatusword[<?=$ax['elementid']?>] = statusword_
-	end if
-
-<?}?>
+	<?}?>
 end sub
-
-
-sub logStatusChange(byval name_ as string, byval statusword_ as long, byval errorcode_ as long)
-	if errorcode_ then
-		call logLibError(name_+" drive error: "+errorString(errorcode_))
-		call com_putString("/error", hex$(errorcode_)+"h")
-	else
-		if (statusword_ band 0x4) then
-			call logLibInfo(name_+" drive enabled")
-		else
-			call logLibInfo(name_+" drive idle")
-		end if
-	end if
-	call com_putString("/status", hex$(statusword_)+"h")
-	call com_putString("/axis", name_)
-	call log_putMessageId("f6c6e5c79dc340eb94211a577fd61e0b")
-	call logSend
-end sub
-
 
 
 <?lib_prgStart()?>
-<?foreach($axes as $ax) { if ($ax['simulated']) continue?>
-
-	call logLibInfo("<?=$ax['name']?> drive information")
-	
-<?if ($ax['device']=='stepim' && $ax['bus']=='etc') {?>
-	call com_putString("/version", <?=$ax['name']?>_deviceReadString(0x2E00, 0))
-<?}?>
-	
-	call com_putString("/axis", "<?=$ax['name']?>")
-	call log_putMessageId("866facc307854a73bdf1483e90ae4171")
-	call logSend
-
-<?}?>
+	<?foreach($axes as $ax=>$axis) {?>
+		<?=$ax?>_driveLogInfo()
+	<?}?>
 end sub
 
-
-
-<?lib_prgPoll('healthQueryIntervalMs', 16)?>
-	dim statusword_ as long
-	dim warningsLower_ as string
-	dim warningsUpper_ as string
-
-<?foreach($axes as $ax) { if ($ax['simulated']) continue?>
-
-	call logLibInfo("<?=$ax['name']?> drive health")
+<?com_prgReceive('this_logHistoryBuffer', 'healthQueryIntervalMs', 16)?>
+	select case receive_
 	
-	statusword_ = <?=$ax['name']?>_deviceRead(0x6041, 0)
-	call com_putString("/status", hex$(statusword_)+"h")
-
-	if (statusword_ band 0x80) then 'drive warnings
-<?if ($ax['device']=='cdhd') {?>
-		warningsLower_ = bin$(<?=$ax['name']?>_deviceRead(0x2011, 1))
-		warningsLower_ = string$(32-len(warningsLower_), "0") + warningsLower_
-		
-		warningsUpper_ = bin$(<?=$ax['name']?>_deviceRead(0x2011, 2))
-		warningsUpper_ = string$(32-len(warningsUpper_), "0") + warningsUpper_
-		
-		call com_putString("/warnings", warningsUpper_ + warningsLower_)
-<?}?>
-<?if ($ax['device']=='stepim') {?>
-		call com_putString("/warnings", bin$(<?=$ax['name']?>_deviceRead(0x2011, 0)))
-<?}?>
-	end if
-
-<?if ($ax['device']=='cdhd') {?>
-	call com_putLong("/temp_control",	<?=$ax['name']?>_deviceRead(0x2044, 1))
-	call com_putLong("/temp_power",		<?=$ax['name']?>_deviceRead(0x2044, 2))
-	call com_putLong("/temp_motor",		<?=$ax['name']?>_deviceRead(0x20C7, 0))
-<?}?>
-<?if ($ax['device']=='stepim') {?>
-	call com_putLong("/temp_drive",		<?=$ax['name']?>_deviceRead(0x2044, 0))
-<?}?>
-
-	call com_putDouble("/bus_voltage",	<?=$ax['name']?>_deviceRead(0x6079, 0)/1000.0)
+	case com_receiveMessage
+		sleepActive(max(0, com_getLong("/clock")-system.clock))
+		select case com_getLong("/id")
+		<?foreach($axes as $ax=>$axis) {?>
+			case <?=$axis['elementid']?>'
+				<?=$ax?>_driveLogHistory()
+		<?}?>
+		end select
 	
-	call com_putString("/axis", "<?=$ax['name']?>")
-	call log_putMessageId("9e9d13be4cfe4f95a1ddcfde91facd7f")
-	call logSend
-
-<?}?>
+	case com_receiveTimeout
+		select case 1 + (useIncrement(this_logHealthId) mod 64)
+		<?foreach($axes as $ax=>$axis) {?>
+			case <?=$axis['elementid']?>'
+				<?=$ax?>_driveLogHealth()
+		<?}?>
+		end select
+	
+	end select
 end sub
-
 
 <?lib_prgError()?>
 end sub
 
 
 
-function errorString(byval error_ as long) as string
+<?set('init')['end'][] = function() {?>
+public function drivelog_errorString(byval error_ as long) as string
 	select case error_
-	case 0x2214 
-		errorString = "Over-current" 
-	case 0x2310 
-		errorString = "Motor foldback / I2T limit" 
-	case 0x2311 
-		errorString = "Drive foldback" 
-	case 0x2380 
-		errorString = "Current sensors offset out-of-range" 
-	case 0x2381 
-		errorString = "Motor phase disconnection" 
-	case 0x2382 
-		errorString = "Output over-current detected" 
-	case 0x3110 
-		errorString = "Over-voltage" 
-	case 0x3120 
-		errorString = "Under-voltage" 
-	case 0x3180 
-		errorString = "Regen over-current" 
-	case 0x3181 
-		errorString = "STO (safe torque off) is not connected" 
-	case 0x3182 
-		errorString = "Bus voltage measurement circuit failure" 
-	case 0x3183 
-		errorString = "Bus AC supply line disconnect" 
-	case 0x4080 
-		errorString = "Integrated power module over-temperature" 
-	case 0x4081 
-		errorString = "Control board over-temperature" 
-	case 0x4310 
-		errorString = "Drive over-temperature" 
-	case 0x4410 
-		errorString = "Motor over-temperature" 
-	case 0x5111 
-		errorString = "Control +15V out-of-range" 
-	case 0x5111 
-		errorString = "Control -15V out-of-range" 
-	case 0x5180 
-		errorString = "5V out of range" 
-	case 0x5530 
-		errorString = "Power board EEPROM fault" 
-	case 0x5581 
-		errorString = "Control digital board EEPROM fault" 
-	case 0x5582 
-		errorString = "CAN voltage supply fault" 
-	case 0x5583 
-		errorString = "Self test failed" 
-	case 0x5585 
-		errorString = "Parameter memory checksum failure" 
-	case 0x5586 
-		errorString = "Failure writing to flash memory" 
-	case 0x6101 
-		errorString = "Internal error" 
-	case 0x6102 
-		errorString = "Realtime overload fault" 
-	case 0x6381 
-		errorString = "Drive not configured" 
-	case 0x6581 
-		errorString = "FPGA configuration failure" 
-	case 0x7111 
-		errorString = "Index line break" 
-	case 0x7112 
-		errorString = "Open load on the power brake output" 
-	case 0x7113 
-		errorString = "Short circuit on the power brake output" 
-	case 0x7114 
-		errorString = "Fieldbus - Target position exceeds velocity limit" 
-	case 0x7116 
-		errorString = "EtherCAT cable disconnected" 
-	case 0x7117 
-		errorString = "Fieldbus target command lost" 
-	case 0x711D 
-		errorString = "EtherCAT packets lost" 
-	case 0X711E 
-		errorString = "CAN/EtherCAT state not operational" 
-	case 0x711F 
-		errorString = "Power brake fault" 
-	case 0x7180 
-		errorString = "Secondary encoder (feedback) index break" 
-	case 0x7181 
-		errorString = "Secondary encoder (feedback) A/B line break" 
-	case 0x7182 
-		errorString = "Pulse & direction input line break" 
-	case 0x7310 
-		errorString = "Over-speed" 
-	case 0x7380 
-		errorString = "Feedback communication error" 
-	case 0x7381 
-		errorString = "Nikon encoder (feedback) operation fault" 
-	case 0x7382 
-		errorString = "Tamagawa feedback initialization failed" 
-	case 0x7383 
-		errorString = "A/B Line break" 
-	case 0x7384 
-		errorString = "Illegal Halls" 
-	case 0x7385 
-		errorString = "Absolute encoder battery low-voltage" 
-	case 0x7385 
-		errorString = "Tamagawa battery low voltage" 
-	case 0x7386 
-		errorString = "PLL synchronization failed" 
-	case 0x7388 
-		errorString = "Tamagawa abs operational fault" 
-	case 0x7389 
-		errorString = "Custom absolute encoder operational fault" 
-	case 0x738A 
-		errorString = "Differential Halls line break" 
-	case 0x738B 
-		errorString = "Encoder phase error" 
-	case 0x738C 
-		errorString = "AqB commutation fault" 
-	case 0x738D 
-		errorString = "ServoSense Encoder Fault" 
-	case 0x7390 
-		errorString = "Sankyo absolute encoder fault" 
-	case 0x7781 
-		errorString = "Motor setup failed" 
-	case 0x7782 
-		errorString = "Phase find failed" 
-	case 0x7783 
-		errorString = "Encoder simulation frequency too high" 
-	case 0x7784 
-		errorString = "EnDat sine (feedback) communication failed" 
-	case 0x7785 
-		errorString = "A/B out-of-range" 
-	case 0x7786 
-		errorString = "Sine encoder quadrature" 
-	case 0x7787 
-		errorString = "Sine/cosine calibration invalid" 
-	case 0x7788 
-		errorString = "Encoder (feedback) 5V over-current" 
-	case 0x7789 
-		errorString = "Secondary encoder (feedback) 5V over-current" 
-	case 0x778B 
-		errorString = "Resolver initialization failed" 
-	case 0x778C 
-		errorString = "Stall fault" 
-	case 0x778D 
-		errorString = "PFB Off checksum invalid" 
-	case 0x778E 
-		errorString = "PFB Off data mismatch" 
+	case 0x2214
+		drivelog_errorString = "Over-current"
+	case 0x2310
+		drivelog_errorString = "Motor foldback / I2T limit"
+	case 0x2311
+		drivelog_errorString = "Drive foldback"
+	case 0x2380
+		drivelog_errorString = "Current sensors offset out-of-range"
+	case 0x2381
+		drivelog_errorString = "Motor phase disconnection"
+	case 0x2382
+		drivelog_errorString = "Output over-current detected"
+	case 0x3110
+		drivelog_errorString = "Over-voltage"
+	case 0x3120
+		drivelog_errorString = "Under-voltage"
+	case 0x3180
+		drivelog_errorString = "Regen over-current"
+	case 0x3181
+		drivelog_errorString = "STO (safe torque off) is not connected"
+	case 0x3182
+		drivelog_errorString = "Bus voltage measurement circuit failure"
+	case 0x3183
+		drivelog_errorString = "Bus AC supply line disconnect"
+	case 0x4080
+		drivelog_errorString = "Integrated power module over-temperature"
+	case 0x4081
+		drivelog_errorString = "Control board over-temperature"
+	case 0x4310
+		drivelog_errorString = "Drive over-temperature"
+	case 0x4410
+		drivelog_errorString = "Motor over-temperature"
+	case 0x5111
+		drivelog_errorString = "Control +/-15V out-of-range"
+	case 0x5180
+		drivelog_errorString = "5V out of range"
+	case 0x5530
+		drivelog_errorString = "Power board EEPROM fault"
+	case 0x5581
+		drivelog_errorString = "Control digital board EEPROM fault"
+	case 0x5582
+		drivelog_errorString = "CAN voltage supply fault"
+	case 0x5583
+		drivelog_errorString = "Self test failed"
+	case 0x5585
+		drivelog_errorString = "Parameter memory checksum failure"
+	case 0x5586
+		drivelog_errorString = "Failure writing to flash memory"
+	case 0x6101
+		drivelog_errorString = "Internal error"
+	case 0x6102
+		drivelog_errorString = "Realtime overload fault"
+	case 0x6381
+		drivelog_errorString = "Drive not configured"
+	case 0x6581
+		drivelog_errorString = "FPGA configuration failure"
+	case 0x7111
+		drivelog_errorString = "Index line break"
+	case 0x7112
+		drivelog_errorString = "Open load on the power brake output"
+	case 0x7113
+		drivelog_errorString = "Short circuit on the power brake output"
+	case 0x7114
+		drivelog_errorString = "Fieldbus - Target position exceeds velocity limit"
+	case 0x7116
+		drivelog_errorString = "EtherCAT cable disconnected"
+	case 0x7117
+		drivelog_errorString = "Fieldbus target command lost"
+	case 0x711D
+		drivelog_errorString = "EtherCAT packets lost"
+	case 0X711E
+		drivelog_errorString = "CAN/EtherCAT state not operational"
+	case 0x711F
+		drivelog_errorString = "Power brake fault"
+	case 0x7180
+		drivelog_errorString = "Secondary encoder (feedback) index break"
+	case 0x7181
+		drivelog_errorString = "Secondary encoder (feedback) A/B line break"
+	case 0x7182
+		drivelog_errorString = "Pulse & direction input line break"
+	case 0x7310
+		drivelog_errorString = "Over-speed"
+	case 0x7380
+		drivelog_errorString = "Feedback communication error"
+	case 0x7381
+		drivelog_errorString = "Nikon encoder (feedback) operation fault"
+	case 0x7382
+		drivelog_errorString = "Tamagawa feedback initialization failed"
+	case 0x7383
+		drivelog_errorString = "A/B Line break"
+	case 0x7384
+		drivelog_errorString = "Illegal Halls"
+	case 0x7385
+		drivelog_errorString = "Absolute encoder battery low-voltage"
+	case 0x7385
+		drivelog_errorString = "Tamagawa battery low voltage"
+	case 0x7386
+		drivelog_errorString = "PLL synchronization failed"
+	case 0x7388
+		drivelog_errorString = "Tamagawa abs operational fault"
+	case 0x7389
+		drivelog_errorString = "Custom absolute encoder operational fault"
+	case 0x738A
+		drivelog_errorString = "Differential Halls line break"
+	case 0x738B
+		drivelog_errorString = "Encoder phase error"
+	case 0x738C
+		drivelog_errorString = "AqB commutation fault"
+	case 0x738D
+		drivelog_errorString = "ServoSense Encoder Fault"
+	case 0x7390
+		drivelog_errorString = "Sankyo absolute encoder fault"
+	case 0x7781
+		drivelog_errorString = "Motor setup failed"
+	case 0x7782
+		drivelog_errorString = "Phase find failed"
+	case 0x7783
+		drivelog_errorString = "Encoder simulation frequency too high"
+	case 0x7784
+		drivelog_errorString = "EnDat sine (feedback) communication failed"
+	case 0x7785
+		drivelog_errorString = "A/B out-of-range"
+	case 0x7786
+		drivelog_errorString = "Sine encoder quadrature"
+	case 0x7787
+		drivelog_errorString = "Sine/cosine calibration invalid"
+	case 0x7788
+		drivelog_errorString = "Encoder (feedback) 5V over-current"
+	case 0x7789
+		drivelog_errorString = "Secondary encoder (feedback) 5V over-current"
+	case 0x778B
+		drivelog_errorString = "Resolver initialization failed"
+	case 0x778C
+		drivelog_errorString = "Stall fault"
+	case 0x778D
+		drivelog_errorString = "PFB Off checksum invalid"
+	case 0x778E
+		drivelog_errorString = "PFB Off data mismatch"
 	case 0x778F 
-		errorString = "No PFB Off data" 
-	case 0x7790 
-		errorString = "FPGA version mismatch" 
-	case 0x7791 
-		errorString = "Emergency stop issued" 
-	case 0x7792 
-		errorString = "Endat2x feedback faults" 
-	case 0x7793 
-		errorString = "Fieldbus version mismatch" 
-	case 0x7794 
-		errorString = "ESI version mismatch" 
-	case 0x7796 
-		errorString = "Temperature sensor failure" 
-	case 0x7797 
-		errorString = "Pulse train frequency too high" 
-	case 0x7798 
-		errorString = "Motor runaway condition detected" 
-	case 0x7799 
-		errorString = "Regen resistor overload" 
-	case 0x7800 
-		errorString = "SAVE and power cycle required" 
-	case 0x7801 
-		errorString = "Motor plate read failed" 
-	case 0x8130 
-		errorString = "CAN heartbeat lost" 
-	case 0x8180 
-		errorString = "Drive locked" 
-	case 0x8400 
-		errorString = "Velocity error" 
-	case 0x8481 
-		errorString = "Velocity over-speed exceeded" 
-	case 0x8482 
-		errorString = "Exceeded maximum velocity error" 
-	case 0x8608 
-		errorString = "Secondary feedback position mismatch" 
-	case 0x8609 
-		errorString = "PE reached software numerical limit" 
-	case 0x8611 
-		errorString = "Exceeded maximum position error" 
-	case 0x8611 
-		errorString = "Exceeded maximum velocity error" 
-	case 0xF001 
-		errorString = "Acceleration / deceleration violation" 
-	case 0xFF00 
-		errorString = "Position command error" 
+		drivelog_errorString = "No PFB Off data"
+	case 0x7790
+		drivelog_errorString = "FPGA version mismatch"
+	case 0x7791
+		drivelog_errorString = "Emergency stop issued"
+	case 0x7792
+		drivelog_errorString = "Endat2x feedback faults"
+	case 0x7793
+		drivelog_errorString = "Fieldbus version mismatch"
+	case 0x7794
+		drivelog_errorString = "ESI version mismatch"
+	case 0x7796
+		drivelog_errorString = "Temperature sensor failure"
+	case 0x7797
+		drivelog_errorString = "Pulse train frequency too high"
+	case 0x7798
+		drivelog_errorString = "Motor runaway condition detected"
+	case 0x7799
+		drivelog_errorString = "Regen resistor overload"
+	case 0x7800
+		drivelog_errorString = "SAVE and power cycle required"
+	case 0x7801
+		drivelog_errorString = "Motor plate read failed"
+	case 0x8130
+		drivelog_errorString = "CAN heartbeat lost"
+	case 0x8180
+		drivelog_errorString = "Drive locked"
+	case 0x8400
+		drivelog_errorString = "Velocity error"
+	case 0x8481
+		drivelog_errorString = "Velocity over-speed exceeded"
+	case 0x8482
+		drivelog_errorString = "Exceeded maximum velocity error"
+	case 0x8608
+		drivelog_errorString = "Secondary feedback position mismatch"
+	case 0x8609
+		drivelog_errorString = "PE reached software numerical limit"
+	case 0x8611
+		drivelog_errorString = "Exceeded maximum position error"
+	case 0x8611
+		drivelog_errorString = "Exceeded maximum velocity error"
+	case 0xF001
+		drivelog_errorString = "Acceleration / deceleration violation"
+	case 0xFF00
+		drivelog_errorString = "Position command error"
 	case 0xFF03
-		errorString = "PLL lock lost" 
+		drivelog_errorString = "PLL lock lost"
 	case 0xFF04
-		errorString = "Power stage fault" 
+		drivelog_errorString = "Power stage fault"
 	case 0xFF05
-		errorString = "Encoder failure" 
+		drivelog_errorString = "Encoder failure"
 	case 0xFF06
-		errorString = "Gate drive voltage failure" 
+		drivelog_errorString = "Gate drive voltage failure"
 	case else
-		errorString = "unknown error code: "+hex$(error_)+"h"
+		drivelog_errorString = "unknown error code"
 	end select
+	drivelog_errorString = drivelog_errorString + " ("+hex$(error_)+"h)"
 end function
-
-
+<?}?>
 
 <?
 /*
@@ -357,7 +290,7 @@ function parseErrorStrings($htmlTableFile) { #from: http://servotronix.com/html/
 		$errorstring = str_replace("\n", "", trim($td->item(1)->textContent));
 ?>
 	case 0x<?=strtoupper(dechex($errorcode))?> 
-		errorString = "<?=$errorstring?>"
+		drivelog_errorString = "<?=$errorstring?>"
 <? 
 	}
 }

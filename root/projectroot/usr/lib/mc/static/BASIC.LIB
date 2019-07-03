@@ -141,6 +141,11 @@ public function useDecrement(value_ as long) as long
 end function
 
 
+public sub newLine(string_ as string)
+	string_ = string_ + chr$(10)
+end sub
+
+
 
 public function sinDeg(byval angle_ as double) as double
 	sinDeg = sin(angle_*PI/180)
@@ -174,6 +179,15 @@ end function
 
 public function getBit(byval input_ as long, byval bit_ as long) as long
 	getBit = (input_ band (1 shl bit_)) > 0
+end function
+
+
+function word2long(byval value_ as long) as long
+	if value_ band 0x8000 then
+		word2long = value_ bor 0xFFFF0000
+	else
+		word2long = value_
+	end if
 end function
 
 

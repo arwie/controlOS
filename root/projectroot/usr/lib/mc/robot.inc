@@ -27,60 +27,91 @@ function scara($a1, $a2, $a3, $a4) {
 function robot($rbt) { global $lib;
 	
 	$rbt['name']			= $lib['name'];
-		
-	$lib['robot']			= $rbt;
-
+	
+	$lib['robot'] = true;
 	set('robot')[$rbt['name']]	= $rbt;
-
+	
 	lib('debug', [
 		'com_putBool("enable",	enable)',
-		'com_putJoint'.ucfirst($rbt['type']).'("positionFeedback", positionFeedback)',
+		'com_putJoint'.$rbt['type'].'("positionFeedback", positionFeedback)',
 	]);
+	foreach ($rbt['axes'] as $ax)
+		lib('debugExt', "{$ax}_putDebug()");
+	
+	lib('end', function() use ($rbt) {
+		robot_enableFunctions($rbt['axes']);
+		_robotFunctions($rbt);
+	});
 }
 
 
 function robot_setup() { global $lib;
-	$lib['robot']['robotSetup'] = true;
+	lib('robotSetup', 'robotSetup()');
 	l('sub robotSetup');
 }
 
 
-function robotLibEnd($rbt) { global $lib;
-	l('public sub '.lib().'_robotSetup');
-	ll('attach');
-	defaultRobotSetup($rbt);
-	if ($lib['robot']['robotSetup']) ll('robotSetup()');
-	ll('detach');
-	l('end sub');
+function robot_enableFunctions($axes) {
+?>
+public sub <?=lib()?>_enable
+	<?foreach ($axes as $ax)
+		call("dim {$ax}DriveFault_ as long = {$ax}.driveStatus band 0x8")?>
+	<?foreach ($axes as $ax)
+		call("{$ax}_disabled = false")?>
+	try
+		while not enable
+			enable = true
+			sleep 1
+		end while
+	catch else
+		<?logError()?>
+	finally
+		<?foreach ($axes as $ax)
+			call(["if {$ax}DriveFault_ then", "{$ax}_driveLogErrorHandled = false", "end if"])?>
+		throw errorApplication
+	end try
+	<?foreach ($axes as $ax) if (!get('device')[$ax]['simulated'])
+		call("{$ax}_driveLogClearHistory()")?>
+end sub
+public sub <?=lib()?>_enableAttach
+	<?=lib()?>_enable()
+	attach
+end sub
 
-	l('public sub '.lib().'_enable');
-	ll('while not enable');
-	lll('enable = true');
-	lll('sleep bus[0].cycletime/1000');
-	ll('end while');
-	l('end sub');
-	l('public sub '.lib().'_enableAttach');
-	ll(lib().'_enable()');
-	ll('attach');
-	l('end sub');
-
-	l('public sub '.lib().'_disable');
-	ll('while isMoving > 0');
-	lll('sleep bus[0].cycletime/1000');
-	ll('end while');
-	ll('enable = false');
-	ll('sleep 5*bus[0].cycletime/1000');
-	l('end sub');
-	l('public sub '.lib().'_disableDetach');
-	ll('detach');
-	ll(lib().'_disable()');
-	l('end sub');
+public sub <?=lib()?>_disable
+	while isMoving > 0
+		sleep 1
+	end while
+	while enable
+		enable = false
+		sleep 1
+	end while
+	<?foreach ($axes as $ax)
+		call("{$ax}_disabled = true")?>
+end sub
+public sub <?=lib()?>_disableDetach
+	detach
+	<?=lib()?>_disable()
+end sub
+<?
 }
 
 
-function defaultRobotSetup(&$rbt) {
+function _robotFunctions($rbt) {
+?>
+public sub <?=lib()?>_robotSetup
+	attach
+	<?_defaultRobotSetup($rbt)?>
+	detach
+end sub
+<?
+}
+
+
+function _defaultRobotSetup(&$rbt) {
 	foreach ($rbt['axes'] as $ax) { $j += 1; $jnt = 'j'.$j;
 		ll($jnt.'.positionmin			= '.$ax.'.positionmin');
 		ll($jnt.'.positionmax			= '.$ax.'.positionmax');
 	}
+	call(libGet('robotSetup'));
 }

@@ -23,14 +23,7 @@ function device(&$dev) { global $lib;
 	$dev['address']		= conf('device',lib(),'address',   $dev['address'])		?: 0;
 	$dev['bus']			= conf('device',lib(),'bus',       $dev['bus']);
 	
-	$dev['readBit']  = $dev['readBit']  ?: [];
 	$dev['writeBit'] = $dev['writeBit'] ?: [];
-	
-	foreach ($dev['readBit'] as &$bit) {
-		$bit['offset'] = $bit['offset'] ?: 0;
-		$bit['dio'] = $dio;
-		$dio += $bit['size'];
-	}
 	foreach ($dev['writeBit'] as &$bit) {
 		$bit['offset'] = $bit['offset'] ?: 0;
 		$bit['dio'] = $dio;
@@ -53,19 +46,27 @@ function deviceLibEnd($dev) {
 	ll(lib().'_deviceRead = '.$dev['bus'].'_read('.$dev['address'].', index_, subindex_)');
 	l('end function');
 	l('public sub '.lib().'_deviceWrite(byval index_ as long, byval subindex_ as long, byval size_ as long, byval value_ as long)');
-	ll('call '.$dev['bus'].'_write('.$dev['address'].', index_, subindex_, size_, value_)');
+	ll($dev['bus'].'_write('.$dev['address'].', index_, subindex_, size_, value_)');
 	l('end sub');
 	
 	l('public function '.lib().'_deviceReadString(byval index_ as long, byval subindex_ as long) as string');
 	ll(lib().'_deviceReadString = '.$dev['bus'].'_readString('.$dev['address'].', index_, subindex_)');
 	l('end function');
 	
-	$accessBit = function($rwBit) {
+	l('public function '.lib().'_deviceReadBit(byval index_ as long, byval subindex_ as long, byval bit_ as long) as long');
+	ll(lib().'_deviceReadBit = getBit('.lib().'_deviceRead(index_, subindex_), bit_)');
+	l('end function');
+	
+	if ($dev['writeBit']) {
+		l('public sub '.lib().'_deviceWriteBit(byval index_ as long, byval subindex_ as long, byval bit_ as long, byval value_ as long)');
+		ll(lib().'_deviceWriteBits(index_, subindex_, bit_, 1, value_)');
+		l('end sub');
+		l('public sub '.lib().'_deviceWriteBits(byval index_ as long, byval subindex_ as long, byval bit_ as long, byval range_ as long, byval value_ as long)');
 		ll('dim dio_    as long = -1');
 		ll('dim offset_ as long');
 		ll('dim size_   as long');
 		ll('select case (index_ shl 16) + subindex_');
-		foreach (get('device')[lib()][$rwBit] as $bit) {
+		foreach (get('device')[lib()]['writeBit'] as $bit) {
 			ll('case 0x'.dechex(($bit['index'] << 16) + $bit['subindex']));
 			lll('dio_    = '.$bit['dio']);
 			lll('offset_ = '.$bit['offset']);
@@ -73,35 +74,15 @@ function deviceLibEnd($dev) {
 		}
 		ll('end select');
 		ll('if (dio_ > 0) and (bit_ >= offset_) and (bit_-offset_+range_ <= size_) then');
-		if ($rwBit == 'readBit')
-			lll(lib().'_deviceReadBits = system.din[dio_+bit_-offset_][range_]');
-		else
-			lll('system.dout[dio_+bit_-offset_][range_] = value_');
+		lll('system.dout[dio_+bit_-offset_][range_] = value_');
 		ll('else');
-		lll('call logLibError("bitwise access to unassociated pdo")');
-		lll('call log_putCodeFunc(scope)');
-		lll('call com_putString("/index", hex$(index_)+"h")');
-		lll('call com_putLong("/subindex", subindex_)');
-		lll('call com_putLong("/bit", bit_)');
-		lll('call com_putLong("/range", range_)');
-		lll('call logSend');
-		lll('throw errorApplication');
+			logThrow(['bitwise write to unassociated pdo'], [
+				'com_putString("/index", hex$(index_)+"h")',
+				'com_putLong("/subindex", subindex_)',
+				'com_putLong("/bit", bit_)',
+				'com_putLong("/range", range_)',
+			]);
 		ll('end if');
-	};
-	if ($dev['readBit']) {
-		l('public function '.lib().'_deviceReadBit(byval index_ as long, byval subindex_ as long, byval bit_ as long) as long');
-		ll(lib().'_deviceReadBit = '.lib().'_deviceReadBits(index_, subindex_, bit_, 1)');
-		l('end function');
-		l('public function '.lib().'_deviceReadBits(byval index_ as long, byval subindex_ as long, byval bit_ as long, byval range_ as long) as long');
-		$accessBit('readBit');
-		l('end function');
-	}
-	if ($dev['writeBit']) {
-		l('public sub '.lib().'_deviceWriteBit(byval index_ as long, byval subindex_ as long, byval bit_ as long, byval value_ as long)');
-		ll('call '.lib().'_deviceWriteBits(index_, subindex_, bit_, 1, value_)');
-		l('end sub');
-		l('public sub '.lib().'_deviceWriteBits(byval index_ as long, byval subindex_ as long, byval bit_ as long, byval range_ as long, byval value_ as long)');
-		$accessBit('writeBit');
 		l('end sub');
 	}
 }

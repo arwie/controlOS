@@ -52,6 +52,15 @@ public function EC_SDO_READ_STRING(byval slaveaddres as long, byval index as lon
 	throw simmc_error
 end function
 
+public Function EC_SLAVE_READ_REGISTER(byval slaveaddr as long, byval reg as long, byval reg_size as long) as long
+	throw simmc_error
+end function
+
+public Function EC_SLAVE_WRITE_REGISTER(byval slaveaddr as long, byval reg as long, byval reg_size as long, byval new_val as long) as long
+	throw simmc_error
+end function
+
+
 
 public function EC_MASTER as string
 	throw simmc_error

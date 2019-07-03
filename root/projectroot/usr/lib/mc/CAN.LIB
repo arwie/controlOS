@@ -1,18 +1,19 @@
-' Copyright (c) 2016 Artur Wiebe <artur@4wiebe.de>
-'
-' Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
-' associated documentation files (the "Software"), to deal in the Software without restriction,
-' including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
-' and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
-' subject to the following conditions:
-'
-' The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-'
-' THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-' INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-' IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-' WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-' OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+<?# Copyright (c) 2019 Artur Wiebe <artur@4wiebe.de>
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+# associated documentation files (the "Software"), to deal in the Software without restriction,
+# including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+# WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+?>
 
 
 <?$can = device_busDevices('can')?>
@@ -25,19 +26,18 @@ common shared can_cycletime as const long = 8000	'{4000,2000,1000}[µs]
 
 <?lib_init()?>
 	bus[can_busnumber].phase = 0
-	call sleepActive(300)
+	sleepActive(300)
 
 <?
 	foreach($can as $dev) {
 		switch ($dev['device']) {
 			case 'stepim':
-				ll('call can_sdoWrite('.$dev['address'].', 0x6040, 0, 16, 128)');
-				ll('call can_sdoWrite('.$dev['address'].', 0x262C, 0, 32, 150000)');								#262Ch – Sync Allowed Window
-				ll('call can_sdoWrite('.$dev['address'].', 0x1017, 0, 16, 0)');
-				ll('call can_sdoWrite('.$dev['address'].', 0x1006, 0, 32, can_cycletime)');
-				ll('call can_sdoWrite('.$dev['address'].', 0x60C2, 1, 8,  can_cycletime/1000)');
-				ll('call can_sdoWrite('.$dev['address'].', 0x60C2, 2, 8,  -3)');
-				ll('call IntergratedStepperMapPDO('.$dev['address'].')');
+				ll('can_sdoWrite('.$dev['address'].', 0x262C, 0, 32, 150000)');								#262Ch – Sync Allowed Window
+				ll('can_sdoWrite('.$dev['address'].', 0x1017, 0, 16, 0)');
+				ll('can_sdoWrite('.$dev['address'].', 0x1006, 0, 32, can_cycletime)');
+				ll('can_sdoWrite('.$dev['address'].', 0x60C2, 1, 8,  can_cycletime/1000)');
+				ll('can_sdoWrite('.$dev['address'].', 0x60C2, 2, 8,  -3)');
+				ll('IntergratedStepperMapPDO('.$dev['address'].')');
 				break;
 		}
 	}
@@ -48,7 +48,7 @@ end sub
 <?lib_start()?>
 	bus[can_busnumber].cycletime = can_cycletime
 	bus[can_busnumber].phase = 4
-	call sleepActive(100)
+	sleepActive(100)
 end sub
 
 
@@ -59,9 +59,9 @@ public sub can_write(byval slave_ as long, byval index_ as long, byval subindex_
 	case 0x60FE
 		pdo_->data[1]   = value_
 		pdo_->length[1] = 4
-		call can_pdo2_write(slave_, pdo_)
+		can_pdo2_write(slave_, pdo_)
 	case else
-		call can_sdoWrite(slave_, index_, subindex_, size_, value_)
+		can_sdoWrite(slave_, index_, subindex_, size_, value_)
 	end select
 end sub
 
@@ -79,31 +79,33 @@ end function
 
 
 
-<?$can_xdoReadWriteBody = function($cmd, $valueType=false) {
-	ll('try');
-	lll($cmd);
-	ll('catch else');
-	lll('call logLibError(scope+": "+error)');
-	lll('call com_putLong("/error", errornumber)');
-	lll('call log_putCodeFunc(scope)');
-	lll('call com_putLong("/slave", slave_)');
-	lll('call com_putString("/index", hex$(index_)+"h")');
-	lll('call com_putLong("/subindex", subindex_)');
-	if ($valueType) lll('call com_put'.ucfirst($valueType).'("/value", value_)');
-	lll('call logSend');
-	ll('finally');
-	lll('throw');
-	ll('end try');
+public sub can_sleepCycle
+	sleep max(1, can_cycletime/1000)
+end sub
+
+
+
+<?$xdoCatchLogThrow = function($valueType=false) {
+	catchLogThrow([
+		'com_putLong("/slave", slave_)',
+		'com_putString("/index", hex$(index_)+"h")',
+		'com_putLong("/subindex", subindex_)',
+		($valueType) ? 'com_put'.ucfirst($valueType).'("/value", value_)' : false,
+	]);
 }?>
 
 
 public sub can_sdoWrite(byval slave_ as long, byval index_ as long, byval subindex_ as long, byval size_ as long, byval value_ as long)
-<?	$can_xdoReadWriteBody('call CAN_SDO_WRITE(slave_, index_, subindex_, size_, value_)', 'long')?>
+	try
+		CAN_SDO_WRITE(slave_, index_, subindex_, size_, value_)
+	<?$xdoCatchLogThrow('long')?>
 end sub
 
 
 public function can_sdoRead(byval slave_ as long, byval index_ as long, byval subindex_ as long) as long
-<?	$can_xdoReadWriteBody('can_sdoRead = CAN_SDO_READ(slave_, index_, subindex_)')?>
+	try
+		can_sdoRead = CAN_SDO_READ(slave_, index_, subindex_)
+	<?$xdoCatchLogThrow()?>
 end function
 
 

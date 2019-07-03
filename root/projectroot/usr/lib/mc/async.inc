@@ -28,20 +28,20 @@ function async($prio='prgPriorityNormal')
 	});
 	
 	lib('stopTrigger', function(){
-		ll('call com_clear');
-		ll('call com_send(asyncNotify)');
-		ll('call com_send(asyncBuffer)');
+		ll('com_clear()');
+		ll('com_send(asyncNotify)');
+		ll('com_send(asyncBuffer)');
 	});
 	
 	lib('stop', function(){
-		ll('call com_reset(asyncBuffer)');
+		ll('com_reset(asyncBuffer)');
 		ll(lib().'_asyncBusy = false');
 		ll('asyncFunction = "{}"');
 	});
 	
 	lib('debug', [
-		'call com_putJson("asyncFunction", asyncFunction)',
-		'call com_putLong("asyncBusy", '.lib().'_asyncBusy)',
+		'com_putJson("async/function", asyncFunction)',
+		'com_putLong("async/busy", '.lib().'_asyncBusy)',
 	]);
 	
 	lib('end', function() use ($prio) {
@@ -51,10 +51,10 @@ function async($prio='prgPriorityNormal')
 		lll('asyncFunction = com_getJson("")');
 		lll('select case com_getLong("/cmd")');
 		lll('case -1');
-		llll('call com_send(asyncNotify)');
+		llll('com_send(asyncNotify)');
 		foreach(lib('async')['functions'] as $f) {
 			lll('case '.$f['cmd']);
-			llll('call '.$f['nameSync'].$f['comGet']);
+			llll($f['nameSync'].$f['comGet']);
 		}
 		lll('end select');
 		lll('asyncFunction = "{}"');
@@ -64,10 +64,10 @@ function async($prio='prgPriorityNormal')
 	
 		l('public sub '.lib().'_asyncWait');
 		ll('if '.lib().'_asyncBusy then');
-		lll('call com_reset(asyncNotify)');
+		lll('com_reset(asyncNotify)');
 		lll('if '.lib().'_active then');
-		llll('call com_store');
-		llll('call asyncExec(-1)');
+		llll('com_store()');
+		llll('asyncExec(-1)');
 		llll('while not com_receive(asyncNotify, 100) and '.lib().'_active');
 		llll('end while');
 		lll('end if');
@@ -78,9 +78,9 @@ function async($prio='prgPriorityNormal')
 		l('end sub');
 	
 		l('sub asyncExec(byval cmd_ as long)');
-		ll('call com_putLong("/cmd", cmd_)');
-		ll('call com_send(asyncBuffer)');
-		ll('call com_restore');
+		ll('com_putLong("/cmd", cmd_)');
+		ll('com_send(asyncBuffer)');
+		ll('com_restore()');
 		ll('increment('.lib().'_asyncBusy)');
 		l('end sub');
 	});
@@ -100,7 +100,7 @@ function async_function($name, $args=[], $pre=false, $post=false)
 		}
 	}
 	
-	$pp = function($tokens) { return $tokens ? '('.implode(', ', $tokens).')' : ''; };
+	$pp = function($tokens, $pp=true) { return $tokens ? '('.implode(', ', $tokens).')' : ($pp ? '()':''); };
 	
 	$f = [
 		'name'			=> $name,
@@ -110,24 +110,24 @@ function async_function($name, $args=[], $pre=false, $post=false)
 	];
 	lib('async')['functions'][] = $f;
 	
-	l('public sub '.lib().'_'.$f['name'].$pp($paramsPure));
+	l('public sub '.lib().'_'.$f['name'].$pp($paramsPure, false));
 	call($pre);
 	ll('if '.lib().'_started then');
-	lll('call com_store');
-	lll('call com_putString("/function", "'.$name.'")');
+	lll('com_store()');
+	lll('com_putString("/function", "'.$name.'")');
 	foreach ($comPut?:[] as $p) lll($p);
-	lll('call asyncExec('.$f['cmd'].')');
-	if ($post) lll('call '.lib().'_asyncWait');
+	lll('asyncExec('.$f['cmd'].')');
+	if ($post) lll(lib().'_asyncWait()');
 	ll('else');
-	lll('call '.$f['nameSync'].$pp($paramsCall));
+	lll($f['nameSync'].$pp($paramsCall));
 	ll('end if');
 	call($post);
 	l('end sub');
 	
-	l('sub '.$f['nameSync'].$pp($params));
+	l('sub '.$f['nameSync'].$pp($params, false));
 }
 
 
 function async_call($name) {
-	echo 'call '.$name.'_';
+	echo $name.'_';
 }

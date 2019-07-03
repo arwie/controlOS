@@ -1,18 +1,19 @@
-' Copyright (c) 2016 Artur Wiebe <artur@4wiebe.de>
-'
-' Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
-' associated documentation files (the "Software"), to deal in the Software without restriction,
-' including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
-' and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
-' subject to the following conditions:
-'
-' The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-'
-' THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-' INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-' IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-' WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-' OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+<?# Copyright (c) 2019 Artur Wiebe <artur@4wiebe.de>
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+# associated documentation files (the "Software"), to deal in the Software without restriction,
+# including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+# WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+?>
 
 
 <?com_websocket(5600, ['receive'=>'false'])?>
@@ -33,85 +34,85 @@ dim shared comLogChannel as long
 
 
 public sub log_message(byval prio_ as long, byval message_ as string)
-	call com_store
-	call com_putLong("/clock", system.clock)
-	call com_putLong("/priority", prio_)
-	call com_putStringRef("/message", message_)
-	call com_putString("/prg", programname)
+	com_store()
+	com_putLong("/clock", system.clock)
+	com_putLong("/priority", prio_)
+	com_putStringRef("/message", message_)
+	com_putString("/prg", programname)
 end sub
 
 
 public sub log_putMessageId(byval messageId_ as string)
-	call com_putStringRef("/message_id", messageId_)
+	com_putStringRef("/message_id", messageId_)
 end sub
 
 public sub log_putCodeFunc(byval codeFunc_ as string)
-	call com_putStringRef("/code_func", codeFunc_)
+	com_putStringRef("/code_func", codeFunc_)
 end sub
 
 public sub log_putReport(byval report_ as string)
-	call com_putStringRef("/report", report_)
-	call com_putLong("/reports", true)
+	com_putStringRef("/report", report_)
+	com_putLong("/reports", true)
 end sub
 
 public sub log_putFile(byval name_ as string)
-	call com_putString("/"+name_, sh("awk '{print NR $s}' /FFS0/SSMC/"+name_))
+	com_putString("/"+name_, sh("awk '{print NR $s}' /FFS0/SSMC/"+name_))
 end sub
 
 public sub log_putTrnErr
-	call com_putString("/TRN.ERR", sh("cat /RAM/TRN.ERR"))
+	com_putString("/TRN.ERR", sh("cat /RAM/TRN.ERR"))
 end sub
 
 
 public sub log_send
 	try
-		call com_send(comLogChannel)
+		com_send(comLogChannel)
 	catch else
 		print "ERROR: log failed to send"
 	end try
-	call com_restore
+	com_restore()
 end sub
 
 
 public sub log_debugMessage(byval message_ as string)
-	call log_message(log_prioDebug, message_)
-	call log_send
+	log_message(log_prioDebug, message_)
+	log_send()
 end sub
 
 
 <?lib_init()?>
 	<?com_open('comLogChannel', 'log', function() {?>
-		call com_putLong("/priority", log_priority)
+		com_putLong("/priority", log_priority)
 	<?})?> 
 end sub
 
 
 public sub log_waitDrain
-	call com_clear
-	call com_sendSelf(comLogChannel)
+	com_clear()
+	com_sendSelf(comLogChannel)
 	<?waitActive('log')?>
 end sub
 
 
 
 <?lib_prgStart()?>
-	call dropLong(com_receive(this_websocket, 30000))	'wait for log client connection
+	dropLong(com_receive(this_websocket, 30000))	'wait for log client connection
 end sub
 
 
 <?com_prgReceive('comLogChannel', 250, 16)?>
 	select case receive_
 	case com_receiveMessage
-		call com_send(this_websocket)
-		call printLog
+		com_send(this_websocket)
+		printLog()
 	case com_receiveNotify
-		call log_stopTrigger
+		log_stopTrigger()
 	end select
 end sub
 
 
 <?lib_prgError()?>
-	call log_stopTrigger
+	log_stopTrigger()
 end sub
 
 

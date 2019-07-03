@@ -51,32 +51,32 @@ function waitActive($lib, $while='true', $interval=100) {
 	lll('while '.lib().'_active and not '.$lib.'_wait('.$interval.') and ('.$while.')');
 	lll('end while');
 	if ($lib != lib())
-		lib('stopTrigger', 'call '.$lib.'_stopTrigger');
+		lib('stopTrigger', $lib.'_stopTrigger()');
 }
 function engageActive($lib, $while='true', $interval=100) {
-	lll('call '.$lib.'_start');
+	lll($lib.'_start()');
 	waitActive($lib, $while, $interval);
-	lll('call '.$lib.'_stop');
+	lll($lib.'_stop()');
 }
 
 function logMessage($prio, $message=false, $log=false) {
 	if (!$message) {
 		$message = 'taskerror(programname)';
-		$extra[] = 'call com_putLong("/error", taskerrornumber(programname))';
+		$extra[] = 'com_putLong("/error", taskerrornumber(programname))';
 	} elseif (is_array($message)) {
 		if ($message[1])
-			$extra[] = 'call log_putReport('.s($message[1]).')';
+			$extra[] = 'log_putReport('.s($message[1]).')';
 		$message = s($message[0]);
 	}
 	if ($log) {
 		$extra[] = ['try', $log, 'catch else', 'end try'];
 	}
-	ll('call log_message('.$prio.','.$message.')');
+	ll('log_message('.$prio.','.$message.')');
 	call($extra);
-	ll('call '.lib().'_putDebug');
-	ll('call log_putCodeFunc(scope)');
-	ll('call com_putString("/lib", "'.lib().'")');
-	ll('call log_send');
+	ll(lib().'_putDebug()');
+	ll('log_putCodeFunc(scope)');
+	ll('com_putString("/lib", "'.lib().'")');
+	ll('log_send()');
 }
 function logCritical($message=false, $log=false) { logMessage(2, $message, $log); }
 function logError   ($message=false, $log=false) { logMessage(3, $message, $log); }
@@ -261,6 +261,7 @@ function libEnd() { global $lib;
 	lll('call com_putBool("started", '.lib().'_started)');
 	lll('call com_putBool("active", '.lib().'_active)');
 	call(lib('debug'));
+	call(lib('debugExt'));
 	ll('catch else');
 	lll('call com_putString("-", error)');
 	ll('end try');
@@ -311,12 +312,9 @@ function libEnd() { global $lib;
 
 	if ($lib['device'])
 		deviceLibEnd($lib['device']);
-
-	if ($lib['robot'])
-		robotLibEnd($lib['robot']);
 	
-	set('lib')[lib()]			= $lib;
-	set('libs')[$lib['type']][]	= $lib;
+	set('lib')[lib()]					= $lib;
+	set('libs')[$lib['type']][lib()]	= $lib;
 }
 
 

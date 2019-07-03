@@ -53,6 +53,12 @@ function com_websocket($port, $args=[], $name=false)
 
 
 
+function com_send($name, $message) {
+	call(['com_clear()', $message, "com_send({$name})"]);
+}
+
+
+
 function com_open($name, $type, $args=false) {
 	lll('call com_clear');
 	lll('call com_putString("/log/lib",  "'.lib().'")');

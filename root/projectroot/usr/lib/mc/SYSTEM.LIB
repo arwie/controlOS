@@ -1,18 +1,19 @@
-' Copyright (c) 2016 Artur Wiebe <artur@4wiebe.de>
-'
-' Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
-' associated documentation files (the "Software"), to deal in the Software without restriction,
-' including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
-' and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
-' subject to the following conditions:
-'
-' The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-'
-' THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-' INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-' IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-' WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-' OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+<?# Copyright (c) 2019 Artur Wiebe <artur@4wiebe.de>
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+# associated documentation files (the "Software"), to deal in the Software without restriction,
+# including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+# WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+?>
 
 
 <?
@@ -32,7 +33,7 @@ end sub
 
 
 public sub system_stopTimeout(byval timeout_ as long)
-	call system_stopTrigger
+	system_stopTrigger()
 	
 	timeout_ = system.clock + timeout_
 	while prgRunning and (system.clock < timeout_)
@@ -40,69 +41,63 @@ public sub system_stopTimeout(byval timeout_ as long)
 	end while
 	
 	if not prgRunning then
-		call system_stop
+		system_stop()
 	else
-		call logLibError("system not stopped in time")
-		call logSend
+		<?logError(['system not stopped in time'])?>
 	end if
 end sub
 
 
 
 <?lib_prgStart()?>
-<?	if ($etc) ll('call etc_init')?>
-<?	if ($can) ll('call can_init')?>
+	<?if ($etc) l('etc_init()')?>
+	<?if ($can) l('can_init()')?>
 
-<?	foreach($axes as $ax) 
-		ll('call '.$ax['name'].'_axisSetup')?>
+	<?foreach($axes as $ax=>$axis) 
+		ll("{$ax}_axisSetup()")?>
 
-<?	foreach(get('robot') as $rbt)
-		ll('call '.$rbt['name'].'_robotSetup')?>
+	<?foreach(get('robot') as $rbt=>$robot)
+		ll("{$rbt}_robotSetup()")?>
 
-<?	if ($etc) ll('call etc_start')?>
-<?	if ($can) ll('call can_start')?>
+	<?if ($etc) l('etc_start()')?>
+	<?if ($can) l('can_start()')?>
 
-<?	foreach($axes as $ax) 
-		if ($ax['simulated']) {
-			ll($ax['name'].'.simulated					= true');
-		} else {
-			ll($ax['name'].'.busnumber					= '.$ax['bus'].'_busnumber');
-			ll($ax['name'].'.driveaddress				= '.$ax['address']);
-		}
-?>
+	<?foreach($axes as $ax=>$axis) 
+			if ($axis['simulated']) {
+				ll($ax.'.simulated					= true');
+			} else {
+				ll($ax.'.busnumber					= '.$axis['bus'].'_busnumber');
+				ll($ax.'.driveaddress				= '.$axis['address']);
+			}
+	?>
 
-	call drivelog_init
-	call drivelog_start
-	call simio_init
-	call simio_start
-	call debug_init
-	call debug_start
+	drivelog_init()
+	drivelog_start()
+	simio_init()
+	simio_start()
+	debug_init()
+	debug_start()
 
-<?	foreach (array_reverse(get('libs')['app']) as $l) 
-		ll('call '.$l['name'].'_init')?>
+	<?foreach (array_reverse(get('libs')['app']) as $l=>$lib) 
+		ll("{$l}_init()")?>
 
-<?	ll('call '.reset(get('libs')['app'])['name'].'_start')?>
+	<?=reset(get('libs')['app'])['name']?>_start()
 end sub
 
 
 
 <?lib_prgPoll('healthQueryIntervalMs', 16)?>
-	call logLibDebug("mc system health")
-	'call com_putLong("/peakload", system.peakload)
-	'call com_putLong("/averageload", system.averageload)
-	call log_putMessageId("1ad4145d37eb41aa89ff27237baea260")
-	call logSend
 end sub
 
 
 
 <?lib_prgStop()?>
-<?	ll('call '.reset(get('libs')['app'])['name'].'_stop')?>
+	<?=reset(get('libs')['app'])['name']?>_stop()
 
-	call debug_stop
-	call simio_stop
-	call drivelog_stop
+	debug_stop()
+	simio_stop()
+	drivelog_stop()
 
-<?	if ($etc) ll('call etc_stop')?>
-<?	if ($can) ll('call can_stop')?>
+	<?if ($etc) l('etc_stop()')?>
+	<?if ($can) l('can_stop()')?>
 end sub
