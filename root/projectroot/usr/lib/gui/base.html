@@ -81,35 +81,6 @@ ko.subscribeTree = function(model, notify) {
 	}).subscribe(notify);
 };
 
-ko.bindingHandlers.clickConfirm = {
-	init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-		return ko.bindingHandlers.click.init.call(this, element, function() {
-			return (data, event)=>{
-				if (!element.clickConfirm) {
-					element.disabled = true;
-					element.clickConfirmDisarm = ()=>{
-						clearInterval(element.clickConfirmInterval);
-						clearTimeout(element.clickConfirmTimeout);
-						element.classList.remove("active", "btn-dark");
-						delete element.clickConfirm;
-					}
-					setTimeout(()=>{
-						element.clickConfirmInterval = setInterval(()=>{element.classList.toggle("btn-dark");}, 333);
-						element.clickConfirmTimeout  = setTimeout(element.clickConfirmDisarm, 3000);
-						element.clickConfirm = true;
-						element.disabled = false;
-						element.classList.add("active");
-					}, 500);
-				} else {
-					element.clickConfirmDisarm();
-					return ko.unwrap(valueAccessor())(data, event);
-				}
-			};
-		}, allBindings, viewModel, bindingContext);
-	}
-};
-
-
 function GuiPage(pageModel, pageParams, pageGuard, pageRoute) {
 	let self = this;
 	
@@ -191,6 +162,7 @@ gui = new function() {
 
 </script>
 
+{% include "baseWidgets.html" %}
 
 <body data-bind="visible:true" style="display:none">
 	
