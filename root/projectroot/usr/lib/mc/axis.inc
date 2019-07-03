@@ -226,7 +226,7 @@ public sub <?=lib()?>_driveLogHistory
 	dim historyCount_ as long
 	<?logNotice([lib().' drive error history'], function() use ($ax) {
 		if ($ax['device']=='stepim') {
-			ll('historyCount_ = '.lib().'_deviceRead(0x1003, 0)');
+			ll('historyCount_ = min(10, '.lib().'_deviceRead(0x1003, 0))');
 			ll('for i = 1 to historyCount_');
 				ll('history_ = history_ + drivelog_errorString('.lib().'_deviceRead(0x1003, i)) + chr$(10)');
 			ll('next');

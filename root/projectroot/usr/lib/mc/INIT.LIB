@@ -19,7 +19,7 @@
 foreach(get('robot') as $rbt) {
 	foreach ($rbt['axes'] as $ax)
 		$axisname .= ' axisname='.$ax;
-	l('common shared '.$rbt['name'].' as group '.$axisname.' model='.$rbt['model'].' of '.$rbt['type']);
+	l('common shared '.$rbt['name'].' as group '.$axisname.($rbt['model'] ? ' model='.$rbt['model'].' of '.$rbt['type'] : ''));
 }
 
 foreach(get('common') as $common)

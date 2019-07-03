@@ -26,15 +26,19 @@ function scara($a1, $a2, $a3, $a4) {
 
 function robot($rbt) { global $lib;
 	
-	$rbt['name']			= $lib['name'];
+	$rbt['name']			= lib();
 	
 	$lib['robot'] = true;
 	set('robot')[$rbt['name']]	= $rbt;
 	
 	lib('debug', [
 		'com_putBool("enable",	enable)',
-		'com_putJoint'.$rbt['type'].'("positionFeedback", positionFeedback)',
 	]);
+	if ($rbt['model']) {
+		lib('debug', [
+			'com_putJoint'.$rbt['type'].'("positionFeedback", positionFeedback)',
+		]);
+	}
 	foreach ($rbt['axes'] as $ax)
 		lib('debugExt', "{$ax}_putDebug()");
 	
