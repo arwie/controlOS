@@ -132,7 +132,6 @@ function _defaultDriveUpdate($ax) { lib('driveUpdate')['hash'][] = 4;
 function _defaultDriveSetup($ax) {
 	ll(lib().'_deviceWrite(0x6060, 0, 8, 8)');		#Modes of Operation: 8 = cyclic synchronous position mode
 	ll('driveLogResetFault(true)');
-	ll(lib().'_driveLogClearHistory()');
 
 	ll('motionbusvelocityscale		= 0');
 	ll('motionbusvelocitybase		= 1000');
@@ -143,6 +142,7 @@ function _defaultDriveSetup($ax) {
 			ll('positionfactor				= '.driveCache(lib().'_deviceRead(0x6092, 1)/'.lib().'_deviceRead(0x6092, 2)', 'double'));
 			ll('positionerrordelay			= 4.11');
 		break;case 'stepim':
+			ll(lib().'_deviceWrite(0x1003, 0, 8, 0)');			#Clear Error History
 			ll('positionfactor				= 4096');
 			ll('positionerrordelay			= 5');
 	}
@@ -271,11 +271,6 @@ sub driveLogPutHealth
 	com_putDouble("/bus_voltage",		<?=lib()?>_deviceRead(0x6079, 0)/1000.0)
 end sub
 
-public sub <?=lib()?>_driveLogClearHistory
-	<?if ($ax['device']=='stepim') {?>
-		<?=lib()?>_deviceWrite(0x1003, 0, 8, 0)
-	<?}?>
-end sub
 sub driveLogResetFault(byval value_ as long)
 	<?=lib()?>_deviceWrite(0x6040, 0, 16, 0x80*value_)
 end sub

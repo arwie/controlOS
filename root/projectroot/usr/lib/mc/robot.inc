@@ -74,8 +74,6 @@ public sub <?=lib()?>_enable
 			call(["if {$ax}DriveFault_ then", "{$ax}_driveLogErrorHandled = false", "end if"])?>
 		throw errorApplication
 	end try
-	<?foreach ($axes as $ax) if (!get('device')[$ax]['simulated'])
-		call("{$ax}_driveLogClearHistory()")?>
 end sub
 public sub <?=lib()?>_enableAttach
 	<?=lib()?>_enable()
