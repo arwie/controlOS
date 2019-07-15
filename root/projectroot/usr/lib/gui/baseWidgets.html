@@ -27,6 +27,15 @@
 <script>ko.components.register('navchildrentabs', {template:{element:'navChildrenTabs'}})</script>
 
 
+<script type="text/html" id="uploadButton">
+	<label data-bind="class:css" class="btn mt-2">
+		<span data-bind="attr:{'data-l10n-id':l10n}"></span>
+		<input type="file" data-bind="event:{change:()=>{upload($element.files[0]);$element.value=null;}}" hidden>
+	</label>
+</script>
+<script>ko.components.register('uploadbutton', {template:{element:'uploadButton'}})</script>
+
+
 <script>
 ko.bindingHandlers.clickConfirm = {
 	init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {

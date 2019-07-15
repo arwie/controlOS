@@ -1,5 +1,7 @@
 common shared simmc_error as error "MC hardware is simulated" 20500
 
+common shared EC_DOMAIN_WC_INCOMPLETE  as error "Domain working counter is incomplete: Data in this cycle is invalid"  20572
+
 common shared CDHD_OPMODE_SYNC_POSITION as const long = 8  '  Synchronous Position Mode
 
 type EC_SLAVE_INFO

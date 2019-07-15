@@ -42,10 +42,7 @@
 
 <div data-bind="page:{id:'file', role:'start'}">
 	<p>
-		<label class="btn btn-primary">
-			<span data-l10n-id="update-file"></span> 
-			<input type="file" data-bind="event:{change:function(){upload($element.files[0])}}" style="display:none;">
-		</label>
+		<uploadButton params="upload:$model.upload, l10n:'update-file', css:'btn-primary'"></uploadButton>
 	</p>
 </div>
 

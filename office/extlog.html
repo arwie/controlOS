@@ -3,10 +3,7 @@
 
 {% block html %}
 <p>
-	<label class="btn btn-primary">
-		<span data-l10n-id="extlog_import"></span> 
-		<input type="file" data-bind="event:{change:function(){importJournal($element.files[0])}}" style="display:none;">
-	</label>
+	<uploadButton params="upload:$model.importJournal, l10n:'extlog_import', css:'btn-primary'"></uploadButton>
 	<button data-bind="click:clearJournal" class="btn" data-l10n-id="extlog_clear"></button>
 </p>
 {% module page("log.html") %}
