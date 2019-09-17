@@ -17,6 +17,16 @@
 %}
 
 
+<script type="text/html" id="breadcrumb">
+	<ol data-bind="visible:$root.breadcrumb, foreach:$root.breadcrumb" class="breadcrumb">
+		<li class="breadcrumb-item">
+			<a data-bind="attr:{'href':$data.href,'data-l10n-id':$data.l10n}, text:$data.text"></a>
+		</li>
+	</ol>
+</script>
+<script>ko.components.register('breadcrumb', {template:{element:'breadcrumb'}})</script>
+
+
 <script type="text/html" id="navChildrenTabs">
 	<ul data-bind="foreach:$page.children" class="nav nav-tabs nav-justified mb-3">
 		<li class="nav-item">
