@@ -59,6 +59,7 @@ function wsUrl(host, port, url=null, params=null) {
 	return 'ws://' + (host ? (host in hosts ? hosts[host] : host)+':'+port : (port ? location.hostname+':'+port : location.host)) + (url ? ajaxUrl(url, params) : '/');
 }
 function pageUrl(url, params=null, subpage=null, breadcrumb=[]) {
+	breadcrumb = [].concat(breadcrumb);
 	if (breadcrumb.length)
 		params = Object.assign({breadcrumb:JSON.stringify(breadcrumb)}, params);
 	return '#'+url + (params ? '?'+$.param(params) : '') + (subpage ? '/'+subpage : '');
