@@ -78,6 +78,22 @@ function axis_setup() {
 }
 
 
+function axis_setupSpeed($vel, $accTimeMs=500, $jerkTimeMs=250) {
+?>
+	velocitymax			= <?=$vel?>'
+	accelerationmax		= <?=1000/$accTimeMs?>  * velocitymax
+	decelerationmax		= accelerationmax
+	jerkmax				= <?=1000/$jerkTimeMs?> * accelerationmax
+	velocitycruise		= velocitymax
+	acceleration		= accelerationmax
+	deceleration		= decelerationmax
+	jerk				= jerkmax
+	decelerationstop	= decelerationmax
+	velocityoverspeed	= 10 * velocitymax
+<?
+}
+
+
 
 function _axisFunctions($ax) {
 ?>
@@ -173,7 +189,28 @@ function _driveFunctions($ax) {
 ?>
 public sub <?=lib()?>_driveSave
 	<?=lib()?>_deviceWrite(0x<?=($ax['device']=='stepim' && $ax['bus']=='etc')?'2E04':'1010'?>, 1, 32, 0x65766173)
+	sleep <?=($ax['device']=='stepim' && $ax['bus']=='can')?'3500':'500'?>'
 end sub
+
+<?if ($ax['device']=='stepim') {?>
+
+<?if (!$ax['simulated'] && $ax['bus']=='can') {?>
+public sub <?=lib()?>_driveSetupAddress(byval currentAddress_ as long)
+	can_write(currentAddress_, 0x2F1B, 0, 16, <?=get('device')[lib()]['address']?>)
+	can_write(currentAddress_, 0x1010, 1, 32, 0x65766173)
+end sub
+<?}?>
+
+public sub <?=lib()?>_driveTune(byval posProportional_ as long, byval posIntegral_ as long, byval posDerivative_ as long, byval posVelFeedForward_ as long, byval velProportional_ as long, byval velIntegral_ as long)
+	<?=lib()?>_deviceWrite(0x201E, 0, 32, posDerivative_)
+	<?=lib()?>_deviceWrite(0x2020, 0, 32, posIntegral_)
+	<?=lib()?>_deviceWrite(0x2022, 0, 32, posProportional_)
+	<?=lib()?>_deviceWrite(0x2023, 0, 32, posVelFeedForward_)
+	<?=lib()?>_deviceWrite(0x2026, 0, 32, velIntegral_)
+	<?=lib()?>_deviceWrite(0x2027, 0, 32, velProportional_)
+end sub
+<?}?>
+
 <?
 }
 
