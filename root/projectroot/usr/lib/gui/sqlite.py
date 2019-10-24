@@ -29,6 +29,7 @@ class TableHandler(server.RequestHandler):
 		}, **doGet}
 		self.doPost = {**{
 			'create':	self.doCreate,
+			'copy':		self.doCopy,
 			'remove':	self.doRemove,
 			'save':		self.doSave,
 			'swap':		self.doSwap,
@@ -55,6 +56,9 @@ class TableHandler(server.RequestHandler):
 	
 	def doCreate(self):
 		return {'id': self.table.create()}
+	
+	def doCopy(self):
+		return {'id': self.table.copy(self.get_query_argument('id'))}
 	
 	def doRemove(self):
 		self.table.remove(self.get_query_argument('id'))

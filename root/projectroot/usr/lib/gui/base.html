@@ -34,7 +34,7 @@
 	<script src="{{static_url('popper.js')}}"></script>
 	<script src="{{static_url('bootstrap.js')}}"></script>
 	<link rel="stylesheet" href="{{static_url('bootstrap.css')}}">
-	<link rel="stylesheet" href="{{static_url('font-awesome/css/font-awesome.min.css')}}">
+	<link rel="stylesheet" href="{{static_url('fontawesome/css/all.min.css')}}">
 	
 	<script src="{{static_url('knockout.js') }}"></script>
 	<script src="{{static_url('knockout.mapping.js') }}"></script>
@@ -64,6 +64,9 @@ function pageUrl(url, params=null, subpage=null, breadcrumb=[]) {
 		params = Object.assign({breadcrumb:JSON.stringify(breadcrumb)}, params);
 	return '#'+url + (params ? '?'+$.param(params) : '') + (subpage ? '/'+subpage : '');
 }
+function navigate(url, params=null, subpage=null, breadcrumb=[]) {
+	pager.navigate(pageUrl(url, params, subpage, breadcrumb));
+}
 
 function webSocket(url, onMessageJson) {
 	let ws = new WebSocket(url);
@@ -77,6 +80,17 @@ function webSocket(url, onMessageJson) {
 	};
 	return ws;
 }
+
+String.prototype.hashCode = function() {
+	let hash = 0, i, chr;
+	if (this.length === 0) return hash;
+	for (i = 0; i < this.length; i++) {
+		chr   = this.charCodeAt(i);
+		hash  = ((hash << 5) - hash) + chr;
+		hash |= 0; // Convert to 32bit integer
+	}
+	return hash;
+};
 
 ko.subscribeTree = function(model, notify) {
 	return ko.pureComputed(()=>{
@@ -117,7 +131,7 @@ function GuiPage(pageModel, pageGuard, pageRoute) {
 	
 	self.start = function(page, callback) {
 		let ready = function() {
-			$(page.element).fadeIn(50);
+			$(page.element).fadeIn(75);
 			self.started = true;
 			let breadcrumb = null;
 			if (self.model && self.model.breadcrumb) {
@@ -182,10 +196,11 @@ gui = new function() {
 </script>
 
 {% include "baseWidgets.html" %}
+{% block html %}{% end %}
 
 <body data-bind="visible:true" style="display:none">
 	
-	{% block html %}{% end %}
+	{% block body %}{% end %}
 	
 	<div id="stateDisconnected" data-backdrop="static" data-keyboard="false" class="modal">
 		<div class="modal-dialog modal-lg">

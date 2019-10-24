@@ -70,6 +70,11 @@ class Table:
 		else:
 			return self.db.execute('INSERT INTO {0.table} DEFAULT VALUES'.format(self)).lastrowid
 	
+	def copy(self, id):
+		return self.db.execute('INSERT INTO {0.table} ({cols}) SELECT {cols} FROM {0.table} WHERE id=:id'.format(self,
+				cols = ','.join(self.schema.keys()),
+			), {'id':id}).lastrowid
+	
 	def save(self, id, data):
 		data = dataToRow(data)
 		keys = set(self.schema.keys()) & set(data.keys())
@@ -77,6 +82,7 @@ class Table:
 		self.db.execute('UPDATE {0.table} SET {cols} WHERE id=:id'.format(self,
 			cols = ','.join([c+'=:'+c for c in keys])
 		), data)
+
 	
 	def swap(self, id, sw):
 		if id == sw: return
@@ -124,7 +130,7 @@ class Sqlite:
 	
 	def create(self, definition):
 		for table in definition:
-			self.db.execute('CREATE TABLE IF NOT EXISTS {table} (id INTEGER PRIMARY KEY,ord INTEGER,{columns}{constraint})'.format(
+			self.db.execute('CREATE TABLE IF NOT EXISTS {table} (id INTEGER PRIMARY KEY AUTOINCREMENT,ord INTEGER,{columns}{constraint})'.format(
 				table = table[0],
 				columns = ','.join([c+' '+d for c,d in table[1].items()]),
 				constraint = ',{}'.format(table[2]) if len(table)>=3 else ''

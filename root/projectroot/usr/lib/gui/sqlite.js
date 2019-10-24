@@ -45,6 +45,10 @@ class SqliteTable {
 		return $.post(this.url('create'), null, null, 'json');
 	}
 	
+	copy(id) {
+		return $.post(this.url('copy', {id:id}), null, null, 'json');
+	}
+	
 	remove(id) {
 		return $.post(this.url('remove', {id:id}));
 	}
@@ -54,10 +58,6 @@ class SqliteTable {
 			this.url('save', {id:id}), 
 			this.stringify(data)
 		);
-	}
-	
-	copy(id) {
-		return $.post(this.url('copy', {id:id}));
 	}
 	
 	swap(id, swap) {
