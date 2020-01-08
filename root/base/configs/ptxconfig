@@ -2,7 +2,7 @@
 # Automatically generated file; DO NOT EDIT.
 # PTXdist 2019.11.0
 #
-PTXCONF_APP=y
+# PTXCONF_APP is not set
 PTXCONF_GUI=y
 PTXCONF_PYTHON_SHARED=y
 # PTXCONF_QEMU is not set
