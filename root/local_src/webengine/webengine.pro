@@ -1,4 +1,4 @@
-# Copyright (c) 2016 Artur Wiebe <artur@4wiebe.de>
+# Copyright (c) 2020 Artur Wiebe <artur@4wiebe.de>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 # associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -15,47 +15,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-# create an empty data archive to initialize the data partition
-image data.tgz {
-	tar { }
-}
+TEMPLATE = app
 
+QT += core qml webengine svg
+QTPLUGIN += qtvirtualkeyboardplugin
 
-image boot.vfat {
-	vfat {
-		extraargs = "-n BOOT"
-		file EFI/BOOT/BOOTx64.EFI { image = "linuximage" }
-	}
-	size = 16M
-}
+SOURCES += webengine.cpp
 
-
-image init.vfat {
-	vfat {
-		extraargs = "-n INIT"
-		file update { image = "${PTXDIST_PLATFORMCONFIGDIR}/update" }
-		file data   { image = "data.tgz" }
-	}
-	size = 768M
-}
-
-
-image @IMAGE@ {
-	hdimage { 
-		gpt = true
-		align = 1M
-	}
-	partition boot {
-		image = boot.vfat
-		partition-type = 0xEF
-		bootable = true
-	}
-	partition init {
-		image = init.vfat
-		partition-type = 0x0C
-	}
-	partition root {
-		size = 1280M
-		partition-type = 0x83
-	}
-}
+target.path = webengine
+INSTALLS += target
