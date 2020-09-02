@@ -17,7 +17,6 @@
 
 function async($prio='prgPriorityNormal')
 {
-	l('common shared '.lib().'_asyncBusy as long');
 	l('dim shared asyncBuffer   as long');
 	l('dim shared asyncNotify   as long');
 	l('dim shared asyncFunction as string = "{}"');
@@ -36,7 +35,6 @@ function async($prio='prgPriorityNormal')
 	
 	lib('stop', function(){
 		ll('com_reset(asyncBuffer)');
-		ll(lib().'_asyncBusy = false');
 		ll('asyncFunction = "{}"');
 	});
 	
@@ -59,30 +57,29 @@ function async($prio='prgPriorityNormal')
 		}
 		lll('end select');
 		lll('asyncFunction = "{}"');
-		lll('decrement('.lib().'_asyncBusy)');
 		ll('end select');
 		l('end sub');
 	
+		l('public function '.lib().'_asyncBusy as long');
+		ll(lib().'_asyncBusy = com_count(asyncBuffer)');
+		l('end function');
+	
 		l('public sub '.lib().'_asyncWait');
 		ll('if '.lib().'_asyncBusy then');
-		lll('com_reset(asyncNotify)');
+		lll('com_reset(asyncNotify)');			//race with stopTrigger!
 		lll('if '.lib().'_active then');
 		llll('com_store()');
 		llll('asyncExec(-1)');
-		llll('while not com_receive(asyncNotify, 100) and '.lib().'_active');
-		llll('end while');
+		call(['while not com_receive(asyncNotify, 100) and '.lib().'_active', 'end while']);
 		lll('end if');
 		ll('end if');
-		ll('if not '.lib().'_active then');
-		lll('throw errorApplication');
-		ll('end if');
+		call(['if not '.lib().'_active then', 'throw errorApplication', 'end if']);
 		l('end sub');
 	
 		l('sub asyncExec(byval cmd_ as long)');
 		ll('com_putLong("/cmd", cmd_)');
 		ll('com_send(asyncBuffer)');
 		ll('com_restore()');
-		ll('increment('.lib().'_asyncBusy)');
 		l('end sub');
 	});
 }
