@@ -40,46 +40,48 @@ function async($prio='prgPriorityNormal')
 	
 	lib('debug', [
 		'com_putJson("async/function", asyncFunction)',
-		'com_putLong("async/busy", '.lib().'_asyncBusy)',
+		'com_putLong("async/buffer", round(com_count(asyncBuffer)/2.0))',
 	]);
 	
 	lib('end', function() use ($prio) {
 		com_prgReceive('asyncBuffer', 250, $prio);
-		ll('select case receive_');
-		ll('case com_receiveMessage');
-		lll('asyncFunction = com_getJson("")');
-		lll('select case com_getLong("/cmd")');
-		lll('case -1');
-		llll('com_send(asyncNotify)');
-		foreach(lib('async')['functions'] as $f) {
-			lll('case '.$f['cmd']);
-			llll($f['nameSync'].$f['comGet']);
-		}
-		lll('end select');
-		lll('asyncFunction = "{}"');
-		ll('end select');
+			ll('select case receive_');
+			ll('case com_receiveMessage');
+				lll('asyncFunction = com_getJson("")');
+				lll('select case com_getLong("/cmd")');
+				lll('case -1');
+					llll('com_send(asyncNotify)');
+				foreach(lib('async')['functions'] as $f) {
+					lll('case '.$f['cmd']);
+					llll($f['nameSync'].$f['comGet']);
+				}
+				lll('end select');
+				lll('asyncFunction = "{}"');
+			ll('end select');
 		l('end sub');
 	
 		l('public function '.lib().'_asyncBusy as long');
-		ll(lib().'_asyncBusy = com_count(asyncBuffer)');
+			ll(lib().'_asyncBusy = com_count(asyncBuffer)>0');
 		l('end function');
 	
 		l('public sub '.lib().'_asyncWait');
-		ll('if '.lib().'_asyncBusy then');
-		lll('com_reset(asyncNotify)');			//race with stopTrigger!
-		lll('if '.lib().'_active then');
-		llll('com_store()');
-		llll('asyncExec(-1)');
-		call(['while not com_receive(asyncNotify, 100) and '.lib().'_active', 'end while']);
-		lll('end if');
-		ll('end if');
-		call(['if not '.lib().'_active then', 'throw errorApplication', 'end if']);
+			ll('if '.lib().'_asyncBusy then');
+				lll('com_reset(asyncNotify)');			//race with stopTrigger!
+				lll('if '.lib().'_active then');
+					llll('com_store()');
+					llll('asyncExec(-1)');
+					call(['while not com_receive(asyncNotify, 100) and '.lib().'_active', 'end while']);
+				lll('end if');
+			ll('end if');
+			call(['if not '.lib().'_active then', 'throw errorApplication', 'end if']);
 		l('end sub');
 	
 		l('sub asyncExec(byval cmd_ as long)');
-		ll('com_putLong("/cmd", cmd_)');
-		ll('com_send(asyncBuffer)');
-		ll('com_restore()');
+			ll('com_putLong("/cmd", cmd_)');
+			ll('com_send(asyncBuffer)');
+			ll('com_clear()');
+			ll('com_send(asyncBuffer)');	//send notify after each function
+			ll('com_restore()');
 		l('end sub');
 	});
 }
