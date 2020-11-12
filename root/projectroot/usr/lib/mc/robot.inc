@@ -31,6 +31,8 @@ function robot($rbt) { global $lib;
 	$lib['robot'] = true;
 	set('robot')[$rbt['name']]	= $rbt;
 	
+	l('common shared '.lib().'_disabled as long = true');
+	
 	lib('debug', [
 		'com_putBool("enable",	enable)',
 	]);
@@ -43,7 +45,7 @@ function robot($rbt) { global $lib;
 		lib('debugExt', $ax);
 	
 	lib('end', function() use ($rbt) {
-		robot_enableFunctions($rbt['axes']);
+		robot_enableFunctions($rbt['axes'], $rbt);
 		_robotFunctions($rbt);
 	});
 }
@@ -90,25 +92,30 @@ function robot_setupSpeed($vel, $accTimeMs=500, $jerkTimeMs=250) {
 }
 
 
-function robot_enableFunctions($axes) {
+function robot_enableFunctions($axes, $rbt=null) {
 ?>
 public sub <?=lib()?>_enable
 	<?foreach ($axes as $ax)
 		call("dim {$ax}DriveFault_ as long = {$ax}.driveStatus band 0x8")?>
 	<?foreach ($axes as $ax)
 		call("{$ax}_disabled = false")?>
-	try
-		while not enable
-			enable = true
-			sleep 1
-		end while
-	catch else
-		<?logError()?>
-	finally
-		<?foreach ($axes as $ax)
-			call(["if {$ax}DriveFault_ then", "{$ax}_driveLogErrorHandled = false", "end if"])?>
-		throw errorApplication
-	end try
+	<?if ($rbt)
+		call(lib()."_disabled = false")?>
+	if not enable then
+		try
+			while not enable
+				enable = true
+				sleep 1
+			end while
+			sleep 20 'needed!
+		catch else
+			<?logError()?>
+		finally
+			<?foreach ($axes as $ax)
+				call(["if {$ax}DriveFault_ then", "{$ax}_driveLogErrorHandled = false", "end if"])?>
+			throw errorApplication
+		end try
+	end if
 end sub
 public sub <?=lib()?>_enableAttach
 	<?=lib()?>_enable()
@@ -119,10 +126,9 @@ public sub <?=lib()?>_disable
 	while isMoving > 0
 		sleep 1
 	end while
-	while enable
-		enable = false
-		sleep 1
-	end while
+	enable = false
+	<?if ($rbt)
+		call(lib()."_disabled = true")?>
 	<?foreach ($axes as $ax)
 		call("{$ax}_disabled = true")?>
 end sub

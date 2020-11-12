@@ -20,7 +20,7 @@
 
 
 common shared can_busnumber as const long = 1
-common shared can_cycletime as const long = 8000	'{4000,2000,1000}[µs]
+common shared can_cycletime as const long = 4000	'{4000,2000,1000}[µs]
 
 
 import_c USER_CAN_CNTRL_WORD_SET_RAW(byval as long, byval as long) as long				'(int dadd, int iCntrlWord)
@@ -61,10 +61,6 @@ public sub can_write(byval slave_ as long, byval index_ as long, byval subindex_
 	select case index_ * can_active
 	case 0x6040
 		dropLong(USER_CAN_CNTRL_WORD_SET_RAW(slave_, value_))
-	case 0x60FE
-		pdo_->data[1]   = value_
-		pdo_->length[1] = 4
-		can_pdo2_write(slave_, pdo_)
 	case else
 		can_sdoWrite(slave_, index_, subindex_, size_, value_)
 	end select
@@ -90,8 +86,8 @@ end sub
 
 
 
-<?$xdoCatchLogThrow = function($valueType=false) {
-	catchLogThrow([
+<?$xdoCatchThrowLog = function($valueType=false) {
+	catchThrowLog([
 		'com_putLong("/slave", slave_)',
 		'com_putString("/index", hex$(index_)+"h")',
 		'com_putLong("/subindex", subindex_)',
@@ -103,19 +99,19 @@ end sub
 public sub can_sdoWrite(byval slave_ as long, byval index_ as long, byval subindex_ as long, byval size_ as long, byval value_ as long)
 	try
 		CAN_SDO_WRITE(slave_, index_, subindex_, size_, value_)
-	<?$xdoCatchLogThrow('long')?>
+	<?$xdoCatchThrowLog('long')?>
 end sub
 
 
 public function can_sdoRead(byval slave_ as long, byval index_ as long, byval subindex_ as long) as long
 	try
 		can_sdoRead = CAN_SDO_READ(slave_, index_, subindex_)
-	<?$xdoCatchLogThrow()?>
+	<?$xdoCatchThrowLog()?>
 end function
 
 
 public function can_readString(byval slave_ as long, byval index_ as long, byval subindex_ as long) as string
 	try
 		can_readString = CAN_SDO_READ_STRING(slave_, index_, subindex_)
-	<?$xdoCatchLogThrow()?>
+	<?$xdoCatchThrowLog()?>
 end function

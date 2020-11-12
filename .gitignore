@@ -1,8 +1,10 @@
-.git-af
+.git-controlOS
 /src
 /**/configs/**/*.old
 /boot/platform-*/
 /root/platform-*/
+/root/base/platform-*/
 /initramfs/platform-*/
 /mccom/platform-*/
 __pycache__
+root/local_src/arduino/*/build/

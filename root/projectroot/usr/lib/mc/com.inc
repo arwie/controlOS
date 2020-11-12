@@ -34,10 +34,23 @@ function com_websocket($port, $args=[], $name=false)
 {
 	if (!$name) {
 		$name = 'this_websocket';
-		l('dim shared '.$name.' as long');
+		l("dim shared {$name} as long");
 	}
 	lib('start', function() use ($port, $args, $name) {
 		com_openWebsocket($name, $port, $args);
+	});
+	lib('stopTrigger', ['com_store()', "com_sendSelf({$name})", 'com_restore()']);
+	lib('stop','com_close('.$name.')');
+}
+
+function com_udpReceiver($port, $name=false)
+{
+	if (!$name) {
+		$name = 'this_udpReceiver';
+		l("dim shared {$name} as long");
+	}
+	lib('start', function() use ($port, $name) {
+		com_openUdpReceiver($name, $port);
 	});
 	lib('stopTrigger', ['com_store()', "com_sendSelf({$name})", 'com_restore()']);
 	lib('stop','com_close('.$name.')');
@@ -47,7 +60,7 @@ function com_fifo($name=false)
 {
 	if (!$name) {
 		$name = 'this_fifo';
-		l('dim shared '.$name.' as long');
+		l("dim shared {$name} as long");
 	}
 	lib('start', function() use ($name) {
 		com_openFifo($name);
@@ -77,6 +90,13 @@ function com_openWebsocket($name, $port, $args=[]) {
 	});
 }
 
+function com_openUdpSender($name, $address, $port) {
+	com_open($name, 'udpSender', ['com_putString("/address",'.s($address).')', 'com_putLong("/port",'.$port.')']);
+}
+function com_openUdpReceiver($name, $port) {
+	com_open($name, 'udpReceiver', ['com_putLong("/port",'.$port.')']);
+}
+
 function com_openFifo($name) {
 	com_open($name, 'fifo');
 }
@@ -87,4 +107,22 @@ function com_openNotify($name) {
 
 function com_openFile($name, $filename) {
 	com_open($name, 'file', 'com_putString("/file", '.s($filename).')');
+}
+
+
+
+function com_with($with) {
+	return 'com_with('.s($with).')';
+}
+
+function com_put($type, $path, $value) {
+	return 'com_put'.ucfirst($type).'('.s($path).','.$value.')';
+}
+function com_putLong($path, $value)		{ return com_put('long', $path, $value); }
+function com_putBool($path, $value)		{ return com_put('bool', $path, $value); }
+function com_putDouble($path, $value)	{ return com_put('double', $path, $value); }
+function com_putString($path, $value, $literal=true)	{ return com_put('string', $path, $literal?s($value):$value); }
+
+function com_get($type, $path) {
+	return 'com_get'.ucfirst($type).'('.s($path).')';
 }

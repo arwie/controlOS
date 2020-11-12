@@ -15,7 +15,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-import sqlite3, os, json, collections, logging
+import sqlite3, pathlib, json, collections, logging
 
 
 
@@ -49,15 +49,19 @@ class Table:
 		self.db		= sqlite.db
 		self.schema	= sqlite.schema[table]
 		self.table	= table
+		self.select	= ','.join(['id','ord']+[c for c,d in self.schema.items() if not d.startswith('BLOB')])
 	
 	def list(self, where={}, order='ord'):
-		return self.db.execute('SELECT * FROM {0.table} {where} ORDER BY {order}'.format(self,
+		return self.db.execute('SELECT {select} FROM {0.table} {where} ORDER BY {order}'.format(self,
+					select= self.select,
 					where = '' if not where else 'WHERE {}'.format(' AND '.join([c+'=:'+c for c in where.keys()])),
 					order = order
 				), where).fetchall()
 	
-	def load(self, id):
-		return self.db.execute('SELECT * FROM {0.table} WHERE id=:id'.format(self), {'id':id}).fetchone()
+	def load(self, id, select=None):
+		return self.db.execute('SELECT {select} FROM {0.table} WHERE id=:id'.format(self,
+					select = select if select else self.select
+				), {'id':id}).fetchone()
 	
 	def create(self, data=None):
 		if data:
@@ -101,31 +105,36 @@ class Sqlite:
 	def __init__(self, path, schemaVersion, definition):
 		self.schema = collections.OrderedDict([(t[0],t[1]) for t in definition])
 		
-		def dbFile(version): return '{}.{}.sqlite'.format(path, version)
+		def dbFile(version): return pathlib.Path('{}.{}.sqlite'.format(path, version))
 		
 		self.db = sqlite3.connect(dbFile(schemaVersion))
-		with self.db:
-			self.db.row_factory = rowToData
-			self.db.execute('PRAGMA synchronous  = OFF;')
-			
-			if not self.db.execute('SELECT * FROM sqlite_master;').fetchone():	# db empty
-				logging.info(__name__+": creating tables")
+		self.db.row_factory = rowToData
+		self.db.execute('PRAGMA synchronous  = OFF;')
+		
+		if not self.db.execute('SELECT * FROM sqlite_master;').fetchone():	# db empty
+			logging.info(__name__+": creating tables")
+			with self.db:
 				self.create(definition)
 				self.db.execute('PRAGMA user_version = {};'.format(schemaVersion))
-				
+				migrated = False
 				for oldVersion in reversed(range(1, schemaVersion)):
 					oldDbFile = dbFile(oldVersion)
-					if os.path.isfile(oldDbFile):
-						logging.info(__name__+": migrating from old database {}".format(oldDbFile))
-						try:
-							oldDb = sqlite3.connect('file:{}?mode=ro'.format(oldDbFile), uri=True)
-							oldDb.row_factory = rowToData
-							self.migrate(oldDb, oldVersion)
-						except:
-							logging.exception(__name__+": failed to migrate from old database")
-						break
-			
-			self.db.execute('PRAGMA foreign_keys = ON;')	#check foreign keys after migrating
+					if oldDbFile.is_file():
+						if not migrated:
+							logging.info(__name__+": migrating from old database {}".format(oldDbFile))
+							migrated = True
+							try:
+								oldDb = sqlite3.connect('file:{}?mode=ro'.format(oldDbFile), uri=True)
+								oldDb.row_factory = rowToData
+								self.migrate(oldDb, oldVersion)
+							except:
+								logging.exception(__name__+": failed to migrate from old database")
+						else:
+							oldDbFile.unlink()
+				if not migrated:
+					self.populate()
+		
+		self.db.execute('PRAGMA foreign_keys = ON;')	#check foreign keys after migrating
 	
 	
 	def create(self, definition):
@@ -153,5 +162,5 @@ class Sqlite:
 				self.db.execute("INSERT INTO {} ({}) VALUES ({})".format(table, ','.join(columns), ','.join([':'+c for c in columns])), dataToRow(oldRow))
 	
 	
-	def table(self, table):
-		return Table(self, table)
+	def populate(self):
+		pass

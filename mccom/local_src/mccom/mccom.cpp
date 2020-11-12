@@ -72,8 +72,9 @@ static int mccom_open(int channelType, int *error) noexcept
 			case  3: return manager.openChannel(make_shared<ChannelState>			(*messagePtr));
 			case  4: return manager.openChannel(make_shared<ChannelFifo>			(*messagePtr));
 			case  5: return manager.openChannel(make_shared<ChannelWebsocket>		(*messagePtr));
-			case  6: return manager.openChannel(make_shared<ChannelUdp>				(*messagePtr));
 			case  7: return manager.openChannel(make_shared<ChannelFile>			(*messagePtr));
+			case  8: return manager.openChannel(make_shared<ChannelUdpSender>		(*messagePtr));
+			case  9: return manager.openChannel(make_shared<ChannelUdpReceiver>		(*messagePtr));
 			default: throw runtime_error("unknown channel type");
 		}
 	} catch (exception& e) {
@@ -118,11 +119,25 @@ static void mccom_send_self(int channelId, int *error) noexcept
 	}
 }
 
-static void mccom_reset(int channelId) noexcept
+static int mccom_count(int channelId, int *error) noexcept
 {
+	*error = 0;
+	try {
+		return manager.getChannel(channelId)->count();
+	} catch (exception& e) {
+		*error = 1;
+		logMsg(LogError(e.what()).func(__func__));
+	}
+	return 0;
+}
+
+static void mccom_reset(int channelId, int *error) noexcept
+{
+	*error = 0;
 	try {
 		manager.getChannel(channelId)->reset();
 	} catch (exception& e) {
+		*error = 1;
 		logMsg(LogError(e.what()).func(__func__));
 	}
 }
@@ -262,7 +277,8 @@ static void mccom_put_json(SYS_STRING* path, SYS_STRING* value, int *error) noex
 	*error = 0;
 	try {
 		auto valueStr = amcsGetString(value);
-		replace(valueStr.begin(), valueStr.end(), '`', '"');	//allow coding json strings in basic
+		if (valueStr.find('"') == string::npos)
+			replace(valueStr.begin(), valueStr.end(), '`', '"');	//allow coding json strings in basic
 		(*messagePtr)[messagePtr->withPath(amcsGetString(path))] = json::parse(valueStr);
 	} catch (exception& e) {
 		*error = 1;
@@ -292,8 +308,12 @@ extern "C" {
 		mccom_send_self(channelId, error);
 	}
 
-	void MCCOM_RESET(int channelId) {
-		mccom_reset(channelId);
+	int MCCOM_COUNT(int channelId, int *error) {
+		return mccom_count(channelId, error);
+	}
+
+	void MCCOM_RESET(int channelId, int *error) {
+		mccom_reset(channelId, error);
 	}
 
 	void MCCOM_CLOSE(int channelId) {

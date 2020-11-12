@@ -39,6 +39,13 @@ update-revert = Revert last update
 update-revert-date = Date of last update
 
 
+remote = Remote access
+remote_active = Remote access is activated!
+remote_port = Service port number
+remote_enable = Activate
+remote_disable = Deactivate
+
+
 issue = Issue report
 issue_description = Issue description
 issue_contact = Contact person
@@ -74,3 +81,16 @@ network_nossl = Insecure connection (unencrypted)
 network_host = Host
 network_port = Port
 network_user = User
+
+
+simio = SimIO
+simio_list-in = Inputs
+simio_list-out = Outputs
+simio_type = Type
+simio_app = Application
+simio_io-in = Input
+simio_io-out = Output
+simio_override = Override
+
+
+sim = Simulation

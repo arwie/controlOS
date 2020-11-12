@@ -17,6 +17,7 @@
 %}
 
 {% import os,glob %}
+{% from shared.setup import setup %}
 
 
 <!DOCTYPE html>
@@ -92,9 +93,9 @@ String.prototype.hashCode = function() {
 	return hash;
 };
 
-ko.subscribeTree = function(model, notify) {
+ko.subscribeMapping = function(model, notify) {
 	return ko.pureComputed(()=>{
-		return ko.toJS(model);
+		return ko.mapping.toJS(model);
 	}).subscribe(notify);
 };
 
@@ -176,7 +177,7 @@ function GuiPage(pageModel, pageGuard, pageRoute) {
 	}
 }
 
-gui = new function() {
+window.gui = new function() {
 	let self = this;
 
 	self.state		= ko.observableArray();
@@ -212,7 +213,7 @@ gui = new function() {
 </body>
 
 
-<script>(function(){
+<script>window.addEventListener('DOMContentLoaded', () => {
 
 let stateWatchdog = true;
 function resetWatchdog(activate=true) {
@@ -252,6 +253,6 @@ ko.options.deferUpdates = true;
 ko.applyBindings(gui);
 pager.start('#');
 
-})();</script>
+})</script>
 
 </html>
