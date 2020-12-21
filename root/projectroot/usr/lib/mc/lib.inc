@@ -77,7 +77,7 @@ function logMessage($prio, $message=null, $report=null, $log=[]) {
 		$log['message'] = 'taskerror(programname)';
 		$extra[] = 'com_putLong("/error", taskerrornumber(programname))';
 	}
-	ll("log_message($prio, {$log['message']})");
+	ll("log_message($prio, {$log['message']}, ".s(lib()).", scope)");
 	if ($log['report']) {
 		$extra[] = "log_putReport({$log['report']})";
 	}
@@ -87,8 +87,6 @@ function logMessage($prio, $message=null, $report=null, $log=[]) {
 	}
 	call($extra);
 	ll(lib().'_putDebug(true)');
-	ll('log_putCodeFunc(scope)');
-	ll('com_putString("/lib", '.s(lib()).')');
 	ll('log_send()');
 }
 function logCritical($message=null, $report=null, $log=[]) { logMessage(2, $message, $report, $log); }
