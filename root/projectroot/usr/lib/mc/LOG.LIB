@@ -113,11 +113,6 @@ end sub
 end sub
 
 
-<?lib_prgError()?>
-	log_stopTrigger()
-end sub
-
-
 <?lib_prgStop()?>
 	sleep 500	'let messages arrive at journal
 end sub
