@@ -105,5 +105,7 @@ end sub
 
 
 <?lib_prgError()?>
-	init_stopTrigger()
+	<?if (!debug()) {?>
+		init_stopTrigger()
+	<?}?>
 end sub
