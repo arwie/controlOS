@@ -35,6 +35,7 @@ export default class Scene extends THREE.Scene {
 		this.camera.up.set(0, 0, 1);
 		
 		this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+		this.controls.rotateSpeed = 0.5;
 		this.controls.addEventListener('change', this.render.bind(this));
 		
 		var hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.6);
