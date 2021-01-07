@@ -36,14 +36,14 @@ public sub system_stopTimeout(byval timeout_ as long)
 	system_stopTrigger()
 	
 	timeout_ = system.clock + timeout_
-	while prgRunning and (system.clock < timeout_)
+	while lib_prgRunning and (system.clock < timeout_)
 		sleep 100
 	end while
 	
-	if not prgRunning then
+	if not lib_prgRunning then
 		system_stop()
 	else
-		<?logError(['system not stopped in time'])?>
+		<?logError('system not stopped in time')?>
 	end if
 end sub
 
@@ -64,7 +64,7 @@ end sub
 
 	<?foreach($axes as $ax=>$axis) 
 			if ($axis['simulated']) {
-				ll($ax.'.busnumber					= 0');
+				call(['try', "$ax.busnumber = 0", 'catch 19017', "$ax.busnumber = 1", 'end try']);
 				ll($ax.'.simulated					= true');
 			} else {
 				ll($ax.'.busnumber					= '.$axis['bus'].'_busnumber');
@@ -101,4 +101,11 @@ end sub
 
 	<?if ($etc) l('etc_stop()')?>
 	<?if ($can) l('can_stop()')?>
+end sub
+
+
+<?lib_prgError()?>
+	<?if (!debug()) {?>
+		init_stopTrigger()
+	<?}?>
 end sub

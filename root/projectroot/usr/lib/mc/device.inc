@@ -31,20 +31,21 @@ function device(&$dev) { global $lib;
 	}
 	
 	set('device')[lib()] = $dev;
-	$lib['device'] = get('device')[lib()];
 	
 	if ($dev['bus']) {
 		l('common shared '.lib().'_deviceAddress as const long = '.get('device')[lib()]['address']);
+		lib('end', function() {
+			_deviceFunctions(get('device')[lib()]);
+		});
 	}
 }
 
 
-function deviceLibEnd($dev) {
-	if (!$dev['bus']) return;
-	
+function _deviceFunctions($dev)
+{
 	$ifNotSimulated = function($body) use ($dev) {
 		if ($dev['simulated']) 
-			logThrow([lib().' device is simulated'], 'com_putString("/index", hex$(index_)+"h")');
+			throwLog(lib().' device is simulated', ['com_putString("/index", hex$(index_)+"h")']);
 		else
 			ll($body);
 	};
@@ -83,7 +84,7 @@ function deviceLibEnd($dev) {
 		ll('if (dio_ > 0) and (bit_ >= offset_) and (bit_-offset_+range_ <= size_) then');
 			$ifNotSimulated('system.dout[dio_+bit_-offset_][range_] = value_');
 		ll('else');
-			logThrow(['bitwise write to unassociated pdo'], [
+			throwLog('bitwise write to unassociated pdo', [
 				'com_putString("/index", hex$(index_)+"h")',
 				'com_putLong("/subindex", subindex_)',
 				'com_putLong("/bit", bit_)',

@@ -113,7 +113,7 @@ public sub <?=lib()?>_axisSetup
 		lll('end if');
 		catchLog();
 		ll('if driveUpdate_ then');
-			logInfo([lib().' drive parameters update']);
+			logInfo(lib().' drive parameters update');
 			
 			lll('com_clear()');
 			_defaultDriveUpdate($ax);
@@ -136,9 +136,10 @@ end sub
 }
 
 
-function _defaultDriveUpdate($ax) { lib('driveUpdate')['hash'][] = 4;
+function _defaultDriveUpdate($ax) { lib('driveUpdate')['hash'][] = 5;
 	switch ($ax['device']) {
 		case 'cdhd':
+			ll(lib().'_deviceWrite(0x2109, 0, 16, 0)');			#disable smoothing
 		break;case 'stepim':
 	}
 	call(libGet('driveUpdate'));
@@ -161,7 +162,7 @@ function _defaultDriveSetup($ax) {
 		break;case 'stepim':
 			ll(lib().'_deviceWrite(0x1003, 0, 8, 0)');			#Clear Error History
 			ll('positionfactor				= 4096');
-			ll('positionerrordelay			= 5');
+			ll('positionerrordelay			= '.($ax['bus']=='etc' ? 5 : 2));
 	}
 	call(libGet('driveSetup'));
 }
@@ -234,10 +235,10 @@ public function <?=lib()?>_driveLogError as long
 					<?=lib()?>_driveLogError = log_prioError
 				end if
 				if <?=lib()?>_driveLogError then
-					<?logMessage(lib().'_driveLogError', s(lib().' drive error: ').'+drivelog_errorString(errorcode_)', function() use ($ax) {?>
+					<?logMessage(lib().'_driveLogError', '"'.lib().' drive error: "+drivelog_errorString(errorcode_)', [function() use ($ax) {?>
 						com_putString("/error", hex$(errorcode_)+"h")
 						com_putString("/drivestatus", bin$(driveStatus))
-					<?})?>
+					<?}])?>
 				end if
 			catch else
 			end try
@@ -250,20 +251,20 @@ public function <?=lib()?>_driveLogError as long
 end function
 
 public sub <?=lib()?>_driveLogInfo
-	<?logInfo([lib().' drive information'], function() use ($ax) {
+	<?logInfo(lib().' drive information', [function() use ($ax) {
 		if ($ax['device']=='stepim') {
 			ll('com_putString("/version/software", '.lib().'_deviceReadString(0x'.($ax['bus']=='etc'?'2E00':'100A').', 0))');
 			ll('com_putString("/version/hardware", '.lib().'_deviceReadString(0x'.($ax['bus']=='etc'?'2E01':'1009').', 0))');
 		}
 		ll('driveLogPutHealth()');
-	})?>
+	}])?>
 end sub
 
 public sub <?=lib()?>_driveLogHistory
 	dim i as long
 	dim history_ as string
 	dim historyCount_ as long
-	<?logNotice([lib().' drive error history'], function() use ($ax) {
+	<?logNotice(lib().' drive error history', [function() use ($ax) {
 		if ($ax['device']=='stepim') {
 			ll('historyCount_ = min(10, '.lib().'_deviceRead(0x1003, 0))');
 			ll('for i = 1 to historyCount_');
@@ -274,11 +275,11 @@ public sub <?=lib()?>_driveLogHistory
 		}
 		ll('com_putString("/errorhistory", history_)');
 		ll('driveLogPutHealth()');
-	})?>
+	}])?>
 end sub
 
 public sub <?=lib()?>_driveLogHealth
-	<?logInfo([lib().' drive health'], 'driveLogPutHealth()')?>
+	<?logInfo(lib().' drive health', ['driveLogPutHealth()'])?>
 end sub
 
 sub driveLogPutHealth

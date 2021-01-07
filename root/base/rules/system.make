@@ -41,10 +41,12 @@ $(STATEDIR)/system.targetinstall:
 	@$(call install_alternative_tree, system, 0, 0, /usr/lib/firmware)
 
 	# networking
+	@$(call install_copy,        system, 0, 0, 0700, /etc/polkit-1/localauthority)
 	@$(call install_alternative, system, 0, 0, 0644, /etc/polkit-1/localauthority/10-vendor.d/systemd-networkd.pkla)
 	@$(call install_alternative_tree, system, 0, 0,  /etc/systemd/network)
 	@$(call install_alternative_tree, system, 0, 0,  /etc/hostapd.conf.d)
 	@$(call install_alternative, system, 0, 0, 0644, /usr/lib/systemd/system/hostapd.service)
+	@$(call install_alternative, system, 0, 0, 0644, /usr/lib/systemd/system/hostapd-psk.service)
 	@$(call install_alternative, system, 0, 0, 0644, /usr/lib/systemd/system/sys-subsystem-net-devices-syswlan.device)
 	@$(call install_alternative_tree, system, 0, 0,  /etc/wpa_supplicant.conf.d)
 	@$(call install_alternative, system, 0, 0, 0644, /usr/lib/systemd/system/sys-subsystem-net-devices-wlan.device)
@@ -52,11 +54,13 @@ $(STATEDIR)/system.targetinstall:
 	# update
 	@$(call install_copy,        system, 0, 0, 0755, /mnt/init)
 	@$(call install_copy,        system, 0, 0, 0755, /mnt/root)
+	@$(call install_alternative, system, 0, 0, 0755, /usr/bin/update-revert)
 	@$(call install_alternative, system, 0, 0, 0755, /usr/sbin/update-apply)
 	@$(call install_alternative, system, 0, 0, 0644, /usr/lib/systemd/system/update-apply.service)
 	@$(call install_alternative, system, 0, 0, 0644, /usr/lib/systemd/system/reboot.service)
 
 	# sshd root key
+	@$(call install_copy,        system, 0, 0, 0700, /root)
 	@$(call install_copy,        system, 0, 0, 0700, /root/.ssh)
 	@$(call install_alternative, system, 0, 0, 0600, /root/.ssh/authorized_keys)
 	@$(call install_alternative, system, 0, 0, 0600, /root/.ssh/id_rsa)
@@ -67,8 +71,8 @@ $(STATEDIR)/system.targetinstall:
 	# development tools
 	@$(call install_alternative, system, 0, 0, 0644, /root/.profile)
 	@$(call install_alternative, system, 0, 0, 0644, /usr/lib/systemd/system/debug.target)
-	@$(call install_alternative, system, 0, 0, 0644, /etc/systemd/system/remote.service)
-	@$(call install_copy,        system, 0, 0, 0644, $(PTXDIST_WORKSPACE)/projectroot/usr/lib/systemd/system/dev-disk-by\\x2dlabel-INSTALL.device, /usr/lib/systemd/system/dev-disk-by\\x2dlabel-INSTALL.device)
+	@$(call install_alternative, system, 0, 0, 0644, /usr/lib/systemd/system/remote@.service)
+	@$(call install_alternative, system, 0, 0, 0644, /usr/lib/systemd/system/dev-disk-by\\x2dlabel-INSTALL.device)
 	
 	# journal helpers
 	@$(call install_alternative, system, 0, 0, 0644, /usr/lib/systemd/system/journal-cleanup.service)

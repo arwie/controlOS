@@ -1,5 +1,4 @@
-{% comment 
-# Copyright (c) 2017 Artur Wiebe <artur@4wiebe.de>
+# Copyright (c) 2020 Artur Wiebe <artur@4wiebe.de>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 # associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -14,14 +13,14 @@
 # IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-%}
 
-<li class="nav-item dropdown">
-	<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
-		<i class="fas fa-language"></i>
-		<span data-l10n-id="locale" class="d-none d-xl-inline"></span>
-	</a>
-	<div data-bind="foreach:document.querySelector('meta[name=availableLanguages]').content.split(',')" class="dropdown-menu dropdown-menu-right">
-		<a data-bind="click:function(){document.l10n.requestLanguages([$data])}, l10n:'locale_'+$data" class="dropdown-item" href="#"></a>
-	</div>
-</li>
+
+TEMPLATE = app
+
+QT += core qml webengine svg
+QTPLUGIN += qtvirtualkeyboardplugin
+
+SOURCES += webengine.cpp
+
+target.path = webengine
+INSTALLS += target

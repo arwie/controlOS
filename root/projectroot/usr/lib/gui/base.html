@@ -17,6 +17,7 @@
 %}
 
 {% import os,glob %}
+{% from shared.setup import setup %}
 
 
 <!DOCTYPE html>
@@ -77,7 +78,7 @@ function webSocket(url, onMessageJson) {
 		onMessageJson(JSON.parse(e.data), first);
 		first = false;
 	};
-	ws.sendJson = (data)=>{
+	ws.sendJson = (data={})=>{
 		ws.send(JSON.stringify(data));
 	};
 	return ws;
@@ -94,9 +95,9 @@ String.prototype.hashCode = function() {
 	return hash;
 };
 
-ko.subscribeTree = function(model, notify) {
+ko.subscribeMapping = function(model, notify) {
 	return ko.pureComputed(()=>{
-		return ko.toJS(model);
+		return ko.mapping.toJS(model);
 	}).subscribe(notify);
 };
 

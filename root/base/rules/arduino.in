@@ -1,0 +1,8 @@
+## SECTION=project_specific
+
+config ARDUINO
+	tristate
+	select BOSSAC	if RUNTIME
+	prompt "arduino"
+	help
+	  FIXME

@@ -20,8 +20,9 @@ common shared com_channelNotify				as const long		= 2
 common shared com_channelState				as const long		= 3
 common shared com_channelFifo				as const long		= 4
 common shared com_channelWebsocket			as const long		= 5
-common shared com_channelUdp				as const long		= 6
 common shared com_channelFile				as const long		= 7
+common shared com_channelUdpSender			as const long		= 8
+common shared com_channelUdpReceiver		as const long		= 9
 
 common shared com_receiveTimeout			as const long		= 0
 common shared com_receiveMessage			as const long		= 1
@@ -37,7 +38,8 @@ import_c MCCOM_OPEN(byval as long, as long) as long
 import_c MCCOM_RECEIVE(byval as long, byval as long, as long) as long
 import_c MCCOM_SEND(byval as long, as long)
 import_c MCCOM_SEND_SELF(byval as long, as long)
-import_c MCCOM_RESET(byval as long)
+import_c MCCOM_COUNT(byval as long, as long) as long
+import_c MCCOM_RESET(byval as long, as long)
 import_c MCCOM_CLOSE(byval as long)
 import_c MCCOM_CLOSE_ALL()
 import_c MCCOM_CLEAR(as long)
@@ -94,8 +96,21 @@ public sub com_sendSelf(byval channelId as long)
 end sub
 
 
+public function com_count(byval channelId as long) as long
+  dim err as long
+  com_count = MCCOM_COUNT(channelId, err)
+  if err then
+    throw com_error
+  end if
+end function
+
+
 public sub com_reset(byval channelId as long)
-  MCCOM_RESET(channelId)
+  dim err as long
+  MCCOM_RESET(channelId, err)
+  if err then
+    throw com_error
+  end if
 end sub
 
 
@@ -273,9 +288,14 @@ public sub com_putLocationXyzr(byval path as string, byval pos as location of xy
 end sub
 
 
+public sub com_putJointXy(byval path as string, byval jnt as joint of xy)
+	com_putDouble(path+"/0", jnt{1})
+	com_putDouble(path+"/1", jnt{2})
+end sub
+
 public sub com_putJointXyzr(byval path as string, byval jnt as joint of xyzr)
-  call com_putDouble(path+"/0", jnt{1})
-  call com_putDouble(path+"/1", jnt{2})
-  call com_putDouble(path+"/2", jnt{3})
-  call com_putDouble(path+"/3", jnt{4})
+	com_putDouble(path+"/0", jnt{1})
+	com_putDouble(path+"/1", jnt{2})
+	com_putDouble(path+"/2", jnt{3})
+	com_putDouble(path+"/3", jnt{4})
 end sub

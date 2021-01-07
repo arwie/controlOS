@@ -37,7 +37,7 @@ end sub
 		debugWebsocketConnected = false
 	case com_receiveTimeout
 	case else
-		<?logNotice(['system state snapshot'], 'pollData()')?>
+		<?logNotice('system state snapshot', ['pollData()'])?>
 	end select
 
 	if debugWebsocketConnected then
@@ -45,10 +45,6 @@ end sub
 		pollData()
 		com_send(debug_websocket)
 	end if
-end sub
-
-
-<?lib_prgError()?>
 end sub
 
 
