@@ -1,4 +1,6 @@
-# Copyright (c) 2017 Artur Wiebe <artur@4wiebe.de>
+#!/usr/bin/python -Bu
+
+# Copyright (c) 2021 Artur Wiebe <artur@4wiebe.de>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 # associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -15,30 +17,22 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-import subprocess
+import server
+from shared.conf import Conf
+from shared import system
 
 
 
-def run(cmd, capture=False, **kwargs):
-	try:
-		proc = subprocess.run(cmd, check=True, stderr=subprocess.PIPE, stdout=(subprocess.PIPE if capture else None), **kwargs)
-		return proc.stdout if capture else proc
-	except subprocess.CalledProcessError as e:
-		raise Exception(e.stderr.decode() if isinstance(e.stderr, bytes) else e.stderr) from e
+class Handler(server.RequestHandler):
+	def initialize(self):
+		self.confFile = '/etc/app/setup.conf'
+	
+	def get(self):
+		self.write(Conf(self.confFile).dict())
+	
+	def post(self):
+		Conf(self.confFile, self.readJson()).save()
+		system.reboot()
 
 
-def statusText(unit):
-	return run(['systemctl', '--no-pager', '--full', 'status', unit], True, text=True)
-
-def restart(unit):
-	run(['systemctl', '--no-block', 'restart', unit])
-
-def stop(unit):
-	run(['systemctl', '--no-block', 'stop', unit])
-
-
-def reboot(kexec=True):
-	run(['reboot-kexec' if kexec else 'reboot'])
-
-def poweroff():
-	run(['poweroff'])
+server.addAjax(__name__, Handler)
