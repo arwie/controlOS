@@ -141,6 +141,17 @@ public function useDecrement(value_ as long) as long
 end function
 
 
+public function cycleDiff(byval value_ as double, old_ as double) as double
+	cycleDiff = value_ - old_
+	old_ = value_
+end function
+
+public function cycleDiffL(byval value_ as long, old_ as long) as long
+	cycleDiffL = value_ - old_
+	old_ = value_
+end function
+
+
 public sub newLine(string_ as string)
 	string_ = string_ + chr$(10)
 end sub
