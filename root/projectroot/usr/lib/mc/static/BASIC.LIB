@@ -112,6 +112,13 @@ public function outside(byval value_ as double, byval min_ as double, byval max_
 end function
 
 
+public function sgnOpposite(byval a_ as double, byval b_ as double) as long
+	dim sgnA_ as long = sgn(a_)
+	dim sgnB_ as long = sgn(b_)
+	sgnOpposite = (sgnA_>0 and sgnB_<0) or (sgnA_<0 and sgnB_>0)
+end function
+
+
 public sub increment(value_ as long)
 	value_ = value_ + 1
 end sub
