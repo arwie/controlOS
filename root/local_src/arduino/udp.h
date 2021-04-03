@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Artur Wiebe <artur@4wiebe.de>
+// Copyright (c) 2021 Artur Wiebe <artur@4wiebe.de>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 // associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -15,46 +15,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-#define _WEBSOCKETS_LOGLEVEL_			1		// 0:DISABLED, 1:ERROR, 2:WARN, 3:INFO, 4:DEBUG
-#define WEBSOCKETS_USE_WIFININA			true
-#define WEBSOCKETS_WIFININA_USE_SAMD	true
-#include <WebSockets2_Generic.h>
+#include <WiFiUdp_Generic.h>
 
 
-class WebsocketsClientJson : public websockets2_generic::WebsocketsClient
+class UdpSenderJson
 {
 public:
 	
-	void begin(const char* host, const int port, const char* path = "/")
-	{
-		if (!connect(host, port, path))
-			resetError("websocket connecting failed");
+	void begin(const IPAddress& receiverIp, const int receiverPort) {
+		ip   = receiverIp;
+		port = receiverPort;
+		udp.begin(0);
 	}
 	
 	bool sendJson(const JsonDocument& data)
 	{
-		String msg;
-		serializeJson(data, msg);
-		Serial.print("sending:"); Serial.println(msg);
-		return send(msg);
+		udp.beginPacket(ip, port);
+		//Serial.print("sending:"); serializeJson(data, Serial); Serial.println();
+		serializeJson(data, udp);
+		return udp.endPacket();
 	}
 	
-	template <size_t jsonCapacity>
-	void onMessageJson(std::function<void(JsonDocument& data)> callback)
-	{
-		onMessage([callback](websockets2_generic::WebsocketsMessage msg)
-		{
-			Serial.print("received:"); Serial.println(msg.data());
-			StaticJsonDocument<jsonCapacity> data;
-			deserializeJson(data, msg.data());
-			callback(data);
-		});
-	}
-	
-	void loop()
-	{
-		poll();
-		if (!available())
-			resetError("websocket disconnected");
-	}
+private:
+	IPAddress ip;
+	int port;
+	WiFiUDP udp;
 };
