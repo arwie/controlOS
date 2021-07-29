@@ -55,3 +55,11 @@ bool blinkHerz(float herz)
 	int wavelength = 1000.0 / herz;
 	return (millis() % wavelength) < (wavelength / 2);
 }
+
+
+template <int input, int weight>
+float analogReadFiltered() {
+	static float value = analogRead(input);
+	value = (weight/100.0)*value + ((100-weight)/100.0)*analogRead(input);
+	return value;
+}
