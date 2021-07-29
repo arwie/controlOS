@@ -1,7 +1,9 @@
 /.git-controlOS
 /src
-/**/configs/**/*.old
-/**/platform-*/
+/*/configs/**/*.old
+/*/base/configs/**/*.old
+/*/platform-*/
+/*/base/platform-*/
 __pycache__
 /root/local_src/arduino/*/build/
 /virtualbox/vm
