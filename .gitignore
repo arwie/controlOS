@@ -1,4 +1,4 @@
-/.git-controlOS
+/.git-*
 /src
 /*/configs/**/*.old
 /*/base/configs/**/*.old
