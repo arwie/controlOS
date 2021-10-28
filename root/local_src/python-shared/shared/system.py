@@ -21,7 +21,7 @@ import subprocess
 
 def run(cmd, capture=False, **kwargs):
 	try:
-		proc = subprocess.run(cmd, check=True, stderr=subprocess.PIPE, stdout=(subprocess.PIPE if capture else None), **kwargs)
+		proc = subprocess.run(cmd, shell=isinstance(cmd, str), check=True, stderr=subprocess.PIPE, stdout=(subprocess.PIPE if capture else None), **kwargs)
 		return proc.stdout if capture else proc
 	except subprocess.CalledProcessError as e:
 		raise Exception(e.stderr.decode() if isinstance(e.stderr, bytes) else e.stderr) from e
