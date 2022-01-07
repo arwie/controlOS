@@ -171,42 +171,42 @@ end sub
 
 
 function _defaultRobotSetup(&$rbt) {
-?>
-	absolute					= true
-	
-	rmin						= 0
-	rmax						= MAXDOUBLE
-	xmin						= -rmax
-	xmax						= rmax
-	ymin						= -rmax
-	ymax						= rmax
-	zmin						= -rmax
-	zmax						= rmax
-	base.xmin					= xmin
-	base.xmax					= xmax
-	base.ymin					= ymin
-	base.ymax					= ymax
-	base.zmin					= zmin
-	base.zmax					= zmax
-	machinetable.xmin			= xmin
-	machinetable.xmax			= xmax
-	machinetable.ymin			= ymin
-	machinetable.ymax			= ymax
-	machinetable.zmin			= zmin
-	machinetable.zmax			= zmax
-	workpiece.xmin				= xmin
-	workpiece.xmax				= xmax
-	workpiece.ymin				= ymin
-	workpiece.ymax				= ymax
-	workpiece.zmin				= zmin
-	workpiece.zmax				= zmax
-	tool.xmin					= xmin
-	tool.xmax					= xmax
-	tool.ymin					= ymin
-	tool.ymax					= ymax
-	tool.zmin					= zmin
-	tool.zmax					= zmax
-<?
+	if ($rbt['model']) {?>
+		absolute					= true
+		
+		rmin						= 0
+		rmax						= MAXDOUBLE
+		xmin						= -rmax
+		xmax						= rmax
+		ymin						= -rmax
+		ymax						= rmax
+		zmin						= -rmax
+		zmax						= rmax
+		base.xmin					= xmin
+		base.xmax					= xmax
+		base.ymin					= ymin
+		base.ymax					= ymax
+		base.zmin					= zmin
+		base.zmax					= zmax
+		machinetable.xmin			= xmin
+		machinetable.xmax			= xmax
+		machinetable.ymin			= ymin
+		machinetable.ymax			= ymax
+		machinetable.zmin			= zmin
+		machinetable.zmax			= zmax
+		workpiece.xmin				= xmin
+		workpiece.xmax				= xmax
+		workpiece.ymin				= ymin
+		workpiece.ymax				= ymax
+		workpiece.zmin				= zmin
+		workpiece.zmax				= zmax
+		tool.xmin					= xmin
+		tool.xmax					= xmax
+		tool.ymin					= ymin
+		tool.ymax					= ymax
+		tool.zmin					= zmin
+		tool.zmax					= zmax
+	<?}
 	foreach ($rbt['axes'] as $ax) { $j += 1; $jnt = 'j'.$j;
 		ll($jnt.'.positionmin			= '.$ax.'.positionmin');
 		ll($jnt.'.positionmax			= '.$ax.'.positionmax');
