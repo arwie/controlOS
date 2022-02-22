@@ -3,7 +3,6 @@
 # PTXdist 2020.10.0
 #
 # PTXCONF_APP is not set
-# PTXCONF_ARDUINO is not set
 PTXCONF_GUI=y
 # PTXCONF_PYLON is not set
 PTXCONF_PYTHON_SHARED=y
@@ -424,7 +423,6 @@ PTXCONF_TIMEZONE_UTC=y
 #
 # BusyBox' bc is selected!
 #
-# PTXCONF_BOSSAC is not set
 # PTXCONF_BPYTOP is not set
 # PTXCONF_BSDIFF is not set
 PTXCONF_BUSYBOX=y
