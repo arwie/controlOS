@@ -16,19 +16,18 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 %}
 
-{% extends "base.html" %}
+{% extends "../base.html" %}
 
 {% block head %}
 	<script src="{{static_url('ace.js')}}"></script>
 {% end %}
 
 {% block body %}
+{% import studio %}
 <navBar>
 	<div class="navbar-nav">
 		<pageLink params="path:'log'"></pageLink>
-		<pageLink params="path:'debug', visibleState:'mc@debug'"></pageLink>
-		<pageLink params="path:'simio', visibleState:'mc@simio'"></pageLink>
-		<pageLink params="path:'mc'"></pageLink>
+		{% raw ' '.join(studio.navs) %}
 	</div>
 	<div class="navbar-nav ml-auto">
 		<navDropdown params="icon:'cog', l10n:'admin', right:true">
@@ -45,13 +44,13 @@
 <main class="container-fluid">
 	{% module page("log.html") %}
 	{% module page("issue.html") %}
-	{% module page("debug.html") %}
-	{% module page("simio.html") %}
 	{% module page("update.html") %}
 	{% module page("remote.html") %}
 	{% module page("network/network.html") %}
 	{% module page("backup.html") %}
 	
-	{% module page("mc/mc.html") %}
+	{% for p in studio.pages %}
+		{% module page(p) %}
+	{% end %}
 </main>
 {% end %}

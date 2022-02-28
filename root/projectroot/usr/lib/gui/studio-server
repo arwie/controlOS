@@ -28,10 +28,10 @@ import update
 import remote
 import backup
 
-import mc
 
+import studio
+server.addDocument('studio', 'studio/studio.html')
 
-server.addDocument('studio', 'studio.html')
 
 try:
 	import startup
