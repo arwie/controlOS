@@ -19,7 +19,7 @@ apt-get install pengutronix-archive-keyring
 
 apt-get install -y bash-completion wget ccache git \
 	build-essential pkg-config libncurses-dev gawk flex bison texinfo file \
-	zip bc lzop python3 python3-setuptools python3-jinja2 device-tree-compiler \
+	zip bc lzop python3 python3-setuptools python3-jinja2 device-tree-compiler libelf-dev \
 	gperf python3-pip python3-virtualenv cmake ninja-build libffi-dev libssl-dev dfu-util
 
 #install toolchain(s)
