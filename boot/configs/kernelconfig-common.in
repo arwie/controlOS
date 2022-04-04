@@ -1,5 +1,5 @@
 CONFIG_CMDLINE_BOOL=y
-CONFIG_CMDLINE="mitigations=off console=tty0 console=ttyUSB0,115200n8"
+CONFIG_CMDLINE="mitigations=off console=tty0"
 
 CONFIG_KERNEL_XZ=y
 CONFIG_INITRAMFS_SOURCE="# Automatically set by PTXDist"
