@@ -24,11 +24,7 @@ from shared import system
 parser = argparse.ArgumentParser()
 parser.add_argument("--bare", action="store_true", help="install unencrypted update (from stdin)")
 parser.add_argument("--revert", action="store_true", help="revert last installed update")
-parser.add_argument("--console", action="store_true", help="log also to console")
 args = parser.parse_args()
-
-if args.console:
-	logging.root.addHandler(logging.StreamHandler())
 
 
 def install():
