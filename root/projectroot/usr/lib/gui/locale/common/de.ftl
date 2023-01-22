@@ -30,6 +30,20 @@ connect = Verbinden
 disconnect = Trennen
 
 
+log = Log
+log_follow = Neuen Meldungen folgen
+log_priority = Priorität
+log_identifier = Kennung
+log_host = Host
+log_date = Datum
+log_grep = Freitextsuche
+log_filter = Filter
+log_pinned = Festgehalten
+log_extendNewer = Neuere laden
+log_extendOlder = Ältere laden
+log_empty = Keine Einträge vorhanden
+log_extlogImport = Datei importieren
+
 update = Update
 update-version = Aktuelle Version
 update-version-name = Version

@@ -30,6 +30,12 @@ connect = コネクト
 disconnect = ディスコネクト
 
 
+log = ログ
+log_priority							=	ログ　優先度
+log_identifier							=	ログ　フィルタ
+log_host								=	ログ　ホスト
+log_empty								=	ログがありません
+
 update = アップデート
 update-version = 現在のアップデート
 update-version-name = バージョン

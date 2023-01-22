@@ -32,7 +32,6 @@
 	
 	<script src="{{static_url('pep.js')}}"></script>
 	<script src="{{static_url('jquery.js')}}"></script>
-	<script src="{{static_url('popper.js')}}"></script>
 	<script src="{{static_url('bootstrap.js')}}"></script>
 	<link rel="stylesheet" href="{{static_url('bootstrap.css')}}">
 	<link rel="stylesheet" href="{{static_url('fontawesome/css/all.min.css')}}">
@@ -201,7 +200,7 @@ window.gui = new function() {
 {% include "baseWidgets.html" %}
 {% block html %}{% end %}
 
-<body data-bind="visible:true" style="display:none">
+<body data-bind="visible:true" style="display:none; overscroll-behavior:contain;" class="vh-100">
 	
 	{% block body %}{% end %}
 	

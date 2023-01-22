@@ -30,6 +30,11 @@ connect = Connect
 disconnect = Koppla bort
 
 
+log = Log
+log_priority = Loggprioritet
+log_identifier = Loggfiltret
+log_host = Logg värd
+
 update = Uppdatera
 update-version = Aktuell version
 update-version-name = Version

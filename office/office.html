@@ -3,10 +3,10 @@
 {% block html %}
 <navBar>
 	<div class="navbar-nav">
-		<pageLink params="path:'extlog'"></pageLink>
+		<pageLink params="path:'log'"></pageLink>
 	</div>
 </navBar>
-<main class="container-fluid">
-	{% module page("extlog.html") %}
+<main class="container-fluid h-100" style="padding-top:4.5rem">
+	{% module page("log.html", extlog=True) %}
 </main>
 {% end %}

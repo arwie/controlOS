@@ -21,6 +21,10 @@ import os, tempfile, subprocess, glob
 
 extlogDir = tempfile.TemporaryDirectory(prefix='office.', suffix='.extlog', dir='/var/tmp')
 
+import log
+log.cmd = ['journalctl', '--file={}/*'.format(extlogDir.name)]
+
+
 
 class Handler(server.RequestHandler):
 	
@@ -45,8 +49,3 @@ class Handler(server.RequestHandler):
 
 
 server.addAjax(__name__, Handler)
-
-
-import log
-log.setArgs('{}/*'.format(extlogDir.name))
-

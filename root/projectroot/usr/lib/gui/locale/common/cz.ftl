@@ -30,6 +30,12 @@ connect = Připojení
 disconnect = Odpojit
 
 
+log = Log
+log_priority = Log priorita
+log_identifier = Log filtr
+log_host = Log host
+log_empty = Log prázdný
+
 update = Aktualizace
 update-version = Aktuální verze
 update-version-name = Verze

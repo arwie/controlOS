@@ -7,7 +7,7 @@ BASEDIR=$(dirname $(realpath $0))
 cd $BASEDIR/..
 
 
-SSHCMD="ssh -i keys/ssh/id_rsa"
+SSHCMD="ssh -t -i keys/ssh/id_rsa"
 SSHUSER="root@$HOST"
 
 sshsys() {

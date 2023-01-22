@@ -32,7 +32,6 @@
 		</button>
 		<div data-bind="template:{nodes:$componentTemplateNodes}" class="collapse navbar-collapse" id="navbar-collapse"></div>
 	</nav>
-	<div style="padding-top:4.5rem">
 </script>
 <script>ko.components.register('navbar', {template:{element:'navBar'}})</script>
 
@@ -182,6 +181,10 @@ ko.bindingHandlers.checkbox = {
 
 ko.bindingHandlers.src = {update: function (element, valueAccessor) {
 	element.setAttribute('src', ko.utils.unwrapObservable(valueAccessor()));
+}};
+
+ko.bindingHandlers.id = {update: function (element, valueAccessor) {
+	element.setAttribute('id', ko.utils.unwrapObservable(valueAccessor()));
 }};
 
 ko.bindingHandlers.l10n = {update: function (element, valueAccessor) {
