@@ -21,134 +21,111 @@
 
 
 {% block html %}{% from shared import network %}
-<div class="row">
-<div class="col-lg-2">
-	<nav data-bind="foreach:$page.children" class="nav nav-pills flex-column">
-		<a data-bind="page-href:$data, css:{active:isVisible}, attr:{'data-l10n-id':'network_'+getId()}" class="nav-link"></a>
-	</nav>
-</div>
+<navChildrenTabs params="l10n:'network'"></navChildrenTabs>
 
-<div class="col">
+{% module page("network/status.html", start=True) %}
 
-	{% module page("network/status.html") %}
-
-	{% if network.hasInterface('syswlan') %}
-	<fieldset data-bind="page:{id:'syswlan', with:syswlan}">
-		<legend data-l10n-id="network_syswlan"></legend>
-		<p>
-			<div class="form-group">
-				<div class="form-check">
-					<input data-bind="checked:enabled" type="checkbox" class="form-check-input">
-					<label class="form-check-label" data-l10n-id="network_enabled"></label>
-				</div>
-			</div>
-		</p>
-		<div data-bind="visible:enabled">
-			<p>
-				<div class="form-group">
-					<label data-l10n-id="network_ssid"></label>
-					<input data-bind="value:conf.ssid" type="text" class="form-control">
-				</div>
-				<div class="form-group">
-					<label data-l10n-id="network_password"></label>
-					<input data-bind="value:conf.wpa_passphrase" type="text" class="form-control">
-				</div>
-				<div class="form-group">
-					<label data-l10n-id="network_channel"></label>
-					<select data-bind="value:conf.channel, options:[1,2,3,4,5,6,7,8,9,10,11,12,13]" class="form-control"></select>
-				</div>
-				<div class="form-group">
-					<label data-l10n-id="network_country"></label>
-					<input data-bind="value:conf.country_code" type="text" class="form-control">
-				</div>
-			</p>
+{% if network.hasInterface('syswlan') %}
+<div data-bind="page:{id:'syswlan', with:syswlan}">
+	<div class="mb-3 form-check form-switch">
+		<input data-bind="checked:enabled" type="checkbox" id="network_syswlanEnabled" class="form-check-input">
+		<label class="form-check-label" for="network_syswlanEnabled" data-l10n-id="network_enabled"></label>
+	</div>
+	<div data-bind="if:enabled">
+		<div class="mb-3">
+			<label class="form-label" data-l10n-id="network_ssid"></label>
+			<input data-bind="value:conf.ssid" type="text" class="form-control">
 		</div>
-		<p>
-			<button data-bind="click:save" class="btn btn-primary" data-l10n-id="network_save"></button>
-		</p>
-	</fieldset>
-	{% end %}
-
-	{% if network.hasInterface('lan') %}
-	<fieldset data-bind="page:{id:'lan', with:lan}">
-		<legend data-l10n-id="network_lan"></legend>
-		<script type="text/html" id="network_lan">
-			<p>
-				<div class="form-group">
-					<radiogroup>
-						<div class="form-check form-check-inline">
-							<input data-bind="checked:conf.Network.DHCP" type="radio" value="yes" class="form-check-input">
-							<label class="form-check-label" data-l10n-id="network_dhcp"></label>
-						</div>
-						<div class="form-check form-check-inline">
-							<input data-bind="checked:conf.Network.DHCP" type="radio" value="no" class="form-check-input">
-							<label class="form-check-label" data-l10n-id="network_maunal"></label>
-						</div>
-					</radiogroup>
-				</div>
-				<div data-bind="visible:conf.Network.DHCP()!='no'">
-					<div class="form-group">
-						<label data-l10n-id="network_hostname"></label>
-						<input data-bind="value:conf.DHCP.Hostname" type="text" class="form-control">
-					</div>
-				</div>
-				<div data-bind="visible:conf.Network.DHCP()=='no'">
-					<div class="form-group">
-						<label data-l10n-id="network_address"></label>
-						<input data-bind="value:conf.Network.Address" type="text" class="form-control">
-					</div>
-					<div class="form-group">
-						<label data-l10n-id="network_gateway"></label>
-						<input data-bind="value:conf.Network.Gateway" type="text" class="form-control">
-					</div>
-					<div class="form-group">
-						<label data-l10n-id="network_dns"></label>
-						<input data-bind="value:conf.Network.DNS" type="text" class="form-control" placeholder="9.9.9.9">
-					</div>
-				</div>
-			</p>
-		</script>
-		<div data-bind="template:{name:'network_lan'}"></div>
-		<p>
-			<button data-bind="click:save" class="btn btn-primary" data-l10n-id="network_save"></button>
-		</p>
-	</fieldset>
-	{% end %}
-
-	{% if network.hasInterface('wlan') %}
-	<fieldset data-bind="page:{id:'wlan', with:wlan}">
-		<legend data-l10n-id="network_wlan"></legend>
-		<p>
-			<div class="form-group">
-				<div class="form-check">
-					<input data-bind="checked:enabled" type="checkbox" class="form-check-input">
-					<label class="form-check-label" data-l10n-id="network_enabled"></label>
-				</div>
-			</div>
-		</p>
-		<div data-bind="visible:enabled">
-			<p>
-				<div class="form-group">
-					<label data-l10n-id="network_ssid"></label>
-					<input data-bind="value:conf.ssid" type="text" class="form-control">
-				</div>
-				<div class="form-group">
-					<label data-l10n-id="network_password"></label>
-					<input data-bind="value:conf.psk" type="text" class="form-control">
-				</div>
-			</p>
-			<div data-bind="template:{name:'network_lan',data:lan}"></div>
+		<div class="mb-3">
+			<label class="form-label" data-l10n-id="network_password"></label>
+			<input data-bind="value:conf.wpa_passphrase" type="text" class="form-control">
 		</div>
-		<p>
-			<button data-bind="click:save" class="btn btn-primary" data-l10n-id="network_save"></button>
-		</p>
-	</fieldset>
-	{% end %}
-
-	{% module page("network/smtp.html") %}
-
+		<div class="row">
+			<div class="mb-3 col-md">
+				<label class="form-label" data-l10n-id="network_country"></label>
+				<input data-bind="value:conf.country_code" type="text" class="form-control">
+			</div>
+			<div class="mb-3 col-md">
+				<label class="form-label" data-l10n-id="network_channel"></label>
+				<select data-bind="value:conf.channel, options:[1,2,3,4,5,6,7,8,9,10,11,12,13]" class="form-select"></select>
+			</div>
+		</div>
+	</div>
+	<buttonBar>
+		<button data-bind="click:save" class="btn btn-primary" data-l10n-id="network_save"></button>
+	</buttonBar>
 </div>
+{% end %}
+
+<script type="text/html" id="network_lan">
+	<div class="mb-3">
+		<radiogroup>
+			<div class="form-check form-check-inline">
+				<input data-bind="checked:conf.Network.DHCP" type="radio" value="yes" id="network_lanDhcpYes" class="form-check-input">
+				<label class="form-check-label" for="network_lanDhcpYes" data-l10n-id="network_dhcp"></label>
+			</div>
+			<div class="form-check form-check-inline">
+				<input data-bind="checked:conf.Network.DHCP" type="radio" value="no" id="network_lanDhcpNo" class="form-check-input">
+				<label class="form-check-label" for="network_lanDhcpNo" data-l10n-id="network_maunal"></label>
+			</div>
+		</radiogroup>
+	</div>
+	<div data-bind="if:conf.Network.DHCP()!='no'">
+		<div class="mb-3">
+			<label class="form-label" data-l10n-id="network_hostname"></label>
+			<input data-bind="value:conf.DHCP.Hostname" type="text" class="form-control">
+		</div>
+	</div>
+	<div data-bind="if:conf.Network.DHCP()=='no'">
+		<div class="mb-3">
+			<label class="form-label" data-l10n-id="network_address"></label>
+			<input data-bind="value:conf.Network.Address" type="text" class="form-control">
+		</div>
+		<div class="mb-3">
+			<label class="form-label" data-l10n-id="network_gateway"></label>
+			<input data-bind="value:conf.Network.Gateway" type="text" class="form-control">
+		</div>
+		<div class="mb-3">
+			<label class="form-label" data-l10n-id="network_dns"></label>
+			<input data-bind="value:conf.Network.DNS" type="text" class="form-control" placeholder="9.9.9.9">
+		</div>
+	</div>
+</script>
+
+{% if network.hasInterface('lan') %}
+<div data-bind="page:{id:'lan', with:lan}">
+	<div data-bind="template:{name:'network_lan'}"></div>
+	<buttonBar>
+		<button data-bind="click:save" class="btn btn-primary" data-l10n-id="network_save"></button>
+	</buttonBar>
 </div>
+{% end %}
+
+{% if network.hasInterface('wlan') %}
+<div data-bind="page:{id:'wlan', with:wlan}">
+	<div class="mb-3 form-check">
+		<input data-bind="checked:enabled" type="checkbox" id="network_wlanEnabled" class="form-check-input">
+		<label class="form-check-label" for="network_wlanEnabled" data-l10n-id="network_enabled"></label>
+	</div>
+	<div data-bind="if:enabled">
+		<div class="mb-3">
+			<label class="form-label" data-l10n-id="network_ssid"></label>
+			<input data-bind="value:conf.ssid" type="text" class="form-control">
+		</div>
+		<div class="mb-3">
+			<label class="form-label" data-l10n-id="network_password"></label>
+			<input data-bind="value:conf.psk" type="text" class="form-control">
+		</div>
+		<div data-bind="template:{name:'network_lan',data:lan}"></div>
+	</div>
+	<buttonBar>
+		<button data-bind="click:save" class="btn btn-primary" data-l10n-id="network_save"></button>
+	</buttonBar>
+</div>
+{% end %}
+
+{% module page("network/smtp.html") %}
+
 {% end %}
 
 
@@ -256,9 +233,4 @@ class {
 		this.wlan.load();
 	}
 }
-{% end %}
-
-
-{% block route %}
-	return 'status';
 {% end %}

@@ -24,88 +24,74 @@
 	
 	<div class="col-xl-2 d-flex flex-column">
 		<!-- ko if:desktop -->
-		<p>
-			<button data-bind="click:extendNewer, enable:!follow() && messages().length" class="btn btn-secondary btn-block" data-l10n-id="log_extendNewer"></button>
-		</p>
+		<button data-bind="click:extendNewer, enable:!follow() && messages().length" class="btn btn-secondary w-100 mb-3" data-l10n-id="log_extendNewer"></button>
 		<!-- /ko -->
 		
 		{% if extlog %}
-			<p>
-				<uploadButton params="upload:extlogImport, l10n:'log_extlogImport', css:'btn-primary btn-block'"></uploadButton>
-			</p>
+			<uploadButton params="upload:extlogImport, l10n:'log_extlogImport', css:'btn-primary w-100 mb-3'"></uploadButton>
 		{% else %}
 			<div data-bind="class:'alert-'+(follow()?'success':'warning')" class="alert">
-				<div class="custom-control custom-checkbox">
-					<input data-bind="checked:follow" type="checkbox" class="custom-control-input" id="log_follow">
-					<label class="custom-control-label" for="log_follow" data-l10n-id="log_follow"></label>
+				<div class="form-check">
+					<input data-bind="checked:follow" type="checkbox" class="form-check-input" id="log_follow">
+					<label class="form-check-label" for="log_follow" data-l10n-id="log_follow"></label>
 				</div>
 			</div>
 		{% end %}
 		
 		<div class="row">
-			<div class="col col-lg-12">
-				<div class="form-group">
-					<label class="form-control-label" data-l10n-id="log_priority"></label>
-					<select data-bind="options:priorities, value:priority, optionsText:(p)=>priorityNames[p]" class="form-control"></select>
+			<div class="col col-xl-12">
+				<div class="mb-3">
+					<label class="form-label" data-l10n-id="log_priority"></label>
+					<select data-bind="options:priorities, value:priority, optionsText:(p)=>priorityNames[p]" class="form-select"></select>
 				</div>
-				<div class="form-group">
-					<label class="form-control-label" data-l10n-id="log_identifier"></label>
-					<select data-bind="options:identifiers, value:identifier, optionsCaption: ''" class="form-control"></select>
+				<div class="mb-3">
+					<label class="form-label" data-l10n-id="log_identifier"></label>
+					<select data-bind="options:identifiers, value:identifier, optionsCaption: ''" class="form-select"></select>
 				</div>
 			</div>
-			<div class="col col-lg-12">
-				<div class="form-group">
-					<label class="form-control-label" data-l10n-id="log_host"></label>
-					<select data-bind="options:hosts, value:host, optionsCaption: ''" class="form-control"></select>
+			<div class="col col-xl-12">
+				<div class="mb-3">
+					<label class="form-label" data-l10n-id="log_host"></label>
+					<select data-bind="options:hosts, value:host, optionsCaption: ''" class="form-select"></select>
 				</div>
-				<div class="form-group">
-					<label class="form-control-label" data-l10n-id="log_date"></label>
+				<div class="mb-3">
+					<label class="form-label" data-l10n-id="log_date"></label>
 					<div class="input-group">
 						<input data-bind="value:date" type="text" placeholder="YYYY-MM-DD" class="form-control">
-						<div class="input-group-append">
-							<button data-bind="click:()=>{date('')}" class="btn btn-secondary"><i class="fas fa-times"></i></button>
-						</div>
+						<button data-bind="click:()=>{date('')}" class="btn btn-secondary"><i class="fas fa-times"></i></button>
 					</div>
 				</div>
 			</div>
 		</div>
 		
 		<!-- ko if:desktop -->
-		<div class="form-group">
-			<label class="form-control-label" data-l10n-id="log_grep"></label>
+		<div class="mb-3">
+			<label class="form-label" data-l10n-id="log_grep"></label>
 			<div class="input-group">
 				<input data-bind="value:grep" type="text" placeholder="regexp" class="form-control">
-				<div class="input-group-append">
-					<button data-bind="click:()=>{grep('')}" class="btn btn-secondary"><i class="fas fa-times"></i></button>
-				</div>
+				<button data-bind="click:()=>{grep('')}" class="btn btn-secondary"><i class="fas fa-times"></i></button>
 			</div>
 		</div>
-		<div class="form-group">
-			<label class="form-control-label" data-l10n-id="log_filter"></label>
+		<div class="mb-3">
+			<label class="form-label" data-l10n-id="log_filter"></label>
 			<div class="input-group">
 				<input data-bind="value:filter" type="text" placeholder="FIELD=value FIELD=value" class="form-control">
-				<div class="input-group-append">
-					<button data-bind="click:()=>{filter('')}" class="btn btn-secondary"><i class="fas fa-times"></i></button>
-				</div>
+				<button data-bind="click:()=>{filter('')}" class="btn btn-secondary"><i class="fas fa-times"></i></button>
 			</div>
 		</div>
-		<div data-bind="if:pinned" class="form-group">
-			<label class="form-control-label" data-l10n-id="log_pinned"></label>
+		<div data-bind="if:pinned" class="mb-3">
+			<label class="form-label" data-l10n-id="log_pinned"></label>
 			<div class="input-group">
 				<input data-bind="value:pinned().message, click:()=>{pinned().show()}" type="text" class="form-control" style="cursor:pointer" readonly>
-				<div class="input-group-append">
-					<button data-bind="click:()=>{pin(null)}" class="btn btn-secondary"><i class="fas fa-times"></i></button>
-				</div>
+				<button data-bind="click:()=>{pin(null)}" class="btn btn-secondary"><i class="fas fa-times"></i></button>
 			</div>
 		</div>
 		
-		<p class="mt-auto">
-			<button data-bind="click:extendOlder" class="btn btn-secondary btn-block" data-l10n-id="log_extendOlder"></button>
-		</p>
+		<button data-bind="click:extendOlder" class="btn btn-secondary w-100 mt-auto mb-3" data-l10n-id="log_extendOlder"></button>
 		<!-- /ko -->
 	</div>
 	
-	<div class="col-xl h-100 overflow-auto" id="log">
+	<div class="col-xl h-100 overflow-scroll" id="log">
 		<div data-bind="hidden:messages().length" class="alert alert-info" data-l10n-id="log_empty"></div>
 		
 		<table class="table table-sm table-hover">
@@ -114,12 +100,12 @@
 				<tr data-bind="click:()=>{details(details()?0:1)}, class:$model.priorityCss[msg.PRIORITY], id:elementId">
 					<td><span data-bind="text:timestamp()"></span>
 						<!-- ko if:details() && $model.desktop -->
-						<p class="mt-3">
+						<div class="my-3 d-grid gap-2">
 							<button data-bind="click:()=>{details(details()+1)}, clickBubble:false"
-								class="btn btn-light btn-block"><i class="fas fa-plus-circle"></i></button>
+								class="btn btn-light"><i class="fas fa-plus-circle"></i></button>
 							<button data-bind="click:$model.pin, clickBubble:false"
-								class="btn btn-light btn-block"><i class="fas fa-thumbtack"></i></button>
-						</p>
+								class="btn btn-light"><i class="fas fa-thumbtack"></i></button>
+						</div>
 						<!-- /ko -->
 					</td>
 					<td data-bind="text:$model.priorityNames[msg.PRIORITY]"></td>

@@ -45,12 +45,12 @@ log_empty = No messages available
 log_extlogImport = Import file
 
 update = Update
-update-version = Current version
-update-version-name = Version
-update-version-id = ID
-update-file = Update from file
-update-revert = Revert last update
-update-revert-date = Date of last update
+update_version = Current version
+update_versionName = Version
+update_versionId = ID
+update_file = Update from file
+update_revert = Revert last update
+update_revertDate = Date of last update
 
 
 remote = Remote access
@@ -63,7 +63,6 @@ remote_disable = Deactivate
 issue = Issue report
 issue_description = Issue description
 issue_contact = Contact person
-issue_contactName = Name
 issue_contactEmail = Email address
 issue_contactTelephone = Telephone number
 issue_download = Download (send via external email client)

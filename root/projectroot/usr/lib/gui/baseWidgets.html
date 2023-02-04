@@ -18,19 +18,21 @@
 
 
 <script type="text/html" id="navBar">
-	<nav class="navbar navbar-expand-md fixed-top navbar-light bg-light">
-		<a href="#" class="navbar-brand">
-			<!-- ko if:$component.image -->
-				<img data-bind="src:$component.image" height="22" class="d-inline-block align-baseline"/>
-			<!-- /ko -->
-			<!-- ko if:!$component.image -->
-				<span data-l10n-id="title"></span>
-			<!-- /ko -->
-		</a>
-		<button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
-			<span class="navbar-toggler-icon"></span>
-		</button>
-		<div data-bind="template:{nodes:$componentTemplateNodes}" class="collapse navbar-collapse" id="navbar-collapse"></div>
+	<nav class="navbar navbar-expand-lg fixed-top bg-light">
+		<div class="container-fluid">
+			<a href="#" class="navbar-brand">
+				<!-- ko if:$component.image -->
+					<img data-bind="src:$component.image" height="22" class="d-inline-block align-baseline"/>
+				<!-- /ko -->
+				<!-- ko if:!$component.image -->
+					<span data-l10n-id="title"></span>
+				<!-- /ko -->
+			</a>
+			<button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-collapse">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div data-bind="template:{nodes:$componentTemplateNodes}" class="collapse navbar-collapse navbar-nav-scroll" id="navbar-collapse"></div>
+		</div>
 	</nav>
 </script>
 <script>ko.components.register('navbar', {template:{element:'navBar'}})</script>
@@ -55,15 +57,15 @@
 
 <script type="text/html" id="navDropdown">
 	<div class="nav-item dropdown">
-		<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+		<a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
 			<!-- ko if:$component.icon -->
 				<i class="fas" data-bind="class:'fa-'+$component.icon"></i>
 			<!-- /ko -->
 			<!-- ko if:$component.l10n -->
-			<span data-bind="l10n:$component.l10n, class:$component.icon?'d-none d-xl-inline':''"></span>
+			<span data-bind="l10n:$component.l10n, class:$component.icon?'d-none d-xxl-inline':''"></span>
 			<!-- /ko -->
 		</a>
-		<div data-bind="template:{nodes:$componentTemplateNodes}, css:{'dropdown-menu-right':$component.right}" class="dropdown-menu"></div>
+		<div data-bind="template:{nodes:$componentTemplateNodes}, css:{'dropdown-menu-end':$component.right}" class="dropdown-menu"></div>
 	</div>
 </script>
 <script>ko.components.register('navdropdown', {template:{element:'navDropdown'}})</script>
@@ -88,7 +90,7 @@
 
 <script type="text/html" id="breadcrumb">
 	<ol data-bind="visible:$root.breadcrumb, foreach:$root.breadcrumb" class="breadcrumb">
-		<li class="breadcrumb-item">
+		<li class="breadcrumb-item active">
 			<a data-bind="attr:{'href':$data.href}, l10n:$data.l10n, text:$data.text"></a>
 		</li>
 	</ol>
@@ -97,7 +99,7 @@
 
 
 <script type="text/html" id="navChildrenTabs">
-	<ul data-bind="foreach:$page.children" class="nav nav-tabs nav-justified mb-3">
+	<ul data-bind="foreach:$page.children" class="nav nav-tabs nav-fill mb-4">
 		<li class="nav-item">
 			<a data-bind="page-href:$data, css:{active:isVisible}, l10n:($parent.l10n?$parent.l10n+'_':'')+getId()" class="nav-link"></a>
 		</li>
@@ -105,9 +107,16 @@
 </script>
 <script>ko.components.register('navchildrentabs', {template:{element:'navChildrenTabs'}})</script>
 
+<script type="text/html" id="buttonBar">
+	<!-- ko using:$parent -->
+	<div data-bind="template:{nodes:$componentTemplateNodes}" class="py-3"></div>
+	<!-- /ko -->
+</script>
+<script>ko.components.register('buttonbar', {template:{element:'buttonBar'}})</script>
+
 
 <script type="text/html" id="uploadButton">
-	<label data-bind="class:css" class="btn mt-2">
+	<label data-bind="class:css" class="btn">
 		<span data-bind="l10n:l10n"></span>
 		<input type="file" data-bind="event:{change:()=>{upload($element.files[0]);$element.value=null;}}" hidden>
 	</label>
@@ -116,6 +125,10 @@
 
 
 <script>
+ko.bindingHandlers.draw = {update: function (element, valueAccessor) {
+	element.style.visibility = ko.utils.unwrapObservable(valueAccessor()) ? 'visible' : 'hidden';
+}};
+
 ko.bindingHandlers.clickConfirm = {
 	init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
 		return ko.bindingHandlers.click.init.call(this, element, function() {
