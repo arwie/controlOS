@@ -14,15 +14,15 @@ PACKAGES-$(PTXCONF_RUCKIG) += ruckig
 #
 # Paths and names
 #
-RUCKIG_VERSION		:= 0.7.1
-RUCKIG_MD5		:= 53a16b7db082cd0b01dc0df3f79a3ff5
+RUCKIG_VERSION		:= 0.9.2
+RUCKIG_MD5		:= d54e31e8b3f67b5faca4111ac1f57277
 RUCKIG			:= ruckig-$(RUCKIG_VERSION)
 RUCKIG_SUFFIX		:= tar.gz
 RUCKIG_URL		:= https://github.com/pantor/ruckig/archive/refs/tags/v$(RUCKIG_VERSION).$(RUCKIG_SUFFIX)
 RUCKIG_SOURCE		:= $(SRCDIR)/$(RUCKIG).$(RUCKIG_SUFFIX)
 RUCKIG_DIR		:= $(BUILDDIR)/$(RUCKIG)
-RUCKIG_LICENSE		:= unknown
-RUCKIG_LICENSE_FILES	:=
+RUCKIG_LICENSE		:= MIT
+RUCKIG_LICENSE_FILES	:= LICENSE
 
 # ----------------------------------------------------------------------------
 # Prepare
