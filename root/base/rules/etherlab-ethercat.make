@@ -62,6 +62,7 @@ $(STATEDIR)/etherlab-ethercat.targetinstall:
 
 	@$(call install_alternative, etherlab-ethercat, 0, 0, 0644, /etc/ethercat.conf)
 	@$(call install_alternative, etherlab-ethercat, 0, 0, 0644, /usr/lib/systemd/system/ethercat.service)
+	@$(call install_alternative, etherlab-ethercat, 0, 0, 0644, /usr/lib/systemd/system/sys-subsystem-net-devices-ethercat.device)
 
 	@$(call install_finish, etherlab-ethercat)
 

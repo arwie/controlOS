@@ -2104,8 +2104,11 @@ PTXCONF_XZ_TOOLS=y
 # PTXCONF_BLUEZ is not set
 # PTXCONF_CKERMIT is not set
 # PTXCONF_EFAX is not set
+# PTXCONF_ETHERLAB_ETHERCAT_MODULES is not set
+# PTXCONF_ETHERLAB_ETHERCAT is not set
 # PTXCONF_HEIRLOOM_MAILX is not set
 # PTXCONF_IMX_UUC is not set
+# PTXCONF_LELY_CANOPEN is not set
 # PTXCONF_LIBSERIALPORT is not set
 # PTXCONF_LIBSOCKETCAN is not set
 # PTXCONF_LIBUSBGX is not set
@@ -2421,6 +2424,7 @@ PTXCONF_DBUS_SYSTEMD_UNIT=y
 # PTXCONF_LIBMODBUS is not set
 # PTXCONF_LIBMODBUS3 is not set
 # PTXCONF_LIBPV is not set
+# PTXCONF_RUCKIG is not set
 # end of Scientific Apps               
 
 #
