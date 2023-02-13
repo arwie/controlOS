@@ -22,6 +22,13 @@ from tornado import websocket
 import os, subprocess, re
 
 
+pages = []
+
+from pathlib import Path
+__all__ = [m.stem for m in Path(__file__).parent.glob('*.py') if not m.match('__*__.py')]
+from . import *
+
+
 
 class StatusHandler(server.WebSocketHandler):
 	async def sendStatus(self):
@@ -102,25 +109,8 @@ class WlanLanHandler(LanHandler):
 
 
 
-class SmtpHandler(server.RequestHandler):
-	def get(self):
-		if network.smtpEnabled():
-			self.write(Conf(network.smtpConfFile).dict())
-		else:
-			self.write({})
-	
-	def post(self):
-		if self.request.body:
-			Conf(network.smtpConfFile, self.readJson()).save()
-		else:
-			try: os.remove(network.smtpConfFile)
-			except OSError: pass
-
-
-
 server.addAjax(__name__+'/status',		StatusHandler)
 server.addAjax(__name__+'/syswlan',		SyswlanHandler)
 server.addAjax(__name__+'/lan',			LanHandler)
 server.addAjax(__name__+'/wlan',		WlanHandler)
 server.addAjax(__name__+'/wlan/lan',	WlanLanHandler)
-server.addAjax(__name__+'/smtp',		SmtpHandler)

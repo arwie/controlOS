@@ -20,12 +20,12 @@
 
 
 
-{% block html %}{% from shared import network %}
+{% block html %}
 <navChildrenTabs params="l10n:'network'"></navChildrenTabs>
 
 {% module page("network/status.html", start=True) %}
 
-{% if network.hasInterface('syswlan') %}
+<!-- ko if:$root.isState('network@syswlan') -->
 <div data-bind="page:{id:'syswlan', with:syswlan}">
 	<div class="mb-3 form-check form-switch">
 		<input data-bind="checked:enabled" type="checkbox" id="network_syswlanEnabled" class="form-check-input">
@@ -55,18 +55,18 @@
 		<button data-bind="click:save" class="btn btn-primary" data-l10n-id="network_save"></button>
 	</buttonBar>
 </div>
-{% end %}
+<!-- /ko -->
 
 <script type="text/html" id="network_lan">
 	<div class="mb-3">
 		<radiogroup>
-			<div class="form-check form-check-inline">
-				<input data-bind="checked:conf.Network.DHCP" type="radio" value="yes" id="network_lanDhcpYes" class="form-check-input">
-				<label class="form-check-label" for="network_lanDhcpYes" data-l10n-id="network_dhcp"></label>
+			<div class="form-check form-check-inline" data-bind="let:{id:'network_lanDhcpYes'+handler}">
+				<input data-bind="checked:conf.Network.DHCP, id:id" type="radio" value="yes" class="form-check-input">
+				<label data-bind="attr:{'for':id}" class="form-check-label" data-l10n-id="network_dhcp"></label>
 			</div>
-			<div class="form-check form-check-inline">
-				<input data-bind="checked:conf.Network.DHCP" type="radio" value="no" id="network_lanDhcpNo" class="form-check-input">
-				<label class="form-check-label" for="network_lanDhcpNo" data-l10n-id="network_maunal"></label>
+			<div class="form-check form-check-inline" data-bind="let:{id:'network_lanDhcpNo'+handler}">
+				<input data-bind="checked:conf.Network.DHCP, id:id" type="radio" value="no" class="form-check-input">
+				<label data-bind="attr:{'for':id}" class="form-check-label" data-l10n-id="network_maunal"></label>
 			</div>
 		</radiogroup>
 	</div>
@@ -92,18 +92,18 @@
 	</div>
 </script>
 
-{% if network.hasInterface('lan') %}
+<!-- ko if:$root.isState('network@lan') -->
 <div data-bind="page:{id:'lan', with:lan}">
 	<div data-bind="template:{name:'network_lan'}"></div>
 	<buttonBar>
 		<button data-bind="click:save" class="btn btn-primary" data-l10n-id="network_save"></button>
 	</buttonBar>
 </div>
-{% end %}
+<!-- /ko -->
 
-{% if network.hasInterface('wlan') %}
+<!-- ko if:$root.isState('network@wlan') -->
 <div data-bind="page:{id:'wlan', with:wlan}">
-	<div class="mb-3 form-check">
+	<div class="mb-3 form-check form-switch">
 		<input data-bind="checked:enabled" type="checkbox" id="network_wlanEnabled" class="form-check-input">
 		<label class="form-check-label" for="network_wlanEnabled" data-l10n-id="network_enabled"></label>
 	</div>
@@ -122,9 +122,12 @@
 		<button data-bind="click:save" class="btn btn-primary" data-l10n-id="network_save"></button>
 	</buttonBar>
 </div>
-{% end %}
+<!-- /ko -->
 
-{% module page("network/smtp.html") %}
+{% import network %}
+{% for page in network.pages %}
+	{% module page("network/{}.html".format(page)) %}
+{% end %}
 
 {% end %}
 

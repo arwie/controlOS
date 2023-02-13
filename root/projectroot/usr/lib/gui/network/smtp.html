@@ -1,5 +1,5 @@
 {% comment 
-# Copyright (c) 2017 Artur Wiebe <artur@4wiebe.de>
+# Copyright (c) 2023 Artur Wiebe <artur@4wiebe.de>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 # associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -81,11 +81,11 @@ class {
 	}
 	
 	save() {
-		$.post(ajaxUrl('network/smtp'), this.enabled() ? ko.mapping.toJSON(this.conf) : '');
+		$.post(ajaxUrl('network.smtp'), this.enabled() ? ko.mapping.toJSON(this.conf) : '');
 	}
 	
 	start() {
-		$.getJSON(ajaxUrl('network/smtp'), (data)=>{
+		$.getJSON(ajaxUrl('network.smtp'), (data)=>{
 			this.enabled(!$.isEmptyObject(data));
 			if (this.enabled())
 				ko.mapping.fromJS(data, this.conf);
