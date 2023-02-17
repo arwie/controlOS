@@ -37,9 +37,6 @@ $(STATEDIR)/system.targetinstall:
 	@$(call install_alternative, system, 0, 0, 0644, /usr/lib/systemd/system/etc.mount.d/etc.conf)
 	@$(call install_alternative, system, 0, 0, 0644, /etc/tmpfiles.d/system.conf)
 	@$(call install_alternative, system, 0, 0, 0755, /usr/sbin/reboot-kexec)
-	
-	# firmware blobs
-	@$(call install_alternative_tree, system, 0, 0, /usr/lib/firmware)
 
 	# networking
 	@$(call install_copy,        system, 0, 0, 0700, /etc/polkit-1/localauthority)
