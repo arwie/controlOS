@@ -5,7 +5,4 @@ Host *
   ServerAliveInterval 20
   LogLevel ERROR
 
-Host mc
-  User mc
-  PasswordAuthentication no
-  ConnectTimeout 1
+Include ssh_config.d/*

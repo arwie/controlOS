@@ -136,7 +136,7 @@
 {% block script %} {% set extlog = globals().get('extlog', False) %}
 class Message {
 	constructor(msg) {
-		if (Array.isArray(msg.MESSAGE)) {
+		if (this.isBlob(msg.MESSAGE)) {
 			this.message = 'blob';
 		} else {
 			this.message = msg.MESSAGE;
@@ -173,11 +173,15 @@ class Message {
 	}
 	value(field) {
 		const value = this.msg[field];
-		if (value===null || Array.isArray(value) || value.length>1024) {
+		if (this.isBlob(value)) {
 			const url = ajaxUrl(`log/cat/${field}/${this.msg.__CURSOR}`);
 			return `<a download href="${url}">Download</a>`;
 		}
 		return value;
+	}
+	
+	isBlob(value) {
+		return value===null || Array.isArray(value) || value.length>2048;
 	}
 	
 	show(block='center', open=true) {
