@@ -2466,6 +2466,7 @@ PTXCONF_DBUS_SYSTEMD_UNIT=y
 # PTXCONF_GNUPLOT is not set
 # PTXCONF_LIBMODBUS is not set
 # PTXCONF_LIBMODBUS3 is not set
+# PTXCONF_OPENIMC is not set
 # PTXCONF_RUCKIG is not set
 # end of Scientific Apps               
 

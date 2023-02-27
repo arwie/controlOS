@@ -1,0 +1,9 @@
+## SECTION=scientific
+
+config OPENIMC
+	tristate
+	select RUCKIG
+	select PYTHON3
+	prompt "openIMC"
+	help
+	  FIXME
