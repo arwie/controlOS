@@ -14,7 +14,7 @@ PACKAGES-$(PTXCONF_OPENIMC) += openimc
 #
 # Paths and names
 #
-OPENIMC_VERSION		:= 0.1
+OPENIMC_VERSION		:= 0.1.0
 #OPENIMC_MD5		:=
 OPENIMC			:= openimc-$(OPENIMC_VERSION)
 OPENIMC_SUFFIX		:= 
@@ -38,6 +38,10 @@ OPENIMC_CONF_TOOL	:= cargo
 #OPENIMC_CONF_OPT	:= 
 OPENIMC_MAKE_ENV	= $(CROSS_ENV) \
 	RUSTFLAGS="-L native=$(PTXDIST_SYSROOT_TARGET)/usr/lib" \
+	LIBCLANG_PATH="${PTXDIST_SYSROOT_TOOLCHAIN}/../lib" \
+	CPATH="$(PTXDIST_SYSROOT_TARGET)/usr/include" \
+	ETHERCAT_PATH=$(ETHERLAB_ETHERCAT_DIR) \
+	PYO3_CROSS_LIB_DIR="$(PTXDIST_SYSROOT_TARGET)/usr/lib" \
 	PYO3_PYTHON=python$(PYTHON3_MAJORMINOR)
 
 # ----------------------------------------------------------------------------

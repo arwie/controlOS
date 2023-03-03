@@ -2,7 +2,7 @@
 
 config ETHERLAB_ETHERCAT
 	tristate
-	select ETHERLAB_ETHERCAT_MODULES	if RUNTIME
+	select ETHERLAB_ETHERCAT_MODULES
 	prompt "etherlab-ethercat"
 	help
 	  IgH EtherLab EtherCAT(R) Master 
