@@ -2473,6 +2473,7 @@ PTXCONF_DBUS_SYSTEMD_UNIT=y
 #
 # Web Applications              
 #
+PTXCONF_GUI_BOOTSTRAP=y
 # PTXCONF_JVISU is not set
 # end of Web Applications              
 
