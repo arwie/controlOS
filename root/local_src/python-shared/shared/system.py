@@ -21,10 +21,11 @@ import subprocess
 
 def run(cmd, capture=False, **kwargs):
 	kwargs.setdefault('check', True)
+	kwargs.setdefault('stderr', subprocess.PIPE)
 	if capture:
 		kwargs['stdout'] = subprocess.PIPE
 	try:
-		proc = subprocess.run(cmd, shell=isinstance(cmd, str), stderr=subprocess.PIPE, **kwargs)
+		proc = subprocess.run(cmd, shell=isinstance(cmd, str), **kwargs)
 		return proc.stdout if capture else proc
 	except subprocess.CalledProcessError as e:
 		errorText = e.stderr if (e.stderr or capture or not e.stdout) else e.stdout

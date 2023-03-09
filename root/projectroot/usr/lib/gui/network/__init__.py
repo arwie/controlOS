@@ -1,4 +1,4 @@
-# Copyright (c) 2017 Artur Wiebe <artur@4wiebe.de>
+# Copyright (c) 2023 Artur Wiebe <artur@4wiebe.de>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 # associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -15,16 +15,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-import server, asyncio
+import server, asyncio, re
 from shared.conf import Conf
 from shared import network, system
 from tornado import websocket
-import os, subprocess, re
+from pathlib import Path
 
 
 pages = []
 
-from pathlib import Path
 __all__ = [m.stem for m in Path(__file__).parent.glob('*.py') if not m.match('__*__.py')]
 from . import *
 
@@ -48,28 +47,25 @@ class StatusHandler(server.WebSocketHandler):
 
 
 class SyswlanHandler(server.RequestHandler):
-	def initialize(self):
-		self.confFile = '/etc/hostapd.conf.d/local.conf'
+	confFile = Path('/etc/hostapd/local.conf')
 	
 	def get(self):
-		if os.path.isfile(self.confFile):
-			self.write(Conf(self.confFile, section='x').dict('x'))
-		else:
-			self.write({})
+		self.writeJson(Conf(self.confFile, section='x').dict('x') if self.confFile.is_file() else None)
 	
 	def post(self):
 		if self.request.body:
-			Conf(self.confFile, self.readJson(), section='x').save('x')
+			data = self.readJson()
+			if not data['wpa_passphrase'].strip():
+				del data['wpa_passphrase']
+			Conf(self.confFile, data, section='x').save('x')
 		else:
-			try: os.remove(self.confFile)
-			except OSError: pass
+			self.confFile.unlink(missing_ok=True)
 		system.restart('hostapd.service')
 
 
 
 class LanHandler(server.RequestHandler):
-	def initialize(self):
-		self.confFile = '/etc/systemd/network/lan.network.d/local.conf'
+	confFile = Path('/etc/systemd/network/lan.network.d/local.conf')
 	
 	def get(self):
 		self.write(Conf(self.confFile).dict())
@@ -81,31 +77,31 @@ class LanHandler(server.RequestHandler):
 
 
 class WlanHandler(server.RequestHandler):
-	def initialize(self):
-		self.confFile = '/etc/wpa_supplicant.conf.d/local.conf'
+	confFile = Path('/etc/wpa_supplicant.conf.d/local.conf')
+	re_ssid = re.compile(r'ssid="(.*)"')
 	
 	def get(self):
-		if os.path.isfile(self.confFile):
-			match = re.compile(r'ssid="(.*)"').search(open(self.confFile, encoding='utf8').read())
-			if match:
-				self.write({'ssid':match.group(1)})
+		if self.confFile.is_file():
+			try:
+				ssid = self.re_ssid.search(self.confFile.read_text()).group(1)
+			except:
+				ssid = ''
+			self.write({'ssid':ssid})
 		else:
-			self.write({})
+			self.writeJson(None)
 	
 	def post(self):
 		if self.request.body:
 			data = self.readJson()
 			with open(self.confFile, 'wb') as f:
-				subprocess.run(['wpa_passphrase', data['ssid'].encode(), data['psk'].encode()], stdout=f, check=True)
+				system.run(['wpa_passphrase', data['ssid'].encode(), data['psk'].encode()], stdout=f)
 		else:
-			try: os.remove(self.confFile)
-			except OSError: pass
+			self.confFile.unlink(missing_ok=True)
 		system.restart('wpa_supplicant.service')
 
 
 class WlanLanHandler(LanHandler):
-	def initialize(self):
-		self.confFile = '/etc/systemd/network/wlan.network.d/local.conf'
+	confFile = Path('/etc/systemd/network/wlan.network.d/local.conf')
 
 
 

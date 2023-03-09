@@ -55,7 +55,7 @@
 		</div>
 		<div class="mb-3 col-md">
 			<label class="form-label" data-l10n-id="network_password"></label>
-			<input data-bind="value:conf.smtp.pass" type="text" class="form-control">
+			<input data-bind="value:conf.smtp.pass" type="password" class="form-control">
 		</div>
 	</div>
 </div>
@@ -86,7 +86,7 @@ class {
 	
 	start() {
 		$.getJSON(ajaxUrl('network.smtp'), (data)=>{
-			this.enabled(!$.isEmptyObject(data));
+			this.enabled(data!=null);
 			if (this.enabled())
 				ko.mapping.fromJS(data, this.conf);
 		});

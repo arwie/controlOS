@@ -44,11 +44,10 @@ $(STATEDIR)/system.targetinstall:
 	@$(call install_alternative_tree, system, 0, 0,  /etc/systemd/network)
 	@$(call install_alternative, system, 0, 0, 0644, /usr/lib/systemd/system/sys-subsystem-net-devices-lan.device)
 	@$(call install_alternative, system, 0, 0, 0644, /usr/lib/systemd/system/network@.target)
-	@$(call install_alternative_tree, system, 0, 0,  /etc/hostapd.conf.d)
 	@$(call install_alternative, system, 0, 0, 0644, /usr/lib/systemd/system/hostapd.service)
 	@$(call install_alternative, system, 0, 0, 0644, /usr/lib/systemd/system/hostapd-psk.service)
 	@$(call install_alternative, system, 0, 0, 0644, /usr/lib/systemd/system/sys-subsystem-net-devices-syswlan.device)
-	@$(call install_alternative_tree, system, 0, 0,  /etc/wpa_supplicant.conf.d)
+	@$(call install_copy,        system, 0, 0, 0755, /etc/wpa_supplicant.conf.d)
 	@$(call install_alternative, system, 0, 0, 0644, /usr/lib/systemd/system/sys-subsystem-net-devices-wlan.device)
 	
 	#gpg

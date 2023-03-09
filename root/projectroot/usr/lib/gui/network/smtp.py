@@ -19,7 +19,7 @@ from network import pages
 pages.append('smtp')
 
 
-import server, os
+import server
 from shared.conf import Conf
 from shared import network
 
@@ -28,16 +28,17 @@ from shared import network
 class SmtpHandler(server.RequestHandler):
 	def get(self):
 		if network.smtpEnabled():
-			self.write(Conf(network.smtpConfFile).dict())
+			data = Conf(network.smtpConfFile).dict()
+			del data['smtp']['pass']
+			self.writeJson(data)
 		else:
-			self.write({})
+			self.writeJson(None)
 	
 	def post(self):
 		if self.request.body:
 			Conf(network.smtpConfFile, self.readJson()).save()
 		else:
-			try: os.remove(network.smtpConfFile)
-			except OSError: pass
+			network.smtpConfFile.unlink(missing_ok=True)
 
 
 
