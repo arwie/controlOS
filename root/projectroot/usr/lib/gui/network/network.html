@@ -152,8 +152,8 @@ class syswlan {
 		});
 	}
 	
-	save() {
-		$.post(ajaxUrl('network/syswlan'), this.enabled() ? ko.mapping.toJSON(this.conf) : '');
+	save(ctx, ev) {
+		gui.feedback(ev.target, $.post(ajaxUrl('network/syswlan'), this.enabled() ? ko.mapping.toJSON(this.conf) : ''));
 	}
 }
 
@@ -179,7 +179,7 @@ class lan {
 		});
 	}
 	
-	save() {
+	save(ctx, ev) {
 		let conf = ko.mapping.toJS(this.conf);
 		if (conf.Network.DHCP == 'no') {
 			delete conf.DHCP;
@@ -188,7 +188,9 @@ class lan {
 			delete conf.Network.Gateway;
 			delete conf.Network.DNS;
 		}
-		$.post(ajaxUrl(this.handler), JSON.stringify(conf));
+		const action = $.post(ajaxUrl(this.handler), JSON.stringify(conf));
+		if (ev)
+			gui.feedback(ev.target, action);
 	}
 }
 
@@ -212,8 +214,8 @@ class wlan {
 		});
 	}
 	
-	save() {
-		$.post(ajaxUrl('network/wlan'), this.enabled() ? ko.mapping.toJSON(this.conf) : '');
+	save(ctx, ev) {
+		gui.feedback(ev.target, $.post(ajaxUrl('network/wlan'), this.enabled() ? ko.mapping.toJSON(this.conf) : ''));
 		if (this.enabled()) {
 			this.lan.save();
 		}

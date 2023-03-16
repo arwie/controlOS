@@ -80,8 +80,8 @@ class {
 		});
 	}
 	
-	save() {
-		$.post(ajaxUrl('network.smtp'), this.enabled() ? ko.mapping.toJSON(this.conf) : '');
+	save(ctx, ev) {
+		gui.feedback(ev.target, $.post(ajaxUrl('network.smtp'), this.enabled() ? ko.mapping.toJSON(this.conf) : ''));
 	}
 	
 	start() {

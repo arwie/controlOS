@@ -15,8 +15,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-import server
-import os, tempfile, subprocess, glob
+import server, tempfile
+from shared import system
+from pathlib import Path
 
 
 extlogDir = tempfile.TemporaryDirectory(prefix='office.', suffix='.extlog', dir='/var/tmp')
@@ -29,14 +30,13 @@ log.cmd = ['journalctl', '--file={}/*'.format(extlogDir.name)]
 class Handler(server.RequestHandler):
 	
 	def clearJournal(self):
-		for f in glob.glob('{}/*'.format(extlogDir.name)):
-			os.remove(f)
+		for f in Path(extlogDir.name).glob('*'):
+			f.unlink()
 	
 	def importJournal(self):
 		self.clearJournal()
-		subprocess.run(
-			'xzcat | /lib/systemd/systemd-journal-remote --output={}/extlog.journal -'.format(extlogDir.name),
-			shell=True,
+		system.run(
+			'set -o pipefail; xzcat | /lib/systemd/systemd-journal-remote --output={}/extlog.journal -'.format(extlogDir.name),
 			input=self.request.files['extlog'][0]['body']
 		)
 	

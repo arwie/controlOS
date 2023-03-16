@@ -118,7 +118,7 @@
 <script type="text/html" id="uploadButton">
 	<label data-bind="class:css" class="btn">
 		<span data-bind="l10n:l10n"></span>
-		<input type="file" data-bind="event:{change:()=>{upload($element.files[0]);$element.value=null;}}" hidden>
+		<input type="file" data-bind="event:{change:(ctx,ev)=>{upload($element.files[0], ev.target.parentElement);$element.value=null;}}" hidden>
 	</label>
 </script>
 <script>ko.components.register('uploadbutton', {template:{element:'uploadButton'}})</script>
@@ -214,4 +214,33 @@ ko.bindingHandlers.element = {update: function (element, valueAccessor) {
 	$(element).empty();
 	$(element).append(ko.utils.unwrapObservable(valueAccessor()));
 }};
+
+
+gui.feedback = function(element, action) {
+	let popover = bootstrap.Popover.getOrCreateInstance(element, {
+		container:	element.parentElement,
+		trigger:	'manual',
+		html:		true,
+		sanitize:	false,
+		placement:	'top',
+		animation:	false,
+		content:	'feedback',
+	});
+	popover.feedback ??= function(icon, busy) {
+		element.disabled = busy;
+		popover.hide();
+		popover.setContent({'.popover-body': icon});
+		popover.show();
+		if (!busy) {
+			popover.tip.tabIndex = 0;
+			popover.tip.onblur = ()=>popover.hide();
+			popover.tip.focus({preventScroll:true});
+		}
+	};
+	popover.feedback('<i class="fas fa-spinner fa-spin fs-4 text-primary"></i>', true);
+	return action.then(
+		()=>popover.feedback('<i class="fas fa-check-circle fs-4 text-success"></i>', false),
+		()=>popover.feedback('<i class="fas fa-times-circle fs-4 text-danger"></i>',  false)
+	);
+}
 </script>

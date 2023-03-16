@@ -58,20 +58,20 @@ class {
 		this.revertDate = ko.observable();
 	}
 	
-	upload(file) {
+	upload(file, element) {
 		let formData = new FormData();
 		formData.append('update', file);
-		$.ajax({
+		gui.feedback(element, $.ajax({
 			url: ajaxUrl('update'),
 			type: "put",
 			data: formData,
 			processData: false,
 			contentType: false,
-		});
+		}));
 	}
 	
-	revert() {
-		$.post(ajaxUrl('update/revert'));
+	revert(ctx, ev) {
+		gui.feedback(ev.target, $.post(ajaxUrl('update/revert')));
 	}
 	
 	start(started) {
