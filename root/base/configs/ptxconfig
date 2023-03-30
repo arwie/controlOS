@@ -183,10 +183,7 @@ PTXCONF_CROSS_PKG_CONFIG_WRAPPER=y
 # PTXCONF_PRELINK is not set
 # PTXCONF_PTXDIST_CONFIGS is not set
 # PTXCONF_RRDTOOL is not set
-
-#
-# busybox's ps is enabled: rtps disabled
-#
+PTXCONF_RTPS=y
 # PTXCONF_SP_OOPS_EXTRACT is not set
 # PTXCONF_STRACE is not set
 # PTXCONF_SYSSTAT is not set
@@ -1376,10 +1373,7 @@ PTXCONF_BUSYBOX_FEATURE_PIDOF_OMIT=y
 PTXCONF_BUSYBOX_PMAP=y
 PTXCONF_BUSYBOX_POWERTOP=y
 PTXCONF_BUSYBOX_FEATURE_POWERTOP_INTERACTIVE=y
-PTXCONF_BUSYBOX_PS=y
-PTXCONF_BUSYBOX_FEATURE_PS_TIME=y
-# PTXCONF_BUSYBOX_FEATURE_PS_UNUSUAL_SYSTEMS is not set
-PTXCONF_BUSYBOX_FEATURE_PS_ADDITIONAL_COLUMNS=y
+# PTXCONF_BUSYBOX_PS is not set
 PTXCONF_BUSYBOX_PSTREE=y
 PTXCONF_BUSYBOX_PWDX=y
 PTXCONF_BUSYBOX_SMEMCAP=y
@@ -1549,7 +1543,52 @@ PTXCONF_KEXEC_TOOLS=y
 # PTXCONF_PICOCOM is not set
 # PTXCONF_PNPUTILS is not set
 # PTXCONF_PPS_TOOLS is not set
-# PTXCONF_PROCPS is not set
+PTXCONF_PROCPS=y
+PTXCONF_PROCPS_WITH_SYSTEMD=y
+
+#
+# busybox' free is selected!
+#
+
+#
+# busybox' pgrep is selected!
+#
+
+#
+# busybox' pidof is selected!
+#
+
+#
+# busybox' pkill is selected!
+#
+
+#
+# busybox' pmap is selected!
+#
+PTXCONF_PROCPS_PS=y
+
+#
+# busybox' pwdx is selected!
+#
+# PTXCONF_PROCPS_SLABTOP is not set
+# PTXCONF_PROCPS_SYSCTL is not set
+
+#
+# busybox' top is selected!
+#
+
+#
+# busybox' uptime is selected!
+#
+# PTXCONF_PROCPS_VMSTAT is not set
+
+#
+# busybox' w is selected!
+#
+
+#
+# busybox' watch is selected!
+#
 # PTXCONF_PS3_UTILS is not set
 # PTXCONF_PSMISC is not set
 # PTXCONF_PV is not set
