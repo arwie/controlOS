@@ -1,4 +1,5 @@
-
 [Service]
 WorkingDirectory=/var/codesys
 ExecStart=/opt/codesys/bin/codesyscontrol.bin --debug --printlostcycles /etc/CODESYSControl.cfg
+
+CPUAffinity=1

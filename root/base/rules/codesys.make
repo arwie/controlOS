@@ -84,7 +84,6 @@ $(STATEDIR)/codesys.targetinstall:
 	@$(call install_tree, codesys, 0, 0, $(CODESYS_DIR)/opt, /opt)
 
 	@$(call install_alternative, codesys, 0, 0, 0644, /etc/CODESYSControl.cfg)
-	@$(call install_alternative, codesys, 0, 0, 0644, /etc/systemd/network/ethercat.network)
 	@$(call install_alternative, codesys, 0, 0, 0644, /etc/tmpfiles.d/codesys.conf)
 
 	@$(call install_alternative, codesys, 0, 0, 0644, /usr/lib/systemd/system/codesys.service)
