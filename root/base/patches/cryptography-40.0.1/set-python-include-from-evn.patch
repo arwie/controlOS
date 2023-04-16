@@ -1,0 +1,32 @@
+From 705e4987dcc1fa29ff24fc9b14bf3f8e45ed109f Mon Sep 17 00:00:00 2001
+From: Artur Wiebe <artur@4wiebe.de>
+Date: Fri, 14 Apr 2023 10:21:32 +0200
+Subject: [PATCH] set python include from evn
+
+---
+ src/rust/build.rs | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/src/rust/build.rs b/src/rust/build.rs
+index 01177ac..ddc2cab 100644
+--- a/src/rust/build.rs
++++ b/src/rust/build.rs
+@@ -43,10 +43,11 @@ fn main() {
+     )
+     .unwrap();
+     println!("cargo:rustc-cfg=python_implementation=\"{}\"", python_impl);
+-    let python_include = run_python_script(
+-        &python,
+-        "import sysconfig; print(sysconfig.get_path('include'), end='')",
+-    )
++//    let python_include = run_python_script(
++//        &python,
++//        "import sysconfig; print(sysconfig.get_path('include'), end='')",
++//    )
++    let python_include = env::var("PYTHON_INCLUDE")
+     .unwrap();
+     let openssl_include =
+         std::env::var_os("DEP_OPENSSL_INCLUDE").expect("unable to find openssl include path");
+-- 
+2.40.0
+

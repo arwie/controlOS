@@ -1,0 +1,15 @@
+## SECTION=python3
+
+config PYTHON3_CRYPTOGRAPHY
+	tristate
+	select HOST_PYTHON3_SETUPTOOLS_RUST
+	select HOST_PYTHON3_CFFI
+	select PYTHON3
+	select PYTHON3_SSL
+	select PYTHON3_CFFI			if RUNTIME
+	select LIBC_PTHREAD
+	select LIBC_CRYPT
+	prompt "cryptography"
+	help
+	  Cryptography is a package which provides cryptographic recipes and primitives to Python developers.
+	  Our goal is for it to be your “cryptographic standard library”
