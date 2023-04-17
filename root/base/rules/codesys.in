@@ -2,6 +2,10 @@
 
 config CODESYS
 	tristate
+	select LIBC_DL
+	select LIBC_PTHREAD
+	select LIBC_RT
+	select LIBC_M
 	prompt "codesys"
 	help
 	  CODESYS Control Linux SL is an IEC 61131-3-compliant SoftPLC
