@@ -1,0 +1,7 @@
+[Unit]
+Wants=systemd-networkd-wait-online@sys.service
+After=systemd-networkd-wait-online@sys.service
+
+[Service]
+SyslogIdentifier=app
+ExecStart=/usr/lib/app/app
