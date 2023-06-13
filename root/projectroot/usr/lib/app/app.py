@@ -15,18 +15,30 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-import shared
 import asyncio
+from shared import system
 import web
+import simio
+
+
+def run_in_executor(func, *args):
+	return asyncio.get_running_loop().run_in_executor(None, func, *args)
 
 
 
-async def main(app):
+def target(target, start=True):
+	run_in_executor(system.run, ['systemctl', '--no-block', 'start' if start else 'stop', f'app@{target}.target'])
+
+
+
+async def main(app_start):
 	web.start()
-	
-	await app
+	simio.start()
+
+	app_start()
+
+	await asyncio.Event().wait()	#run forever
 
 
-
-def start(app):
-	asyncio.run(main(app))
+def run(app_start):
+	asyncio.run(main(app_start))

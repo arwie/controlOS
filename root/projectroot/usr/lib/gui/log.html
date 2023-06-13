@@ -299,7 +299,7 @@ class {
 			args.filter = filter;
 		
 		function logWs(args, onMsg) {
-			const log = webSocket(wsUrl(null, null, 'log', args), onMsg);
+			const log = webSocket(wsUrl('log', null, null, args), onMsg);
 			if (!extend)
 				log.onopen = ()=>{
 					model.messages([]);
