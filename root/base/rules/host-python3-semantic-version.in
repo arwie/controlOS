@@ -1,6 +1,0 @@
-## SECTION=hosttools_noprompt
-
-config HOST_PYTHON3_SEMANTIC_VERSION
-	tristate
-	default y if ALLYES
-	select HOST_PYTHON3_SETUPTOOLS

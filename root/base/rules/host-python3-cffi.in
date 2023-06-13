@@ -1,8 +1,0 @@
-## SECTION=hosttools_noprompt
-
-config HOST_PYTHON3_CFFI
-	tristate
-	select HOST_PYTHON3
-	select HOST_PYTHON3_PYCPARSER
-	help
-	  Foreign Function Interface for Python calling C code.

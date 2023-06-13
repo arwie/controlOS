@@ -1,9 +1,0 @@
-## SECTION=python3
-
-config PYTHON3_SORTEDCONTAINERS
-	tristate
-	select PYTHON3
-	prompt "sortedcontainers"
-	help
-	  Sorted Containers is an Apache2 licensed sorted collections library,
-	  written in pure-Python, and fast as C-extensions.

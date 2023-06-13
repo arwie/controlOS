@@ -23,7 +23,7 @@ import json
 
 
 class UdpMaster(asyncio.DatagramProtocol):
-	def __init__(self, host, port, cycle_time, timeout):
+	def __init__(self, host, port, cycle_time, timeout=3):
 		self.address = (host, port)
 		self.cycle_time = cycle_time
 		self.timeout = timeout
