@@ -16,7 +16,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 %}
 
-{% import os,glob %}
+{% from pathlib import Path %}
 {% from shared.setup import setup %}
 
 
@@ -45,7 +45,7 @@
 	<script defer src="{{static_url('l20n.js')}}"></script>
 	<link rel="localization" href="{{ajax_url('locale/{locale}.ftl')}}">
 	<meta name="defaultLanguage" content="en">
-	<meta name="availableLanguages" content="{{','.join(sorted(os.path.splitext(os.path.basename(f))[0] for f in glob.glob('locale/*.ftl')))}}">
+	<meta name="availableLanguages" content="{{','.join(sorted(f.stem for f in Path('locale').glob('*.ftl')))}}">
 </head>
 
 
