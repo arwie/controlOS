@@ -15,6 +15,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+from contextlib import asynccontextmanager
 import asyncio
 from shared import system
 import web
@@ -25,20 +26,31 @@ def run_in_executor(func, *args):
 	return asyncio.get_running_loop().run_in_executor(None, func, *args)
 
 
-
-def target(target, start=True):
-	run_in_executor(system.run, ['systemctl', '--no-block', 'start' if start else 'stop', f'app@{target}.target'])
-
-
-
-async def main(app_start):
-	web.start()
-	simio.start()
-
-	app_start()
-
-	await asyncio.Event().wait()	#run forever
+@asynccontextmanager
+async def task(coro):
+	async with asyncio.TaskGroup() as tg:
+		t = tg.create_task(coro)
+		yield
+		t.cancel()
 
 
-def run(app_start):
-	asyncio.run(main(app_start))
+@asynccontextmanager
+async def target(target):
+	def systemctl(cmd):
+		return run_in_executor(system.run, ['systemctl', '--no-block', cmd, f'app@{target}.target'])
+
+	await systemctl('start')
+	yield
+	await systemctl('stop')
+	
+
+
+def run(app_run):
+	async def main():
+		async with (
+			web.exec(),
+			simio.exec(),
+		):
+			await app_run()
+
+	asyncio.run(main())

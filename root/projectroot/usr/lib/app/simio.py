@@ -15,6 +15,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+from __future__ import annotations
+from typing import get_type_hints
+from contextlib import asynccontextmanager
+import asyncio
 import json
 import web
 import app
@@ -30,7 +34,7 @@ class _Input:
 	def __init__(self, io):
 		_simio.append(self)
 		self.io = io
-		self.type = next(iter(io.__annotations__.values()))
+		self.type = next(iter(get_type_hints(io).values()))
 		self.override = None
 
 	def __str__(self):
@@ -82,37 +86,42 @@ def output(io):
 	return _Output(io)
 
 
-class _SimioHandler(web.WebSocketHandler):
-	task = web.WebSocketHandler.Task(0.25, lambda: json.dumps(
-		[{
+@web.handler(__name__)
+class SimioHandler(web.WebSocketHandler):
+
+	@staticmethod
+	def update_data():
+		return [{
 			'id':		id,
 			'ord':		simio.override,
 			'val':		simio._get(),
 		} for id,simio in enumerate(_simio)]
-	))
 
-	def open(self):
-		self.task.add_client(self)
-		self.write_message_json([
-			{
+	@classmethod
+	async def all_update(cls):
+		while True:
+			await asyncio.sleep(0.25)
+			cls.all_write_message_json(cls.update_data())
+
+	def on_open(self):
+		self.write_message_json(
+			[{
 				'id':		id,
 				'dir':		simio.direction,
 				'name':		str(simio),
 				'type':		simio.type.__name__,
 				'sim':		False,
-			} for id,simio in enumerate(_simio)
-		])
+			} for id,simio in enumerate(_simio)]
+		)
+		self.write_message_json(self.update_data())
 
-	def on_message(self, msg):
-		msg = json.loads(msg)
+	def on_message_json(self, msg):
 		_simio[msg['id']]._override(msg['ord'])
-
-	def on_close(self):
-		self.task.remove_client(self)
+		self.all_write_message_json(self.update_data())
 
 
-web.add_handler(__name__, _SimioHandler)
 
-
-def start():
-	app.target(__name__)
+@asynccontextmanager
+async def exec():
+	async with app.target(__name__):
+		yield

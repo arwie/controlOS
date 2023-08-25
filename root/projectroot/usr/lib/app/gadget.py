@@ -27,7 +27,6 @@ class UdpMaster(asyncio.DatagramProtocol):
 		self.address = (host, port)
 		self.cycle_time = cycle_time
 		self.timeout = timeout
-		self._on_timeout = None
 
 		self.connected = False
 		self.cmd = {}
@@ -43,7 +42,7 @@ class UdpMaster(asyncio.DatagramProtocol):
 		self._on_timeout = asyncio.get_running_loop().time() + self.timeout
 
 	def start(self):
-		asyncio.create_task(self._run())
+		self._task = asyncio.create_task(self._run())
 
 	def on_send(self):
 		pass
