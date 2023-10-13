@@ -15,42 +15,40 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-from contextlib import asynccontextmanager
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+	from typing import Callable
+	from contextlib import AbstractAsyncContextManager
+
 import asyncio
-from shared import system
-import web
-import simio
+import signal
+
+from .app import *
+
+from . import web
+from . import simio
+from .simio import input, output
 
 
-def run_in_executor(func, *args):
-	return asyncio.get_running_loop().run_in_executor(None, func, *args)
 
+def run(main:Callable[[], AbstractAsyncContextManager]):
+	exit_event = asyncio.Event()
 
-@asynccontextmanager
-async def task(coro):
-	async with asyncio.TaskGroup() as tg:
-		t = tg.create_task(coro)
-		yield
-		t.cancel()
+	def signal_handler(signum, frame):
+		log.warning(f'Received signal {signum} -> app is going to exit...')
+		exit_event.set()
 
+	signal.signal(signal.SIGINT,  signal_handler)
+	signal.signal(signal.SIGTERM, signal_handler)
 
-@asynccontextmanager
-async def target(target):
-	def systemctl(cmd):
-		return run_in_executor(system.run, ['systemctl', '--no-block', cmd, f'app@{target}.target'])
-
-	await systemctl('start')
-	yield
-	await systemctl('stop')
-	
-
-
-def run(app_run):
-	async def main():
+	async def app_main():
 		async with (
-			web.exec(),
+			web.server(),
 			simio.exec(),
 		):
-			await app_run()
+			async with main():
+				await exit_event.wait()
 
-	asyncio.run(main())
+	asyncio.run(app_main())
+	exit(0)

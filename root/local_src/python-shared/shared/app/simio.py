@@ -16,29 +16,31 @@
 
 
 from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+	from typing import TypeVar
+	from collections.abc import Callable
+	SimioTypes = TypeVar('SimioTypes', bool, int, float, str)
+
 from typing import get_type_hints
-from contextlib import asynccontextmanager
-import asyncio
-import json
-import web
-import app
+from contextlib import AbstractContextManager
+from . import app
+from . import web
 
 
 
-_simio = []
+_simio:list[Input | Output] = []
 
 
-class _Input:
+class Input:
 	direction = 'in'
 
 	def __init__(self, io):
 		_simio.append(self)
+		self.name = f"{str(io.__module__).strip('_')}.{io.__name__}"
 		self.io = io
 		self.type = next(iter(get_type_hints(io).values()))
 		self.override = None
-
-	def __str__(self):
-		return f'{self.io.__module__}.{self.io.__name__}'
 
 	def _get(self):
 		return self.type(self.io())
@@ -50,11 +52,11 @@ class _Input:
 		except Exception:
 			return False
 
-	def __call__(self):
+	def __call__(self) -> SimioTypes:
 		return self._get() if self.override is None else self.override
 
 
-class _Output(_Input):
+class Output(Input, AbstractContextManager):
 	direction = 'out'
 
 	def __init__(self, io):
@@ -72,56 +74,55 @@ class _Output(_Input):
 		self.io(value)
 
 	def __call__(self, value=None):
-		if value is None:
-			return self.value
-		self.value = self.type(value)
+		self.value = self.type() if value is None else self.type(value)
 		if self.override is None:
 			self._set(self.value)
+		return self
 
-
-def input(io):
-	return _Input(io)
-
-def output(io):
-	return _Output(io)
-
-
-@web.handler(__name__)
-class SimioHandler(web.WebSocketHandler):
-
-	@staticmethod
-	def update_data():
-		return [{
-			'id':		id,
-			'ord':		simio.override,
-			'val':		simio._get(),
-		} for id,simio in enumerate(_simio)]
-
-	@classmethod
-	async def all_update(cls):
-		while True:
-			await asyncio.sleep(0.25)
-			cls.all_write_message_json(cls.update_data())
-
-	def on_open(self):
-		self.write_message_json(
-			[{
-				'id':		id,
-				'dir':		simio.direction,
-				'name':		str(simio),
-				'type':		simio.type.__name__,
-				'sim':		False,
-			} for id,simio in enumerate(_simio)]
-		)
-		self.write_message_json(self.update_data())
-
-	def on_message_json(self, msg):
-		_simio[msg['id']]._override(msg['ord'])
-		self.all_write_message_json(self.update_data())
+	def __exit__(self, *exc):
+		self()
 
 
 
-@asynccontextmanager
+def input(io:Callable[[], SimioTypes]):
+	return Input(io)
+
+def output(io:Callable[[SimioTypes], None]):
+	return Output(io)
+
+
+
+SimioWebSocketPlaceholder = web.placeholder('simio')
+
+@app.context
 async def exec():
-	async with app.target(__name__):
-		yield
+
+	class SimioWebSocketHandler(web.WebSocketHandler):
+		@classmethod
+		def update(cls):
+			return [{
+				'id':		id,
+				'ord':		simio.override,
+				'val':		simio._get(),
+			} for id,simio in enumerate(_simio)]
+
+		def on_open(self):
+			self.write_message(
+				[{
+					'id':		id,
+					'dir':		simio.direction,
+					'name':		simio.name,
+					'type':		simio.type.__name__,
+					'sim':		False,
+				} for id,simio in enumerate(_simio)]
+			)
+			self.write_update()
+
+		def on_message_json(self, msg):
+			_simio[msg['id']]._override(msg['ord'])
+			self.all.write_update()
+
+	with SimioWebSocketPlaceholder.handle(SimioWebSocketHandler):
+		async with app.target('simio'):
+			async with app.task_group(SimioWebSocketHandler.all.update_loop()):
+				yield

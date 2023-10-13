@@ -1,5 +1,3 @@
-#!/usr/bin/python -Bu
-
 # Copyright (c) 2023 Artur Wiebe <artur@4wiebe.de>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
