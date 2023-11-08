@@ -14,12 +14,12 @@ PACKAGES-$(PTXCONF_GUI_JQUERY) += gui-jquery
 #
 # Paths and names
 #
-GUI_JQUERY_VERSION			:= 3.7.1
-GUI_JQUERY_MD5				:= 2c872dbe60f4ba70fb85356113d8b35e
-GUI_JQUERY					:= jquery-$(GUI_JQUERY_VERSION).min.js
-GUI_JQUERY_URL				:= https://code.jquery.com/$(GUI_JQUERY)
-GUI_JQUERY_SOURCE			:= $(SRCDIR)/$(GUI_JQUERY)
-GUI_JQUERY_LICENSE			:= MIT
+GUI_JQUERY_VERSION	:= 3.7.1
+GUI_JQUERY_MD5		:= 2c872dbe60f4ba70fb85356113d8b35e
+GUI_JQUERY		:= jquery-$(GUI_JQUERY_VERSION).min.js
+GUI_JQUERY_URL		:= https://code.jquery.com/$(GUI_JQUERY)
+GUI_JQUERY_SOURCE	:= $(SRCDIR)/$(GUI_JQUERY)
+GUI_JQUERY_LICENSE	:= MIT
 
 # ----------------------------------------------------------------------------
 # Compile
