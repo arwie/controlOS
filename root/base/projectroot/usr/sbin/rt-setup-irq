@@ -17,10 +17,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-import logging
 from argparse import ArgumentParser
 from pathlib import Path
-from shared import system
+from shared import log, system
 
 
 parser = ArgumentParser()
@@ -47,7 +46,7 @@ procs = system.run(['pgrep','-l', f'irq/[0-9]*-{args.name}'], True, text=True).r
 for proc in procs:
 	proc = proc.split()
 	
-	logging.info(f'Setting rt-priority {args.priority} and cpu affinity {args.affinity} for {proc[1]}')
+	log.info(f'Setting rt-priority {args.priority} and cpu affinity {args.affinity} for {proc[1]}')
 
 	#set priority
 	pid = proc[0]
