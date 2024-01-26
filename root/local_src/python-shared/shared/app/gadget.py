@@ -35,11 +35,10 @@ class UdpMaster(asyncio.DatagramProtocol):
 		self.sync_event = app.Event()
 		self.sync = self.sync_event.wait
 
+
 	def connection_made(self, transport):
 		pass
 
-	def on_timeout(self):
-		app.log.warning('gadget disconnected')
 
 	def datagram_received(self, data, addr):
 		self.fbk.update(json.loads(data.decode()))
@@ -47,17 +46,22 @@ class UdpMaster(asyncio.DatagramProtocol):
 		self.sync_event.trigger()
 		self.timeout.reset()
 
+
 	@asynccontextmanager
 	async def exec(self):
 		transport,_ = await asyncio.get_running_loop().create_datagram_endpoint(lambda:self, remote_addr=self.address)
+		try:
 
-		async def loop():
-			while True:
-				await asyncio.sleep(self.cycle_time)
-				transport.sendto(json.dumps(self.cmd).encode())
-				if self.connected and self.timeout():
-					self.connected = False
-					self.on_timeout()
+			async def loop():
+				while True:
+					await asyncio.sleep(self.cycle_time)
+					transport.sendto(json.dumps(self.cmd).encode())
+					if self.connected and self.timeout():
+						self.connected = False
+						app.log.warning(f'gadget {self.address} disconnected')
 
-		async with app.task_group(loop()):
-			yield
+			async with app.task_group(loop()):
+				yield
+
+		finally:
+			transport.close()
