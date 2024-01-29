@@ -25,7 +25,7 @@ PYTHON3_CRYPTOGRAPHY_CARGO_LOCK		:= src/rust/Cargo.lock
 # licenses for the rust dependencies are missing
 PYTHON3_CRYPTOGRAPHY_LICENSE		:= ( Apache-2.0 OR BSD-3-Clause ) AND unknown
 PYTHON3_CRYPTOGRAPHY_LICENSE_FILES	:= \
-	file://LICENSE;md5=bf405a8056a6647e7d077b0e7bc36aba \
+	file://LICENSE;md5=8c3617db4fb6fae01f1d253ab91511e4 \
 	file://LICENSE.APACHE;md5=4e168cce331e5c827d4c2b68a6200e1b \
 	file://LICENSE.BSD;md5=5ae30ba4123bc4f2fa49aa0b0dce887b
 
