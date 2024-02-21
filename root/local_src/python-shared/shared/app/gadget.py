@@ -56,7 +56,7 @@ class UdpMaster(asyncio.DatagramProtocol):
 				while True:
 					await asyncio.sleep(self.cycle_time)
 					transport.sendto(json.dumps(self.cmd).encode())
-					if self.connected and self.timeout():
+					if self.connected and self.timeout:
 						self.connected = False
 						app.log.warning(f'gadget {self.address} disconnected')
 

@@ -18,7 +18,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-	from typing import TypeVar
+	from typing import overload, TypeVar
 	from collections.abc import Callable
 	SimioTypes = TypeVar('SimioTypes', bool, int, float, str)
 
@@ -35,9 +35,9 @@ _simio:list[Input | Output] = []
 class Input:
 	direction = 'in'
 
-	def __init__(self, io):
+	def __init__(self, io, *, prefix=None):
 		_simio.append(self)
-		self.name = f"{str(io.__module__).strip('_')}.{io.__name__}"
+		self.name = '.'.join(p for p in (str(io.__module__).strip('_'), prefix, io.__name__) if p)
 		self.io = io
 		self.type = next(iter(get_type_hints(io).values()))
 		self.override = None
@@ -59,8 +59,8 @@ class Input:
 class Output(Input, AbstractContextManager):
 	direction = 'out'
 
-	def __init__(self, io):
-		super().__init__(io)
+	def __init__(self, io, **kwargs):
+		super().__init__(io, **kwargs)
 		self.value = self.type()
 
 	def _get(self):
@@ -84,11 +84,28 @@ class Output(Input, AbstractContextManager):
 
 
 
-def input(io:Callable[[], SimioTypes]):
-	return Input(io)
+if TYPE_CHECKING:
+	@overload
+	def input(io: Callable[[], SimioTypes], **kwargs) -> Input: pass
+	@overload
+	def input(**kwargs) -> Callable[[Callable[[], SimioTypes]], Input]: pass
 
-def output(io:Callable[[SimioTypes], None]):
-	return Output(io)
+def input(io=None, **kwargs):
+	def decorator(io, /):
+		return Input(io, **kwargs)
+	return decorator if io is None else decorator(io)
+
+
+if TYPE_CHECKING:
+	@overload
+	def output(io: Callable[[SimioTypes], None], **kwargs) -> Output: pass
+	@overload
+	def output(**kwargs) -> Callable[[Callable[[SimioTypes], None]], Output]: pass
+
+def output(io=None, **kwargs):
+	def decorator(io, /):
+		return Output(io, **kwargs)
+	return decorator if io is None else decorator(io)
 
 
 

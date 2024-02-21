@@ -45,15 +45,16 @@ def sleep(delay:float = poll_period):
 async def poll(
 	condition: Callable[[], Any],
 	*,
-	timeout: float | None = None,
+	timeout: float | Timeout | None = None,
 	abort: Callable[[], Any] | None = None,
-	period: float | int | Callable[[], Coroutine] = poll_period,
+	period: float | Callable[[], Coroutine] = poll_period,
 ) -> bool:
-	timeout_ = Timeout(timeout) if timeout else False
+	if isinstance(timeout, (float, int)):
+		timeout = Timeout(timeout)
 	if isinstance(period, (float, int)):
 		period = partial(asyncio.sleep, period)
 	while not condition():
-		if timeout_ or (abort and abort()):
+		if timeout or (abort and abort()):
 			return False
 		await period()
 	return True
@@ -61,17 +62,18 @@ async def poll(
 
 
 class Timeout:
-	def __init__(self, timeout:float):
+	def __init__(self, timeout:float, *, reset=True):
 		self._timeout = timeout
-		self.reset()
+		if reset:
+			self.reset()
+		else:
+			self._expire = 0
 
 	def reset(self):
 		self._expire = clock() + self._timeout
 
-	def __call__(self):
+	def __bool__(self):
 		return clock() > self._expire
-
-	__bool__ = __call__
 
 
 class Event(asyncio.Event):
