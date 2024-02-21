@@ -11,6 +11,6 @@
 	],
 	"python.analysis.extraPaths": [
 		"root/local_src/python-shared",
-		"root/platform-x86/root/usr/lib/python3.11/site-packages"
+		"root/platform-x86/sysroot-target/usr/lib/python3.11/site-packages"
 	],
 }
