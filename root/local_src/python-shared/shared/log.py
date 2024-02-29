@@ -79,6 +79,7 @@ class JournalHandler(logging.Handler):
 				f'THREAD={record.threadName}',
 				f'PROCESS={record.processName}',
 				f'MODULE={record.module}',
+				f'LOGGER={record.name}',
 				f'CODE_FILE={record.pathname}',
 				f'CODE_LINE={record.lineno}',
 				f'CODE_FUNC={record.funcName}',
