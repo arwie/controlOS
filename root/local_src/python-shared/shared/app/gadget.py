@@ -23,9 +23,9 @@ from . import app
 
 
 class UdpMaster(asyncio.DatagramProtocol):
-	def __init__(self, host:str, port:int, cycle_time:float, timeout:float=3):
+	def __init__(self, host:str, port:int, period:float, timeout:float=3):
 		self.address = (host, port)
-		self.cycle_time = cycle_time
+		self.period = period
 		self.timeout = app.Timeout(timeout)
 
 		self.connected = False
@@ -54,7 +54,7 @@ class UdpMaster(asyncio.DatagramProtocol):
 
 			async def loop():
 				while True:
-					await asyncio.sleep(self.cycle_time)
+					await asyncio.sleep(self.period)
 					transport.sendto(json.dumps(self.cmd).encode())
 					if self.connected and self.timeout:
 						self.connected = False
