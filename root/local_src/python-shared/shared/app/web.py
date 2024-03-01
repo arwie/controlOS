@@ -73,10 +73,10 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 		def write_update(self):
 			self.write_message(self.Handler.update())
 
-		async def update_loop(self, sleep=0.25):
+		async def update_loop(self, period:float=0.25):
 			while True:
 				await self.connected.wait()
-				await asyncio.sleep(sleep)
+				await asyncio.sleep(period)
 				self.write_update()
 
 	@classmethod
