@@ -23,8 +23,10 @@ if TYPE_CHECKING:
 from contextlib import contextmanager
 import asyncio
 import json
+import socket
 import tornado.web
 import tornado.websocket
+import tornado.httpserver
 from . import app
 
 from tornado.websocket import WebSocketClosedError
@@ -162,7 +164,10 @@ def handler(name, params={}):
 
 @app.context
 async def server():
-	srv = tornado.web.Application(handlers).listen(33000, 'sys')
+	srv = tornado.httpserver.HTTPServer(tornado.web.Application(handlers))
+	systemdSocket = socket.fromfd(3, socket.AF_INET6, socket.SOCK_STREAM)
+	systemdSocket.setblocking(False)
+	srv.add_socket(systemdSocket)
 	try:
 		yield
 	finally:
