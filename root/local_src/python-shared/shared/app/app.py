@@ -63,14 +63,14 @@ async def poll(
 
 class Timeout:
 	def __init__(self, timeout:float, *, reset=True):
-		self._timeout = timeout
+		self.timeout = timeout
 		if reset:
 			self.reset()
 		else:
 			self._expire = 0
 
 	def reset(self):
-		self._expire = clock() + self._timeout
+		self._expire = clock() + self.timeout
 
 	def __bool__(self):
 		return clock() > self._expire
