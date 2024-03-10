@@ -27,7 +27,7 @@ import inspect
 from functools import partial
 from contextlib import AbstractContextManager, asynccontextmanager
 from shared import system
-from shared.util import singleinstance
+from shared.utils import instantiate
 
 
 from shared import log
@@ -61,25 +61,41 @@ async def poll(
 
 
 
-class Timeout:
-	def __init__(self, timeout:float, *, reset=True):
+class Timer(AbstractContextManager):
+	def __init__(self, timeout:float, reset=True):
 		self.timeout = timeout
 		if reset:
 			self.reset()
 		else:
-			self._expire = 0
+			self.clear()
 
 	def reset(self):
-		self._expire = clock() + self.timeout
+		self.expire = clock() + self.timeout
+
+	def clear(self):
+		self.expire = 0
+
+	def __enter__(self):
+		self.reset()
+
+	def __exit__(self, *exc):
+		self.clear()
+
+	def left(self):
+		return max(0, self.expire - clock())
 
 	def __bool__(self):
-		return clock() > self._expire
+		return clock() <= self.expire
+
+class Timeout(Timer):
+	def __bool__(self):
+		return clock() > self.expire
 
 
 class Event(asyncio.Event):
-	def __init__(self, set_=False):
+	def __init__(self, set=False):
 		super().__init__()
-		if set_:
+		if set:
 			self.set()
 
 	def trigger(self):
@@ -140,7 +156,7 @@ async def task_group(*coros:Coroutine[Any, Any, None]):
 @asynccontextmanager
 async def target(target:str):
 	def systemctl(cmd):
-		return run_in_executor(system.run, ['systemctl', '--no-block', cmd, f'app@{target}.target'])
+		return run_in_executor(system.run, ['systemctl', cmd, f'app@{target}.target'])
 
 	await systemctl('start')
 	try:
@@ -150,7 +166,7 @@ async def target(target:str):
 
 
 
-@singleinstance
+@instantiate
 class raise_cancelling(AbstractContextManager):
 	def __exit__(self, exc_type, exc_value, traceback):
 		if exc_type and exc_type is not asyncio.CancelledError:
