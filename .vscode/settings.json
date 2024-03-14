@@ -8,6 +8,7 @@
 	],
 	"python.analysis.exclude": [
 		"root/platform-*",
+		"root/base/platform-*",
 	],
 	"python.analysis.extraPaths": [
 		"root/local_src/python-shared",
