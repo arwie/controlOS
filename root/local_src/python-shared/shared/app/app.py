@@ -21,6 +21,7 @@ if TYPE_CHECKING:
 	from typing import overload, Any, TypeVar, ParamSpec
 	from collections.abc import Callable, Coroutine, AsyncGenerator
 	from contextlib import AbstractAsyncContextManager
+	P, T = ParamSpec('P'), TypeVar('T')
 
 import asyncio
 import inspect
@@ -28,6 +29,7 @@ from functools import partial
 from contextlib import AbstractContextManager, asynccontextmanager
 from shared import system
 from shared.utils import instantiate
+from shared.condition import Timeout, Condition
 
 
 from shared import log
@@ -49,47 +51,20 @@ async def poll(
 	abort: Callable[[], Any] | None = None,
 	period: float | Callable[[], Coroutine] = poll_period,
 ) -> bool:
+
 	if isinstance(timeout, (float, int)):
 		timeout = Timeout(timeout)
+	if callable(abort):
+		abort = Condition(abort)
 	if isinstance(period, (float, int)):
 		period = partial(asyncio.sleep, period)
+
 	while not condition():
-		if timeout or (abort and abort()):
+		if timeout or abort:
 			return False
 		await period()
 	return True
 
-
-
-class Timer(AbstractContextManager):
-	def __init__(self, timeout:float, reset=True):
-		self.timeout = timeout
-		if reset:
-			self.reset()
-		else:
-			self.clear()
-
-	def reset(self):
-		self.expire = clock() + self.timeout
-
-	def clear(self):
-		self.expire = 0
-
-	def __enter__(self):
-		self.reset()
-
-	def __exit__(self, *exc):
-		self.clear()
-
-	def left(self):
-		return max(0, self.expire - clock())
-
-	def __bool__(self):
-		return clock() <= self.expire
-
-class Timeout(Timer):
-	def __bool__(self):
-		return clock() > self.expire
 
 
 class Event(asyncio.Event):
@@ -102,6 +77,7 @@ class Event(asyncio.Event):
 		if not self.is_set():
 			self.set()
 			self.clear()
+
 
 
 def run_in_executor(func:Callable, *args):
@@ -120,7 +96,6 @@ async def _context(func):
 
 
 if TYPE_CHECKING:
-	P, T = ParamSpec('P'), TypeVar('T')
 	@overload
 	def context(func:Callable[P, AsyncGenerator[T, Any]]) -> Callable[P, AbstractAsyncContextManager[T]]: pass
 	@overload
@@ -179,3 +154,42 @@ class raise_cancelling(AbstractContextManager):
 		if task := asyncio.current_task():
 			if task.cancelling():
 				raise asyncio.CancelledError
+
+
+
+def context_select_loop(switch: Callable[[], Any]) -> Callable[[Callable[[Any], AsyncGenerator]], Callable[[], Coroutine]]:
+	def decorator(select_gen):
+		select = asynccontextmanager(select_gen)
+		async def select_loop():
+			while True:
+				value = switch()
+				async with select(value):
+					await poll(lambda: switch() != value)
+		return select_loop
+	return decorator
+
+
+
+class _Disableable:
+	def __init__(self, func):
+		self._func = func
+		self.lock = asyncio.Lock()
+		self.disabled = 0
+
+	@asynccontextmanager
+	async def disable(self):
+		async with self.lock:
+			self.disabled += 1
+		try:
+			yield
+		finally:
+			self.disabled -= 1
+
+	async def __call__(self, *args, **kwargs):
+		async with self.lock:
+			if not self.disabled:
+				await self._func(*args, **kwargs)
+
+
+def disableable(func):
+	return _Disableable(func)

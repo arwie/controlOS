@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Artur Wiebe <artur@4wiebe.de>
+# Copyright (c) 2024 Artur Wiebe <artur@4wiebe.de>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 # associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -18,36 +18,65 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-	from typing import Callable
-	from contextlib import AbstractAsyncContextManager
+	from typing import Any
+	from collections.abc import Callable
 
-import asyncio
-import signal
-
-from .app import *
-from . import web
-from . import simio
-from .simio import input, output
+from abc import ABC, abstractmethod
+from contextlib import AbstractContextManager
+from time import monotonic
 
 
 
-def run(main:Callable[[], AbstractAsyncContextManager]):
-	exit_event = asyncio.Event()
+class AbstractCondition(ABC):
 
-	def signal_handler(signum, frame):
-		log.warning(f'Received signal {signum} -> app is going to exit...')
-		exit_event.set()
+	@abstractmethod
+	def __call__(self) -> bool:
+		return False
+	
+	def __bool__(self) -> bool:
+		return self()
 
-	signal.signal(signal.SIGINT,  signal_handler)
-	signal.signal(signal.SIGTERM, signal_handler)
 
-	async def app_main():
-		async with (
-			web.server(),
-			simio.exec(),
-		):
-			async with main():
-				await exit_event.wait()
 
-	asyncio.run(app_main())
-	exit(0)
+class Condition(AbstractCondition):
+
+	def __init__(self, condition: Callable[[], Any]):
+		self.condition = condition
+
+	def __call__(self):
+		return bool(self.condition())
+
+
+
+class Timer(AbstractCondition, AbstractContextManager):
+
+	def __init__(self, timeout:float, reset=True):
+		self.timeout = timeout
+		if reset:
+			self.reset()
+		else:
+			self.clear()
+
+	def reset(self):
+		self.expire = monotonic() + self.timeout
+
+	def clear(self):
+		self.expire = 0
+
+	def __enter__(self):
+		self.reset()
+
+	def __exit__(self, *exc):
+		self.clear()
+
+	def left(self):
+		return max(0, self.expire - monotonic())
+
+	def __call__(self):
+		return monotonic() <= self.expire
+
+
+class Timeout(Timer):
+
+	def __call__(self):
+		return monotonic() > self.expire
