@@ -182,7 +182,6 @@ async def exec():
 			_simio[int(msg['id'])].set_override(msg['ord'])
 			self.all.write_update()
 
-	with SimioWebSocketPlaceholder.handle(SimioWebSocketHandler):
-		async with app.target('simio'):
-			async with app.task_group(SimioWebSocketHandler.all.update_loop()):
-				yield
+	async with SimioWebSocketPlaceholder.handle(SimioWebSocketHandler):
+		async with app.task_group(SimioWebSocketHandler.all.update_loop()):
+			yield
