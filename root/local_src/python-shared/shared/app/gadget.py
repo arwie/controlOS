@@ -15,10 +15,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, closing
 import asyncio
 import json
 from . import app
+from shared.condition import Timeout
 
 
 
@@ -26,7 +27,7 @@ class UdpMaster(asyncio.DatagramProtocol):
 	def __init__(self, host:str, port:int, period:float, timeout:float=3):
 		self.address = (host, port)
 		self.period = period
-		self.timeout = app.Timeout(timeout)
+		self.timeout = Timeout(timeout)
 
 		self.connected = False
 		self.cmd = {}
@@ -50,7 +51,7 @@ class UdpMaster(asyncio.DatagramProtocol):
 	@asynccontextmanager
 	async def exec(self):
 		transport,_ = await asyncio.get_running_loop().create_datagram_endpoint(lambda:self, remote_addr=self.address)
-		try:
+		with closing(transport):
 
 			async def loop():
 				while True:
@@ -62,6 +63,3 @@ class UdpMaster(asyncio.DatagramProtocol):
 
 			async with app.task_group(loop()):
 				yield
-
-		finally:
-			transport.close()

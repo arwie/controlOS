@@ -42,7 +42,7 @@
 				<th><span data-bind="text:name" class="form-control-plaintext"></span></th>
 				<td><span data-bind="text:type" class="form-control-plaintext"></span></td>
 				<td class="text-end">
-					<span data-bind="text:type=='float'?val()?.toFixed(3):val()" class="form-control-plaintext"></span>
+					<span data-bind="text:type=='float'?val()?.toFixed(3):val(), css:{'fw-bold text-success':val}" class="form-control-plaintext"></span>
 				</td>
 				<td>
 					<div class="input-group bg-light">
