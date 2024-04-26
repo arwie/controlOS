@@ -36,7 +36,7 @@ def run(main:Callable[[], AbstractAsyncContextManager]):
 
 	def signal_handler(signum, frame):
 		log.warning(f'Received signal {signum} -> app is going to exit...')
-		exit_event.set()
+		asyncio.get_running_loop().call_soon_threadsafe(exit_event.set)
 
 	signal.signal(signal.SIGINT,  signal_handler)
 	signal.signal(signal.SIGTERM, signal_handler)
