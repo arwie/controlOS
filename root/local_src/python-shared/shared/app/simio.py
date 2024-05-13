@@ -41,14 +41,15 @@ class _IOBase:
 	value: Any
 	_io_sim: Callable
 
-	def __init__(self, io, *, prefix=None):
+	def __init__(self, io:Callable, *, prefix=None):
 		_simio.append(self)
-		io_module = str(io.__module__).strip('_')
-		self.name = '.'.join(p for p in (io_module, prefix, io.__name__) if p)
+		io_module = io.__module__.strip('_')
+		io_name   = io.__name__.strip('_')
+		self.name = '.'.join(p for p in (io_module, prefix, io_name) if p)
 		self.type:type = next(iter(get_type_hints(io).values()))
 		self.override = None
 		self.simulated = _conf.getboolean(
-			io_module, io.__name__,
+			io_module, io_name,
 			fallback=_conf.getboolean(
 				io_module, self.__class__.__name__,
 				fallback=_conf.getboolean(
