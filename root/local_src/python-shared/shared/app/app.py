@@ -44,26 +44,47 @@ def sleep(delay:float = poll_period):
 	return asyncio.sleep(delay)
 
 
+
+class Trigger:
+	def __init__(self):
+		self._event = asyncio.Event()
+
+	def __call__(self):
+		self._event.set()
+		self._event.clear()
+
+	def wait(self):
+		return self._event.wait()
+
+
+
 async def poll(
 	condition: Callable[[], Any],
 	*,
 	timeout: float | Timeout | None = None,
 	abort: Callable[[], Any] | None = None,
-	period: float | Callable[[], Coroutine] = poll_period,
-) -> bool:
+	period: float | Trigger | Callable[[], Coroutine] = poll_period,
+):
+
+	if callable(abort):
+		abort = Condition(abort)
 
 	if isinstance(timeout, (float, int)):
 		timeout = Timeout(timeout)
-	if callable(abort):
-		abort = Condition(abort)
+
 	if isinstance(period, (float, int)):
 		period = partial(asyncio.sleep, period)
+	elif isinstance(period, Trigger):
+		period = period.wait
 
-	while not condition():
-		if timeout or abort:
+	while True:
+		if abort: #check abort before condition
+			return False
+		if result := condition():
+			return result
+		if timeout:
 			return False
 		await period()
-	return True
 
 
 
@@ -118,12 +139,17 @@ def context(func): #type:ignore
 
 
 @asynccontextmanager
-async def task_group(*coros:Coroutine[Any, Any, None]):
+async def task_group(*coros: Coroutine[Any, Any, None] | Callable[[], Coroutine[Any, Any, None]]):
 	async with asyncio.TaskGroup() as tg:
+
+		def create_task(coro: Coroutine[Any, Any, None] | Callable[[], Coroutine[Any, Any, None]]):
+			return tg.create_task(coro() if callable(coro) else coro)
+
 		for coro in coros:
-			tg.create_task(coro)
+			create_task(coro)
+
 		try:
-			yield tg
+			yield create_task
 		finally:
 			tg._abort() #type:ignore
 
@@ -141,19 +167,22 @@ async def target(target:str):
 
 
 
+
+def task_cancelling():
+	return (task := asyncio.current_task()) and task.cancelling()
+
+
 @instantiate
 class raise_cancelling(AbstractContextManager):
 	def __exit__(self, exc_type, exc_value, traceback):
 		if exc_type and exc_type is not asyncio.CancelledError:
-			if task := asyncio.current_task():
-				if task.cancelling():
-					log.error('error in cleanup logic of cancelling asyncio task', exc_info=(exc_type, exc_value, traceback))
-					raise asyncio.CancelledError
+			if task_cancelling():
+				log.error('error in cleanup logic of cancelling asyncio task', exc_info=(exc_type, exc_value, traceback))
+				raise asyncio.CancelledError
 
 	def __call__(self):
-		if task := asyncio.current_task():
-			if task.cancelling():
-				raise asyncio.CancelledError
+		if task_cancelling():
+			raise asyncio.CancelledError
 
 
 
@@ -188,8 +217,8 @@ class _Disableable:
 	async def __call__(self, *args, **kwargs):
 		async with self.lock:
 			if not self.disabled:
-				await self._func(*args, **kwargs)
+				return await self._func(*args, **kwargs)
 
 
-def disableable(func):
+def disableable(func: Callable[..., Coroutine]):
 	return _Disableable(func)
