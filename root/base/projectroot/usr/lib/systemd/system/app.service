@@ -1,5 +1,7 @@
 [Unit]
 Wants=app.socket
+Wants=systemd-networkd-wait-online@sys.service
+After=systemd-networkd-wait-online@sys.service
 
 
 [Service]
@@ -9,3 +11,6 @@ ExecStart=/usr/bin/python -Bu /usr/lib/app
 # real-time scheduling
 CPUSchedulingPolicy=fifo
 CPUSchedulingPriority=10
+
+Restart=on-failure
+RestartSec=20

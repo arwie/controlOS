@@ -15,4 +15,7 @@
 		"root/platform-x86/sysroot-target/usr/lib/python3.11/site-packages"
 	],
 	"python.analysis.diagnosticMode": "workspace",
+	"workbench.editor.customLabels.patterns": {
+		"**/__init__.py": "${dirname}.${extname}"
+	},
 }
