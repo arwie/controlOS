@@ -43,9 +43,9 @@ class _IOBase:
 
 	def __init__(self, io:Callable, *, prefix=None):
 		_simio.append(self)
-		io_module = io.__module__.strip('_')
-		io_name   = io.__name__.strip('_')
-		self.name = '.'.join(p for p in (io_module, prefix, io_name) if p)
+		io_module = '.'.join(p.strip('_') for p in io.__module__.split('.'))
+		io_name   = '.'.join(p.strip('_') for p in (prefix, io.__name__) if p)
+		self.name = f'{io_module}: {io_name}'
 		self.type:type = next(iter(get_type_hints(io).values()))
 		self.override = None
 		self.simulated = _conf.getboolean(
