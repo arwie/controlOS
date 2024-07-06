@@ -88,19 +88,6 @@ async def poll(
 
 
 
-class Event(asyncio.Event):
-	def __init__(self, set=False):
-		super().__init__()
-		if set:
-			self.set()
-
-	def trigger(self):
-		if not self.is_set():
-			self.set()
-			self.clear()
-
-
-
 def run_in_executor(func:Callable, *args):
 	return asyncio.get_running_loop().run_in_executor(None, func, *args)
 
