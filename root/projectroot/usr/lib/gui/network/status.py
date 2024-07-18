@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Artur Wiebe <artur@4wiebe.de>
+# Copyright (c) 2024 Artur Wiebe <artur@4wiebe.de>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 # associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -15,31 +15,24 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+import asyncio
 import server
-from shared.conf import Conf
 from shared import network
-from . import add_page
-
-
-add_page('smtp')
 
 
 
-class SmtpHandler(server.RequestHandler):
-	def get(self):
-		if network.smtpEnabled():
-			data = Conf(network.smtpConfFile).dict()
-			del data['smtp']['pass'] #type:ignore
-			self.writeJson(data)
-		else:
-			self.writeJson(None)
-	
-	def post(self):
-		if self.request.body:
-			Conf(network.smtpConfFile, self.readJson()).save()
-		else:
-			network.smtpConfFile.unlink(True)
+class StatusHandler(server.WebSocketHandler):
+	async def sendStatus(self):
+		while True:
+			self.write_message(await server.run_in_executor(network.status))
+			await asyncio.sleep(3)
+
+	def open(self):
+		self.task = asyncio.create_task(self.sendStatus())
+
+	def on_close(self):
+		self.task.cancel()
 
 
 
-server.addAjax(__name__,		SmtpHandler)
+server.addAjax(__name__, StatusHandler)
