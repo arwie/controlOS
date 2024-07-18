@@ -23,12 +23,22 @@ if TYPE_CHECKING:
 	T = TypeVar('T')
 
 from pathlib import Path
+from importlib import import_module
 from time import monotonic
 
 
 
-def all_in_package(__file__):
-	return [m.stem for m in Path(__file__).parent.glob('*.py') if not m.match('__*__.py')]
+def import_all_in_package(init_file:str, init_module:str):
+	"""
+	Dynamically imports all python files from a package which names do not start with '_'.
+	
+	Call from __init__.py of the package:
+	import_all_in_package(__file__, __name__)
+	"""
+	return set(
+		import_module('.'.join((init_module, module_file.stem)))
+			for module_file in Path(init_file).parent.glob('*.py*') if not module_file.match('_*')
+	)
 
 
 def instantiate(cls:type[T]) -> T:
