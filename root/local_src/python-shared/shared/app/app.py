@@ -134,20 +134,33 @@ def context(func): #type:ignore
 
 
 
-@asynccontextmanager
-async def task_group(*coros: Coroutine[Any, Any, None] | Callable[[], Coroutine[Any, Any, None]]):
-	async with asyncio.TaskGroup() as tg:
+class task_group(asyncio.TaskGroup):
 
-		def create_task(coro: Coroutine[Any, Any, None] | Callable[[], Coroutine[Any, Any, None]]):
-			return tg.create_task(coro() if callable(coro) else coro)
+	def __init__(self, *coros: Coroutine[Any, Any, None] | Callable[[], Coroutine[Any, Any, None]]):
+		super().__init__()
+		self._coros = coros
 
-		for coro in coros:
-			create_task(coro)
+	async def __aenter__(self):
+		await super().__aenter__()
+		for coro in self._coros:
+			self(coro)
+		del self._coros
+		return self
 
+	def __call__(self, coro: Coroutine[Any, Any, None] | Callable[[], Coroutine[Any, Any, None]], **kwargs):
+		return self.create_task(coro() if callable(coro) else coro, **kwargs)
+
+	async def __aexit__(self, et, exc, tb):
+		if not self._aborting:	#type:ignore
+			self._abort()		#type:ignore
 		try:
-			yield create_task
-		finally:
-			tg._abort() #type:ignore
+			return await super().__aexit__(et, exc, tb)
+		except BaseExceptionGroup as eg:
+			if len(eg.exceptions) == 1 and eg.exceptions[0] is exc:
+				raise eg.exceptions[0] from None
+			else:
+				raise
+
 
 
 @asynccontextmanager
