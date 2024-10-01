@@ -195,21 +195,21 @@ class raise_cancelling(AbstractContextManager):
 
 
 
-def context_select_loop(switch: Callable[[], Any]) -> Callable[[Callable[[Any], AsyncGenerator]], Callable[[], Coroutine]]:
+def context_select_loop(switch: Callable[[], Any], **kwargs) -> Callable[[Callable[[Any], AsyncGenerator]], Callable[[], Coroutine]]:
 	def decorator(select_gen):
 		select = asynccontextmanager(select_gen)
 		async def select_loop():
 			while True:
 				value = switch()
 				async with select(value):
-					await poll(lambda: switch() != value)
+					await poll(lambda: switch() != value, **kwargs)
 		return select_loop
 	return decorator
 
 
 
-class _Disableable:
-	def __init__(self, func):
+class disableable:
+	def __init__(self, func: Callable[..., Coroutine]):
 		self._func = func
 		self.lock = asyncio.Lock()
 		self.disabled = 0
@@ -227,7 +227,3 @@ class _Disableable:
 		async with self.lock:
 			if not self.disabled:
 				return await self._func(*args, **kwargs)
-
-
-def disableable(func: Callable[..., Coroutine]):
-	return _Disableable(func)
