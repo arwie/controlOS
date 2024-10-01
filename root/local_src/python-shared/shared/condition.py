@@ -73,10 +73,10 @@ class Timer(AbstractCondition, AbstractContextManager):
 		return max(0, self.expire - monotonic())
 
 	def __call__(self):
-		return monotonic() <= self.expire
+		return monotonic() < self.expire	#always return False if timeout==0
 
 
 class Timeout(Timer):
 
 	def __call__(self):
-		return monotonic() > self.expire
+		return monotonic() >= self.expire	#always return True if timeout==0
