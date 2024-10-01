@@ -64,6 +64,7 @@ async def poll(
 	timeout: float | Timeout | None = None,
 	abort: Callable[[], Any] | None = None,
 	period: float | Trigger | Callable[[], Coroutine] = poll_period,
+	settle: float | Timeout = 0
 ):
 
 	if callable(abort):
@@ -77,11 +78,19 @@ async def poll(
 	elif isinstance(period, Trigger):
 		period = period.wait
 
+	if isinstance(settle, (float, int)):
+		settle = Timeout(settle)
+
 	while True:
 		if abort: #check abort before condition
 			return False
+
 		if result := condition():
-			return result
+			if settle:
+				return result
+		else:
+			settle.reset()
+
 		if timeout:
 			return False
 		await period()
