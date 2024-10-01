@@ -78,7 +78,7 @@ class Input(_IOBase):
 
 	@property
 	def value(self):
-		return self.type(self._io())
+		return self._io()
 
 	def __call__(self) -> SimioTypes:
 		return self.value if self.override is None else self.override
