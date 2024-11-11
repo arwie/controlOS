@@ -38,8 +38,8 @@ class _IOBase:
 	value: Any
 	_io_sim: Callable
 
-	def __init__(self, io:Callable, *, prefix=None):
-		io_module = '.'.join(p.strip('_') for p in io.__module__.split('.'))
+	def __init__(self, io:Callable, *, module=None, prefix=None):
+		io_module = '.'.join(p.strip('_') for p in (module or io.__module__).split('.'))
 		io_name   = '.'.join(p.strip('_') for p in (prefix, io.__name__) if p)
 		self.name = f'{io_module}: {io_name}'
 		self.type:type = next(iter(get_type_hints(io).values()))
@@ -113,7 +113,8 @@ class Output(_IOBase, AbstractContextManager):
 
 class IoGroup(AbstractContextManager):
 
-	def __init__(self, *, prefix: str | None = None):
+	def __init__(self, *, module: str | None = None, prefix: str | None = None):
+		self.module = module
 		self.prefix = prefix
 		self._simio = list[_IOBase]()
 
@@ -156,6 +157,7 @@ class IoGroup(AbstractContextManager):
 
 	def input(self, io=None, **kwargs):
 		def decorator(io, /):
+			kwargs.setdefault('module', self.module)
 			kwargs.setdefault('prefix', self.prefix)
 			simio = Input(io, **kwargs)
 			self._simio.append(simio)
@@ -182,6 +184,7 @@ class IoGroup(AbstractContextManager):
 
 	def output(self, io=None, **kwargs):
 		def decorator(io, /):
+			kwargs.setdefault('module', self.module)
 			kwargs.setdefault('prefix', self.prefix)
 			simio = Output(io, **kwargs)
 			self._simio.append(simio)
