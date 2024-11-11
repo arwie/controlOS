@@ -35,8 +35,6 @@ _conf.read('/etc/app/simio.conf')
 
 
 class _IOBase:
-	_static_open = True
-
 	value: Any
 	_io_sim: Callable
 
@@ -57,8 +55,6 @@ class _IOBase:
 			)
 		)
 		self._io = self._io_sim if self.simulated else io
-		if self._static_open:
-			_WebHandler.add_simio(self)
 
 	def set_override(self, override):
 		try:
@@ -115,50 +111,88 @@ class Output(_IOBase, AbstractContextManager):
 
 
 
-if TYPE_CHECKING:
-	@overload
-	def input(
-		io: Callable[[], SimioTypes],
-		*,
-		prefix: str | None = None,
-		sim: SimioTypes | Callable[[], SimioTypes] | None = None
-	) -> Input:
-		pass
-	@overload
-	def input(
-		*,
-		prefix: str | None = None,
-		sim: SimioTypes | Callable[[], SimioTypes] | None = None
-	) -> Callable[[Callable[[], SimioTypes]], Input]:
-		pass
+class IoGroup(AbstractContextManager):
 
-def input(io=None, **kwargs):
-	def decorator(io, /):
-		return Input(io, **kwargs)
-	return decorator if io is None else decorator(io)
+	def __init__(self, *, prefix: str | None = None):
+		self.prefix = prefix
+		self._simio = list[_IOBase]()
+
+	def __exit__(self, *exc):
+		for simio in self._simio:
+			if isinstance(simio, AbstractContextManager):
+				simio.__exit__(*exc)
 
 
-if TYPE_CHECKING:
-	@overload
-	def output(
-		io: Callable[[SimioTypes], None],
-		*,
-		prefix: str | None = None,
-	) -> Output:
-		pass
-	@overload
-	def output(
-		*,
-		prefix: str | None = None,
-	) -> Callable[[Callable[[SimioTypes], None]], Output]:
-		pass
+	def open(self):
+		for simio in self._simio:
+			simio.open()
+		_WebHandler.all.write_update()
+		return closing(self)
 
-def output(io=None, **kwargs):
-	def decorator(io, /):
-		return Output(io, **kwargs)
-	return decorator if io is None else decorator(io)
+	def close(self):
+		for simio in self._simio:
+			simio.close()
+		_WebHandler.all.write_update()
 
 
+	if TYPE_CHECKING:
+		@overload
+		def input(
+			self,
+			io: Callable[[], SimioTypes],
+			*,
+			prefix: str | None = None,
+			sim: SimioTypes | Callable[[], SimioTypes] | None = None
+		) -> Input:
+			pass
+		@overload
+		def input(
+			self,
+			*,
+			prefix: str | None = None,
+			sim: SimioTypes | Callable[[], SimioTypes] | None = None
+		) -> Callable[[Callable[[], SimioTypes]], Input]:
+			pass
+
+	def input(self, io=None, **kwargs):
+		def decorator(io, /):
+			kwargs.setdefault('prefix', self.prefix)
+			simio = Input(io, **kwargs)
+			self._simio.append(simio)
+			return simio
+		return decorator if io is None else decorator(io)
+
+
+	if TYPE_CHECKING:
+		@overload
+		def output(
+			self,
+			io: Callable[[SimioTypes], None],
+			*,
+			prefix: str | None = None,
+		) -> Output:
+			pass
+		@overload
+		def output(
+			self,
+			*,
+			prefix: str | None = None,
+		) -> Callable[[Callable[[SimioTypes], None]], Output]:
+			pass
+
+	def output(self, io=None, **kwargs):
+		def decorator(io, /):
+			kwargs.setdefault('prefix', self.prefix)
+			simio = Output(io, **kwargs)
+			self._simio.append(simio)
+			return simio
+		return decorator if io is None else decorator(io)
+
+
+
+default_io_group = IoGroup()
+input  = default_io_group.input
+output = default_io_group.output
 
 
 
@@ -206,6 +240,6 @@ class _WebHandler(web.WebSocketHandler):
 
 @app.context
 async def exec():
-	_IOBase._static_open = False
-	async with _web_placeholder.handle(_WebHandler):
-		yield
+	with default_io_group.open():
+		async with _web_placeholder.handle(_WebHandler):
+			yield

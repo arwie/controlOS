@@ -81,7 +81,8 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 				conn.write_message(msg, **kwargs)
 
 		def write_update(self, *args):
-			self.write_message(self.Handler.update(*args))
+			if self:
+				self.write_message(self.Handler.update(*args))
 
 	@classmethod
 	def __init_subclass__(cls):
