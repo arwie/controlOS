@@ -104,10 +104,11 @@ class {
 		event.target.value = null;
 	}
 	
-	start(started) {
+	start() {
 		model.conn = webSocket(wsUrl('simio', ports.app), (msg, first)=>{
+			if (msg.length && Object.hasOwn(msg[0], 'name'))
+				model.simio.removeAll();
 			ko.mapping.fromJS(msg, model.simio);
-			if (first) started();
 		});
 	}
 	
