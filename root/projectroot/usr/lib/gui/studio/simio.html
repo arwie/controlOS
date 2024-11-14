@@ -27,7 +27,7 @@
 	<!-- ko if:filter -->
 	<button data-bind="click:()=>{filter('')}" class="btn btn-secondary"><i class="fas fa-times"></i></button>
 	<!-- /ko -->
-	<input data-bind="textInput:filter" type="text" class="form-control">
+	<input data-bind="textInput:filter" type="text" placeholder="match1 match2 match3 ..." class="form-control">
 </div>
 <div data-bind="foreach:[{cls:'Input'},{cls:'Output'}]" class="row h-100" style="min-height:0">
 	<div class="col-xxl h-100 overflow-scroll">
