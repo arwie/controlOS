@@ -7,6 +7,7 @@ cd $BASEDIR/..
 
 PLATFORM=configs/platform-$(ptxdist print PTXCONF_PLATFORM)
 
-cat $PLATFORM/kernelconfig.d/* > $PLATFORM/kernelconfig
+cat base/$PLATFORM/kernelconfig.d/* > $PLATFORM/kernelconfig
+cat $PLATFORM/kernelconfig.d/* >> $PLATFORM/kernelconfig
 
 ptxdist kernelconfig
