@@ -3,17 +3,16 @@ NP=$(shell nproc)
 
 
 
-all: boot
+all: system
 	@echo "#############################################"
 	@echo "Build completed successfully!"
 
-boot: root
+system: update
 	@cd boot \
 		&& ptxdist -j$(NP) -k --collectionconfig=configs/system  image system.img \
 		&& ptxdist -j$(NP) -k --collectionconfig=configs/install image install.img
 
-update: root
-root: initramfs
+update: initramfs
 	@cd root \
 		&& ptxdist -j$(NP) -k images
 
@@ -74,3 +73,9 @@ migrate:
 		&& cd $(BASEDIR)/$$p \
 		&& /usr/local/lib/ptxdist-$(PTXDIST_VERSION)/bin/ptxdist migrate \
 	;done
+
+
+
+keygen:
+	$(BASEDIR)/keys/gpg-keygen
+	$(BASEDIR)/keys/ssh-keygen
