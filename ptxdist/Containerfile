@@ -65,6 +65,7 @@ RUN apt-get install -y --no-install-recommends \
 	python3-jinja2 \
 	libxml-parser-perl \
 	libelf-dev \
+	diffstat \
 	bc \
 	cpio
 
