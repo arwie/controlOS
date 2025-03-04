@@ -1,4 +1,4 @@
-471dfdace6da5bef2ca4e1dfde29894c
+fd21e633f9342bef2d7ada1b0d3977a1
 # PTXCONF_BC is undefined
 # PTXCONF_BOOTCHART is undefined
 # PTXCONF_BRIDGE_UTILS is undefined
@@ -1109,6 +1109,5 @@ PTXCONF_UTIL_LINUX_USES_NCURSES=y
 # PTXCONF_UTIL_LINUX_WDCTL is not set
 # PTXCONF_UTIL_LINUX_WIPEFS is not set
 # PTXCONF_UTIL_LINUX_ZRAMCTL is not set
-PTXCONF_VIRTUAL=y
 # PTXCONF_WGET is undefined
 # PTXCONF_WHICH is undefined

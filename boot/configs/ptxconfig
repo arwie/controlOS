@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# PTXdist 2025.01.0
+# PTXdist 2025.02.0
 #
 PTXCONF_INSTALL=m
 PTXCONF_SYSTEM=y
@@ -10,7 +10,7 @@ PTXCONF_SYSTEM=y
 #
 
 #
-# Project Name & Version        
+# Project Configuration         
 #
 
 #
@@ -25,7 +25,7 @@ PTXCONF_PROJECT_VERSION="-${PTXDIST_BSP_AUTOVERSION}"
 #
 
 #
-# pre-built package handling
+# pre-built packages
 #
 
 #
@@ -39,7 +39,7 @@ PTXCONF_PROJECT_VERSION="-${PTXDIST_BSP_AUTOVERSION}"
 #
 
 #
-# license information handling
+# license information & SBoMs
 #
 
 #
@@ -47,7 +47,9 @@ PTXCONF_PROJECT_VERSION="-${PTXDIST_BSP_AUTOVERSION}"
 #
 # PTXCONF_PROJECT_CHECK_LICENSES is not set
 # PTXCONF_PROJECT_GENERATE_REPORTS is not set
+PTXCONF_PROJECT_DEFAULT_REPORTS="license-compliance"
 # PTXCONF_PROJECT_STORE_SOURCE_GIT_COMMITS is not set
+# PTXCONF_PROJECT_REPORT_DEPS is not set
 
 #
 # ------------------------------------
@@ -64,13 +66,16 @@ PTXCONF_REPRODUCIBLE_TIMESTAMP_PTXDIST=y
 # PTXCONF_REPRODUCIBLE_TIMESTAMP_TOOLCHAIN is not set
 # PTXCONF_REPRODUCIBLE_TIMESTAMP_CUSTOM is not set
 PTXCONF_REPRODUCIBLE_TIMESTAMP="ptxdist"
-# end of Project Name & Version        
+# end of Project Configuration         
 
 PTXCONF_BSP=y
 PTXCONF_RUNTIME=y
 PTXCONF_BUILDTIME=y
 PTXCONF_VIRTUAL=y
-PTXCONF_CONFIGFILE_VERSION="2025.01.0"
+PTXCONF_VIRTUAL_HOST_TOOLS=y
+PTXCONF_VIRTUAL_CROSS_TOOLS=y
+PTXCONF_VIRTUAL_AUTOGEN_TOOLS=y
+PTXCONF_CONFIGFILE_VERSION="2025.02.0"
 PTXCONF__ptxconfig_MAGIC__=y
 
 #
@@ -1636,6 +1641,10 @@ PTXCONF_UTIL_LINUX_SFDISK=y
 #
 # sys-utils
 #
+
+#
+# BusyBox' blkdiscard is selected!
+#
 # PTXCONF_UTIL_LINUX_CHMEM is not set
 
 #
@@ -2229,6 +2238,7 @@ PTXCONF_LIBBLKID=y
 # PTXCONF_LIBNL3 is not set
 # PTXCONF_LIBNVME is not set
 # PTXCONF_LIBOOP is not set
+# PTXCONF_LIBOSDP is not set
 # PTXCONF_LIBOSIP2 is not set
 # PTXCONF_LIBPCRE is not set
 # PTXCONF_LIBPIPELINE is not set
@@ -2346,6 +2356,8 @@ PTXCONF_NCURSES_TERMCAP=y
 # PTXCONF_OPTEE_TEST is not set
 # PTXCONF_P11_KIT is not set
 # PTXCONF_PAM is not set
+# PTXCONF_PKCS11_PROVIDER is not set
+# PTXCONF_SOFTHSM is not set
 # PTXCONF_TOMOYO_TOOLS is not set
 
 #
@@ -2406,6 +2418,7 @@ PTXCONF_NCURSES_TERMCAP=y
 # PTXCONF_PELTS_TESTS is not set
 # PTXCONF_PIGLIT is not set
 # PTXCONF_RT_TESTS is not set
+# PTXCONF_SHARNESS is not set
 # PTXCONF_SOCKPERF is not set
 # PTXCONF_STRESS_NG is not set
 # PTXCONF_STRESS is not set
@@ -2622,6 +2635,7 @@ PTXCONF_NCURSES_TERMCAP=y
 # PTXCONF_FONTCONFIG is not set
 # PTXCONF_IGT_GPU_TOOLS is not set
 # PTXCONF_IMAGEMAGICK is not set
+# PTXCONF_PLATSCH is not set
 # PTXCONF_QRENCODE is not set
 # PTXCONF_UVC_GADGET is not set
 # end of tools                         
