@@ -22,6 +22,6 @@ rsyncsys() {
 sshsys "mount --options=remount,rw --target=/ && rm -f /version"
 
 rsyncsys root/projectroot/usr /
-rsyncsys root/local_src/python-shared/shared /usr/lib/python3.11/site-packages
+rsyncsys root/local_src/python-shared/shared /usr/lib/python3.13/site-packages
 
 sshsys "systemctl --quiet restart app.service"

@@ -93,11 +93,6 @@ async def poll(
 
 
 
-def run_in_executor(func:Callable, *args):
-	return asyncio.get_running_loop().run_in_executor(None, func, *args)
-
-
-
 @asynccontextmanager
 async def _context(func):
 	name = f"{str(func.__module__).strip('_')}.{func.__name__}"
@@ -162,7 +157,7 @@ class task_group(asyncio.TaskGroup):
 @asynccontextmanager
 async def target(target:str):
 	def systemctl(cmd):
-		return run_in_executor(system.run, ['systemctl', cmd, f'app@{target}.target'])
+		return asyncio.to_thread(system.run, ['systemctl', cmd, f'app@{target}.target'])
 
 	await systemctl('start')
 	try:
