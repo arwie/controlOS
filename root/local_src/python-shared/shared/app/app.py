@@ -104,12 +104,9 @@ async def _context(func):
 
 
 @overload
-#def context[T, **P](func:Callable[P, AsyncGenerator[T, Any]]) -> Callable[P, AbstractAsyncContextManager[T]]: pass
-def context(func:Callable[..., AsyncGenerator]) -> Callable[..., AbstractAsyncContextManager]: pass
-
+def context[T, **P](func:Callable[P, AsyncGenerator[T, Any]]) -> Callable[P, AbstractAsyncContextManager[T]]: pass
 @overload
-#def context[T, **P](func:Callable[P, Coroutine[Any, Any, T]]) -> Callable[P, Coroutine[Any, Any, T]]: pass
-def context(func:Callable[..., Coroutine]) -> Callable[..., Coroutine]: pass
+def context[T, **P](func:Callable[P, Coroutine[Any, Any, T]]) -> Callable[P, Coroutine[Any, Any, T]]: pass
 
 def context(func): #type:ignore
 	if inspect.isasyncgenfunction(func):

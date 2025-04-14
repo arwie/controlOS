@@ -16,14 +16,13 @@
 
 
 from __future__ import annotations
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-	from typing import overload
-	from collections.abc import Callable
+from typing import overload, Any
+from collections.abc import Callable, Coroutine
 
 from typing import get_type_hints
 from contextlib import AbstractContextManager, closing, suppress
 from configparser import ConfigParser
+from asyncio import iscoroutinefunction
 from shared import system
 from . import app
 from . import web
@@ -33,6 +32,7 @@ from . import web
 _conf = ConfigParser()
 _conf.read('/etc/app/simio.conf')
 _virtual = system.virtual()
+
 
 
 class _IOBase[T:(bool, int, float, str)]:
@@ -55,14 +55,9 @@ class _IOBase[T:(bool, int, float, str)]:
 				)
 			)
 		)
-		self._io = self._io_sim if self.simulated else io
 
 	def set_override(self, override):
-		try:
-			self.override = None if override is None else self.type(override)
-			return True
-		except Exception:
-			return False
+		self.override = None if override is None else self.type(override)
 
 	def open(self):
 		_WebHandler.add_simio(self)
@@ -71,44 +66,83 @@ class _IOBase[T:(bool, int, float, str)]:
 	def close(self):
 		_WebHandler.remove_simio(self)
 
+	async def sync(self):
+		pass
+
+
 
 class Input[T:(bool, int, float, str)](_IOBase[T]):
+	_get: Callable[[], T]
+
 	def __init__(self, io, *, sim: T | Callable[[], T] | None = None, **kwargs):
 		super().__init__(io, **kwargs)
 		self.sim = self.type() if sim is None else sim
-
-	def _io_sim(self):
-		return self.sim() if callable(self.sim) else self.sim
+		if not hasattr(self, '_get'):
+			self._get = io
 
 	@property
 	def value(self) -> T:
-		return self._io()
+		return (self.sim() if callable(self.sim) else self.sim) if self.simulated else self._get()
 
 	def __call__(self) -> T:
 		return self.value if self.override is None else self.override
 
 
+class AsyncInput[T:(bool, int, float, str)](Input[T]):
+	_sync: Callable[[], Coroutine[Any, Any, T]]
+
+	def __init__(self, io, **kwargs):
+		super().__init__(io, **kwargs)
+		self._sync_value = self.type()
+		self._sync = io
+
+	def _get(self):
+		return self._sync_value
+
+	async def sync(self):
+		if not self.simulated:
+			self._sync_value = await self._sync()
+
+
+
 class Output[T:(bool, int, float, str)](_IOBase[T], AbstractContextManager):
+	_set: Callable[[T], None]
+
 	def __init__(self, io, **kwargs):
 		super().__init__(io, **kwargs)
 		self.value = self.type()
-
-	@staticmethod
-	def _io_sim(value):
-		pass
+		if not hasattr(self, '_set'):
+			self._set = io
 
 	def set_override(self, override):
-		if super().set_override(override):
-			self._io(self.override if self.override is not None else self.value)
+		super().set_override(override)
+		if not self.simulated:
+			self._set(self.override if self.override is not None else self.value)
 
 	def __call__(self, value: T | None = None):
 		self.value = self.type() if value is None else self.type(value)
-		if self.override is None:
-			self._io(self.value)
+		if not self.simulated and self.override is None:
+			self._set(self.value)
 		return self
 
 	def __exit__(self, *exc):
 		self()
+
+
+class AsyncOutput[T:(bool, int, float, str)](Output[T]):
+	_sync: Callable[[T], Coroutine[Any, Any, None]]
+
+	def __init__(self, io, **kwargs):
+		super().__init__(io, **kwargs)
+		self._sync_value = self.type()
+		self._sync = io
+
+	def _set(self, value):
+		self._sync_value = value
+
+	async def sync(self):
+		if not self.simulated:
+			await self._sync(self._sync_value)
 
 
 
@@ -125,6 +159,21 @@ class IoGroup(AbstractContextManager):
 				simio.__exit__(*exc)
 
 
+	@property
+	def simulated(self):
+		return all(simio.simulated for simio in self._simio)
+
+
+	async def sync(self):
+		for simio in self._simio:
+			await simio.sync()
+
+	async def sync_loop(self, period:float):
+		while True:
+			await self.sync()
+			await app.sleep(period)
+
+
 	def open(self):
 		for simio in self._simio:
 			simio.open()
@@ -137,54 +186,59 @@ class IoGroup(AbstractContextManager):
 		_WebHandler.all.write_update()
 
 
-	if TYPE_CHECKING:
-		@overload
-		def input[T:(bool, int, float, str)](
-			self,
-			io: Callable[[], T]
-		) -> Input[T]:
-			pass
-		@overload
-		def input[T:(bool, int, float, str)](
-			self,
-			*,
-			prefix: str | None = None,
-			sim: T | Callable[[], T] | None = None,
-			simulated = False,
-		) -> Callable[[Callable[[], T]], Input[T]]:
-			pass
+	@overload
+	def input[T:(bool, int, float, str)](
+		self,
+		io: Callable[[], T | Coroutine[Any, Any, T]],
+		*,
+		prefix: str | None = None,
+		sim: T | Callable[[], T] | None = None,
+		simulated = False,
+	) -> Input[T]:
+		pass
+	@overload
+	def input[T:(bool, int, float, str)](
+		self,
+		*,
+		prefix: str | None = None,
+		sim: T | Callable[[], T] | None = None,
+		simulated = False,
+	) -> Callable[[Callable[[], T | Coroutine[Any, Any, T]]], Input[T]]:
+		pass
 
 	def input(self, io=None, **kwargs):
 		def decorator(io, /):
 			kwargs.setdefault('module', self.module)
 			kwargs.setdefault('prefix', self.prefix)
-			simio = Input(io, **kwargs)
+			simio = AsyncInput(io, **kwargs) if iscoroutinefunction(io) else Input(io, **kwargs)
 			self._simio.append(simio)
 			return simio
 		return decorator if io is None else decorator(io)
 
 
-	if TYPE_CHECKING:
-		@overload
-		def output[T:(bool, int, float, str)](
-			self,
-			io: Callable[[T], None]
-		) -> Output[T]:
-			pass
-		@overload
-		def output[T:(bool, int, float, str)](
-			self,
-			*,
-			prefix: str | None = None,
-			simulated = False,
-		) -> Callable[[Callable[[T], None]], Output[T]]:
-			pass
+	@overload
+	def output[T:(bool, int, float, str)](
+		self,
+		io: Callable[[T], None | Coroutine[Any, Any, None]],
+		*,
+		prefix: str | None = None,
+		simulated = False,
+	) -> Output[T]:
+		pass
+	@overload
+	def output[T:(bool, int, float, str)](
+		self,
+		*,
+		prefix: str | None = None,
+		simulated = False,
+	) -> Callable[[Callable[[T], None | Coroutine[Any, Any, None]]], Output[T]]:
+		pass
 
 	def output(self, io=None, **kwargs):
 		def decorator(io, /):
 			kwargs.setdefault('module', self.module)
 			kwargs.setdefault('prefix', self.prefix)
-			simio = Output(io, **kwargs)
+			simio = AsyncOutput(io, **kwargs) if iscoroutinefunction(io) else Output(io, **kwargs)
 			self._simio.append(simio)
 			return simio
 		return decorator if io is None else decorator(io)

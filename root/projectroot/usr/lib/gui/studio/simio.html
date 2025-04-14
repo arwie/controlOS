@@ -46,7 +46,7 @@
 				<th data-l10n-id="simio_override"></th>
 			</tr>
 		</thead>
-		<tbody data-bind="foreach:$model.simio().filter(io => io.cls==cls && (io.ord()!==null || RegExp($model.filter().trim().replaceAll(/ +/g,'|'),'i').test(io.name))).sort((a,b) => a.name<b.name?-1:(a.name>b.name?1:0))">
+		<tbody data-bind="foreach:$model.simio().filter(io => io.cls.endsWith(cls) && (io.ord()!==null || RegExp($model.filter().trim().replaceAll(/ +/g,'|'),'i').test(io.name))).sort((a,b) => a.name<b.name?-1:(a.name>b.name?1:0))">
 			<tr data-bind="css:{'table-info':sim, 'table-warning':sim&&ord()!==null, 'table-danger':!sim&&ord()!==null}">
 				<th><span data-bind="text:name" class="form-control-plaintext"></span></th>
 				<td><span data-bind="text:type" class="form-control-plaintext"></span></td>
