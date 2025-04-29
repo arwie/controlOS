@@ -2251,7 +2251,7 @@ PTXCONF_GNUPG_GPG_AGENT=y
 # public key algorithms
 #
 PTXCONF_GNUPG_GPG_RSA=y
-# PTXCONF_GNUPG_GPG_ECDH is not set
+PTXCONF_GNUPG_GPG_ECDH=y
 # PTXCONF_GNUPG_GPG_ECDSA is not set
 PTXCONF_GNUPG_GPG_EDDSA=y
 # end of public key algorithms
