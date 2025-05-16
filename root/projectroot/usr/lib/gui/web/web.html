@@ -1,0 +1,53 @@
+{% comment 
+# SPDX-FileCopyrightText: 2025 Artur Wiebe <artur@4wiebe.de>
+# SPDX-License-Identifier: MIT
+%}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8"/>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<title data-l10n-id="title"></title>
+	<link rel="shortcut icon" href="{{static_url('favicon.ico')}}">
+
+	<script src="{{static_url('bootstrap/index.js')}}"></script>
+	<link rel="stylesheet" href="{{static_url('bootstrap/bootstrap.css')}}">
+
+	<link rel="stylesheet" href="{{static_url('fontawesome/css/all.css')}}">
+
+	<script defer src="{{static_url('locale/l20n.js')}}"></script>
+	<link rel="localization" href="web.locale?ftl={locale}">
+	<meta name="availableLanguages" content="{{available_languages}}">
+	<meta name="defaultLanguage" content="en">
+
+	<script type="importmap">
+		{ "imports": {% raw importmap %} }
+	</script>
+</head>
+
+<body style="overscroll-behavior:contain;" class="vh-100">
+
+	<div id="gui-view" class="h-100"></div>
+
+	<div id="gui-disconnected" data-bs-backdrop="static" data-bs-keyboard="false" class="modal">
+		<div class="modal-dialog modal-lg">
+			<div class="alert alert-warning">
+				<h1 class="display-1 text-center">
+					<i class="fas fa-link-slash"></i>
+				</h1>
+			</div>
+		</div>
+	</div>
+
+</body>
+
+<script type="module">
+	import '/web.imports'
+	import('web').then(web => web.default());
+</script>
+
+</html>
