@@ -36,6 +36,7 @@ _virtual = system.virtual()
 
 
 class _IOBase[T:(bool, int, float, str)]:
+	cls: str
 	value: T
 	_io_sim: Callable
 
@@ -72,6 +73,7 @@ class _IOBase[T:(bool, int, float, str)]:
 
 
 class Input[T:(bool, int, float, str)](_IOBase[T]):
+	cls = 'Input'
 	_get: Callable[[], T]
 
 	def __init__(self, io, *, sim: T | Callable[[], T] | None = None, **kwargs):
@@ -106,6 +108,7 @@ class AsyncInput[T:(bool, int, float, str)](Input[T]):
 
 
 class Output[T:(bool, int, float, str)](_IOBase[T], AbstractContextManager):
+	cls = 'Output'
 	_set: Callable[[T], None]
 
 	def __init__(self, io, **kwargs):
@@ -273,17 +276,23 @@ class _WebHandler(web.WebSocketHandler):
 	def update(cls, full=False):
 		full = full or cls._simio_changed
 		cls._simio_changed = False
-		return [{
-			'id':		id,
-			'ord':		simio.override,
-			'val':		simio.value,
-			**({
-				'cls':		simio.__class__.__name__,
-				'name':		simio.name,
-				'type':		simio.type.__name__,
-				'sim':		simio.simulated,
-			} if full else {})
-		} for id,simio in cls._simio.items()]
+		return {
+			'data': {
+				id: {
+					'ord':		simio.override,
+					'val':		simio.value,
+				} for id, simio in cls._simio.items()
+			},
+			'list': [
+				{
+					'id':		id,
+					'cls':		simio.cls,
+					'name':		simio.name,
+					'type':		simio.type.__name__,
+					'sim':		simio.simulated,
+				} for id, simio in cls._simio.items()
+			] if full else None,
+		}
 
 	def on_open(self):
 		self.write_update(True)
