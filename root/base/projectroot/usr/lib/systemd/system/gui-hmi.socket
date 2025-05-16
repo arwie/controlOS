@@ -1,6 +1,3 @@
-[Unit]
-ConditionPathExists=/usr/lib/gui/gui
-
 [Socket]
 ListenStream=80
 BindToDevice=sys
