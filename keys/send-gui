@@ -23,4 +23,4 @@ sshsys "mount --options=remount,rw --target=/ && rm -f /version"
 
 rsyncsys root/projectroot/usr/lib/gui /usr/lib
 
-sshsys "systemctl --quiet stop gui.service studio.service"
+sshsys "systemctl --quiet stop gui-*.service"

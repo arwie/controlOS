@@ -14,14 +14,16 @@ PACKAGES-$(PTXCONF_GUI_ACE) += gui-ace
 #
 # Paths and names
 #
-GUI_ACE_VERSION		:= 1.39.1
-GUI_ACE_MD5		:= 588463327d67cbc9d01835f030c6de1c
+GUI_ACE_VERSION		:= 1.41.0
+GUI_ACE_MD5		:= e4965a7d7165457fc87b36e0f58ddc2c
 GUI_ACE			:= ace-$(GUI_ACE_VERSION)
 GUI_ACE_SUFFIX		:= zip
 GUI_ACE_URL		:= https://github.com/ajaxorg/ace-builds/archive/refs/tags/v$(GUI_ACE_VERSION).$(GUI_ACE_SUFFIX)
 GUI_ACE_SOURCE		:= $(SRCDIR)/$(GUI_ACE).$(GUI_ACE_SUFFIX)
 GUI_ACE_DIR		:= $(BUILDDIR)/$(GUI_ACE)
 GUI_ACE_LICENSE		:= BSD-3-Clause
+
+GUI_ACE_INSTALL		:= /usr/lib/gui/ace
 
 # ----------------------------------------------------------------------------
 # Prepare
@@ -58,11 +60,11 @@ $(STATEDIR)/gui-ace.targetinstall:
 	@$(call install_fixup, gui-ace,DESCRIPTION,missing)
 
 	@$(call install_copy, gui-ace, 0, 0, 0644, \
-		$(GUI_ACE_DIR)/src-min-noconflict/ace.js, /usr/lib/gui/static/ace/ace.js)
+		$(GUI_ACE_DIR)/src-min-noconflict/ace.js, $(GUI_ACE_INSTALL)/index.js)
 
 	@$(foreach mode, $(GUI_ACE_MODES), \
 		$(call install_copy, gui-ace, 0, 0, 0644, \
-			$(GUI_ACE_DIR)/src-min-noconflict/mode-$(mode).js, /usr/lib/gui/static/ace/mode-$(mode).js) \
+			$(GUI_ACE_DIR)/src-min-noconflict/mode-$(mode).js, $(GUI_ACE_INSTALL)/mode-$(mode).js) \
 	$(ptx/nl))
 
 	@$(call install_finish, gui-ace)
