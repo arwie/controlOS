@@ -3,17 +3,17 @@
 
 import { ref, shallowRef, computed } from 'vue'
 import { url } from 'web/utils'
-import studioIndex from 'studio'
+import { studioIndex } from 'studio'
 
 
 studioIndex.addPage('simio', {
 	targetGuard: 'app@simio',
-	setup() {
+	async setup() {
 		const filter = ref('');
 		const list = shallowRef([])
 		const data = shallowRef();
 
-		const conn = url('simio', 'app').webSocketJson((msg)=>{
+		const ws = url('simio', 'app').webSocketJson((msg)=>{
 			if (msg.list) {
 				list.value = msg.list;
 			}
@@ -42,11 +42,11 @@ studioIndex.addPage('simio', {
 		}
 
 		function ordToggle(io) {
-			conn.sendJson({id:io.id, ord:(ord(io) !== null ? null : val(io))});
+			ws.sendJson({id:io.id, ord:(ord(io) !== null ? null : val(io))});
 		}
 
 		function ordSendPreset(io, ord) {
-			conn.sendJson({id:io.id, ord});
+			ws.sendJson({id:io.id, ord});
 		}
 
 		function ordSendValue(io, event) {
@@ -58,10 +58,11 @@ studioIndex.addPage('simio', {
 				if (isNaN(ord))
 					return;
 			}
-			conn.sendJson({id:io.id, ord});
+			ws.sendJson({id:io.id, ord});
 			event.target.value = null;
 		}
 
+		await ws.sync;
 		return { filter, lists, data, val, ord, ordToggle, ordSendPreset, ordSendValue }
 	},
 	template: //html
@@ -71,7 +72,7 @@ studioIndex.addPage('simio', {
 		<span v-else class="input-group-text"><i class="fas fa-search"></i></span>
 		<input v-model.trim="filter" type="text" placeholder="match1 match2 match3 ..." class="form-control">
 	</div>
-	<div v-if="data" class="row h-100" style="min-height:0">
+	<div class="row h-100" style="min-height:0">
 		<div v-for="(list, cls) in lists" class="col-xxl h-100 overflow-scroll">
 			<table class="table table-hover">
 				<colgroup>

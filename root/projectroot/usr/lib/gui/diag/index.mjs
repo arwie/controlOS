@@ -6,15 +6,14 @@ import { NavDropdown, PageLink } from 'web/widgets'
 
 
 
-const index = addPage('/diag');
-export default index;
+export const diagIndex = addPage('diag');
 
 
 
 export const DiagDropdown = {
 	setup() {
 		return {
-			links: index.children,
+			links: diagIndex.children,
 		}
 	},
 	components: { NavDropdown, PageLink },

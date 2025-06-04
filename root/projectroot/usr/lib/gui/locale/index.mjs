@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2025 Artur Wiebe <artur@4wiebe.de>
 // SPDX-License-Identifier: MIT
 
+import { ref } from 'vue'
 import { NavDropdown } from 'web/widgets'
 
 
@@ -23,3 +24,10 @@ export const LocaleDropdown = {
 	</NavDropdown>
 	`
 }
+
+
+
+export const langRef = ref();
+
+new MutationObserver(() => langRef.value = document.documentElement.lang)
+	.observe(document.documentElement, { attributes:true, attributeFilter:['lang'] });

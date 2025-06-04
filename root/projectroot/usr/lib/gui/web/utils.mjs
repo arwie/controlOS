@@ -24,25 +24,29 @@ export function url(url='', port=null, host=null) {
 			return this;
 		},
 
-		async fetch(options={}, type='text') {
+		async fetch(options={}, responseType='text') {
 			const response = await fetch(this, options);
 			if (!response.ok) {
 				throw new Error(`url fetch error: ${response.status}`);
 			}
-			return response[type]();
+			return response[responseType]();
 		},
 
 		async fetchJson(options={}) {
-			const body = await this.fetch(options)
-			return jsonParse(body)
+			const result = await this.fetch(options)
+			return jsonParse(result)
 		},
 
 		post(body, options={}) {
 			return this.fetch({ method:'POST', body, ...options});
 		},
 
-		postJson(body, options={}) {
-			return this.post(jsonStringify(body), options);
+		async postJson(body, options={}) {
+			if (body && !(body instanceof Blob)) {
+				body = jsonStringify(body);
+			}
+			const result = await this.post(body, options);
+			return jsonParse(result);
 		},
 
 		put(body, options={}) {
@@ -51,7 +55,12 @@ export function url(url='', port=null, host=null) {
 
 		webSocket(handler) {
 			const ws = new WebSocket(this.toString('ws:'));
-			ws.onmessage = msg => handler(msg.data);
+			ws.sync = new Promise(resolve => {
+				ws.onmessage = (msg) => {
+					handler(msg.data);
+					resolve();
+				};
+			});
 			onUnmounted(()=>{
 				ws.onclose = ws.onerror = ws.onmessage = null;
 				ws.close();
@@ -77,7 +86,10 @@ export function url(url='', port=null, host=null) {
 
 
 export function poll(period, func) {
-	func();
+	func.sync = new Promise(async resolve => {
+		await func();
+		resolve();
+	});
 	func.interval = setInterval(func, period);
 	func.clear = () => clearInterval(func.interval);
 	onUnmounted(func.clear);
@@ -108,4 +120,12 @@ export function updateDeep(target, source) {
 			}
 		}
 	}
+}
+
+
+export function loadCSS(url) {
+	const link = document.createElement('link');
+	link.rel = 'stylesheet';
+	link.href = url;
+	document.head.appendChild(link);
 }

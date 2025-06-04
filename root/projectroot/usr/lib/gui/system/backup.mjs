@@ -3,7 +3,7 @@
 
 import { url } from 'web/utils'
 import { ButtonBar, FileButton, feedback } from 'web/widgets'
-import systemIndex from 'system'
+import { systemIndex } from 'system'
 
 
 

@@ -3,7 +3,7 @@
 
 import { ref, shallowReactive, watch } from 'vue'
 import { url } from 'web/utils'
-import diagIndex from 'diag'
+import { diagIndex } from 'diag'
 
 
 import config from '/diag.log.config'
@@ -25,7 +25,7 @@ const Message = {
 
 		const timestamp = new Date(
 			parseInt(msg._SOURCE_REALTIME_TIMESTAMP ?? msg.__REALTIME_TIMESTAMP) / 1000
-		).toLocaleString(navigator.language, {hour12:false});
+		).toLocaleString(document.documentElement.lang, {hour12:false});
 
 		msg.PRIORITY = parseInt(msg.PRIORITY);
 
@@ -86,7 +86,7 @@ const Message = {
 
 
 diagIndex.addPage('log', {
-	setup() {
+	async setup() {
 
 		const messages		= shallowReactive([]);
 		
@@ -127,12 +127,6 @@ diagIndex.addPage('log', {
 				update();
 		});
 		watch([priority, identifier, host, grep, filter], update);
-
-		const identifiers = shallowReactive([]);
-		setTimeout(async ()=>{
-			const data = await url('diag.log.field').query({field:'SYSLOG_IDENTIFIER'}).fetchJson();
-			identifiers.push(...data.sort());
-		}, 300);
 
 		function query(lines, extendMsg, args={}) {
 			args.priority = priority.value;
@@ -259,6 +253,17 @@ diagIndex.addPage('log', {
 				contentType: false,
 			})).always(model.start);
 		}
+
+
+		const identifiers = shallowReactive([]);
+
+		await new Promise(resolve => {
+			setTimeout(async ()=>{
+				resolve();
+				const data = await url('diag.log.field').query({field:'SYSLOG_IDENTIFIER'}).fetchJson();
+				identifiers.push(...data.sort());
+			}, 50);
+		});
 
 		return { messages, follow, date, pinned, grep, filter, priority, identifier, identifiers, host, config, extendNewer, extendOlder, scroll }
 	},

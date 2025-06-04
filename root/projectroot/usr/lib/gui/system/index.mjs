@@ -7,15 +7,14 @@ import { NavDropdown, PageLink } from 'web/widgets'
 
 
 
-const index = addPage('/system');
-export default index;
+export const systemIndex = addPage('system');
 
 
 
 export const SystemDropdown = {
 	setup() {
 		return {
-			links: index.children,
+			links: systemIndex.children,
 		}
 	},
 	components: { NavDropdown, PageLink },

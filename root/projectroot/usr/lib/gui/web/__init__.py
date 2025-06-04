@@ -74,6 +74,10 @@ def handler[T:type[RequestHandler | WebSocketHandler]](handler:T) -> T:
 	return handler
 
 
+def redirect(match, target):
+	_handlers.append((f'/{match}', tornado.web.RedirectHandler, {'url':target}))
+
+
 
 @handler
 class imports(ModuleHandler):
@@ -96,10 +100,10 @@ class files(ModuleHandler):
 		cls.globs.append(glob)
 
 	async def export_default(self):
+		globs = (gui_path.glob(glob) for glob in self.globs)
+		files = (str(path.relative_to(gui_path)) for path in chain(*globs) if path.is_file() and path.exists())
 		return {
-			file: self.static_url(file) for file in
-				(str(path.relative_to(gui_path)) for path in
-					chain(*(gui_path.glob(glob) for glob in self.globs)))
+			file: self.static_url(file) for file in files
 		}
 
 

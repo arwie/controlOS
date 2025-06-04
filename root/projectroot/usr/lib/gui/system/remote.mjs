@@ -4,7 +4,7 @@
 import { ref } from 'vue'
 import { url, poll } from 'web/utils'
 import { ButtonBar } from 'web/widgets'
-import systemIndex from 'system'
+import { systemIndex } from 'system'
 
 
 

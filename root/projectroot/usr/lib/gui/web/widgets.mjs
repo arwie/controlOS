@@ -3,43 +3,8 @@
 
 import { router } from 'web'
 import { poll } from 'web/utils'
-import { ref, provide, inject } from 'vue'
+import { ref, computed, watch, provide, inject, useSlots } from 'vue'
 
-
-
-export const RootView = {
-	props: ['image'],
-	setup(props) {
-		return {
-			image: props.image,
-		}
-	},
-	template: //html
-	`
-	<nav class="navbar navbar-expand-lg fixed-top bg-light">
-		<div class="container-fluid">
-			<a href="#" class="navbar-brand">
-				<img  v-if="image" :src="image" height="22" class="d-inline-block align-baseline"/>
-				<span v-else data-l10n-id="title"></span>
-			</a>
-			<button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-collapse">
-				<span class="navbar-toggler-icon"></span>
-			</button>
-			<div class="collapse navbar-collapse navbar-nav-scroll" id="navbar-collapse">
-				<div class="navbar-nav">
-					<slot name="navbar"></slot>
-				</div>
-				<div class="navbar-nav ms-auto">
-					<slot name="navbar-right"></slot>
-				</div>
-			</div>
-		</div>
-	</nav>
-	<main class="container-fluid h-100 d-flex flex-column" style="padding-top:4.5rem">
-		<RouterView />
-	</main>
-	`
-}
 
 
 export const PageLink = {
@@ -60,12 +25,66 @@ export const PageLink = {
 	`
 	<RouterLink
 		:to
-		v-show="!to.beforeEnter||to.beforeEnter()"
+		v-show="!to.beforeEnter || to.beforeEnter()===true"
 		:class="cls"
 		:data-l10n-id="to.name"
 		@click="navbarCollapse"
 		activeClass="active"
 	/>
+	`
+}
+
+
+export const PageView = {
+	props: ['key'],
+	setup(props) {
+		return { props }
+	},
+	template: //html
+	`
+	<RouterView v-slot="{ Component }">
+		<Suspense v-if="Component">
+			<component :is="Component" :key="props.key"/>
+		</Suspense>
+		<slot v-else></slot>
+	</RootView>
+	`
+}
+
+
+export const RootView = {
+	props: ['image','style'],
+	setup(props) {
+		return {
+			image: props.image,
+			syle: props.style,
+		}
+	},
+	components: { PageView },
+	template: //html
+	`
+	<nav class="navbar navbar-expand-lg fixed-top bg-light" :style>
+		<div class="container-fluid">
+			<a href="#" class="navbar-brand">
+				<img  v-if="image" :src="image" height="22" class="d-inline-block align-baseline"/>
+				<span v-else data-l10n-id="title"></span>
+			</a>
+			<button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-collapse">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="collapse navbar-collapse navbar-nav-scroll" id="navbar-collapse">
+				<div class="navbar-nav">
+					<slot name="navbar"></slot>
+				</div>
+				<div class="navbar-nav ms-auto">
+					<slot name="navbar-right"></slot>
+				</div>
+			</div>
+		</div>
+	</nav>
+	<main class="container-fluid h-100 d-flex flex-column" style="padding-top:4.5rem">
+		<PageView />
+	</main>
 	`
 }
 
@@ -95,6 +114,24 @@ export const NavDropdown = {
 			<slot></slot>
 		</div>
 	</div>
+	`
+}
+
+
+export const Tabs = {
+	setup() {
+		function tabs() {
+			return Object.keys(useSlots());
+		}
+		const tab = ref(tabs()[0]);
+		return { tabs, tab }
+	},
+	template: //html
+	`
+	<div class="nav nav-tabs nav-fill mb-4">
+		<a v-for="t in tabs()" @click.prevent="tab=t" :class="{active:tab==t}" :data-l10n-id="t" class="nav-link" href="#"></a>
+	</div>
+	<slot :name="tab"></slot>
 	`
 }
 
@@ -139,7 +176,35 @@ export const ConfirmButton = {
 	},
 	template: //html
 	`
-	<button @click="clickConfirm" class="btn" :class="{'btn-dark':activeBlink}" :disabled="active===false"></button>
+	<button @click.stop="clickConfirm" class="btn" :class="{'btn-dark':activeBlink}" :disabled="active===false">
+		<slot></slot>
+	</button>
+	`
+}
+
+
+export const PressButton = {
+	emits: ['press', 'release'],
+	setup(props, { emit }) {
+		let active = false;
+		return { 
+			press(ev) {
+				active = true;
+				emit('press', ev);
+			},
+			release(ev) {
+				if (active) {
+					emit('release', ev);
+					active = false;
+				}
+			}
+		}
+	},
+	template: //html
+	`
+	<button @pointerdown="press" @pointerup="release" @pointerout="release">
+		<slot></slot>
+	</button>
 	`
 }
 

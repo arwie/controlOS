@@ -3,11 +3,12 @@
 
 import { createApp, shallowRef } from 'vue'
 import { createRouter, createWebHashHistory } from 'vue/router'
-import { url, poll } from 'web/utils'
+import { url, poll, isObject } from 'web/utils'
+import { PageView } from 'web/widgets'
 
 
 
-let rootView;
+let rootView = PageView;
 
 export function setRootView(component) {
 	rootView = component;
@@ -17,19 +18,23 @@ export function setRootView(component) {
 const routes = [];
 export let router;
 
-export function addPage(path, component, parent=routes) {
+export function addPage(path, component, parent=null) {
 	const route = {
-		path,
+		path: parent ? path : `/${path}`,
 		name: path,
 		component,
 		children: [],
 		addPage(path, component) {
-			return addPage(path, component, this.children);
-		}
+			return addPage(path, component, this);
+		},
+		open(query) {
+			router.push({ ...this, query });
+		},
 	}
-	if (component && component.targetGuard)
-		route.beforeEnter = () => target(component.targetGuard);
-	parent.push(route);
+	if (component && component.targetGuard) {
+		route.beforeEnter = () => target(component.targetGuard) || parent || { path:'/' };
+	}
+	(parent?.children || routes).push(route);
 	return route;
 }
 
@@ -42,17 +47,11 @@ export function target(target) {
 
 
 
-export default function() {
-	const app = createApp(rootView);
-
+export default async function() {
 	router = createRouter({
 		history: createWebHashHistory(),
 		routes,
-	})
-	app.use(router);
-
-	app.config.compilerOptions.whitespace = 'preserve';
-	app.mount('#gui-view');
+	});
 
 	function disconnected() {
 		if (watchdog !== null) {
@@ -71,14 +70,21 @@ export default function() {
 	const ws = url('web.targets').webSocketJson((msg)=>{
 		if (Array.isArray(msg)) {
 			targets.value = msg;
-			const route = router.currentRoute.value;
-			const guard = route.matched.at(-1)?.beforeEnter;
-			if (guard && !guard()) {
-				router.replace(route.matched.at(-2) || '/');
+			for (const matched of router.currentRoute.value.matched) {
+				const guard = matched.beforeEnter?.();
+				if (isObject(guard)) {
+					router.replace(guard);
+				}
 			}
 		}
 		clearTimeout(watchdog);
 		watchdog = setTimeout(disconnected, 15000);
 	});
 	ws.onclose = ws.onerror = disconnected;
+	await ws.sync;
+
+	const app = createApp(rootView);
+	app.config.compilerOptions.whitespace = 'preserve';
+	app.use(router);
+	app.mount('#gui-view');
 }

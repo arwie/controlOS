@@ -16,6 +16,7 @@
 	],
 	"python.analysis.diagnosticMode": "workspace",
 	"workbench.editor.customLabels.patterns": {
-		"**/__init__.py": "${dirname}.${extname}"
+		"**/__init__.py": "${dirname}.${extname}",
+		"**/index.mjs":   "${dirname}.${extname}",
 	},
 }

@@ -4,7 +4,7 @@
 import { ref, useTemplateRef } from 'vue'
 import { url } from 'web/utils'
 import { ButtonBar } from 'web/widgets'
-import diagIndex from 'diag'
+import { diagIndex } from 'diag'
 
 
 
