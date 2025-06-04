@@ -1,26 +1,36 @@
 // SPDX-FileCopyrightText: 2025 Artur Wiebe <artur@4wiebe.de>
 // SPDX-License-Identifier: MIT
 
-import * as THREE				from 'three';
-import { OrbitControls }		from 'three/controls/OrbitControls';
+import {
+	Scene as THREE_Scene,
+	WebGLRenderer,
+	HemisphereLight,
+	PointLight,
+	PerspectiveCamera,
+	OrthographicCamera,
+	Bone,
+	Mesh,
+	MeshPhongMaterial,
+} from 'three';
+import { OrbitControls } from 'three/controls/OrbitControls';
+import { STLLoader } from 'three/loaders/STLLoader';
 
 
 
-
-export default class Scene extends THREE.Scene {
+export class Scene extends THREE_Scene {
 	constructor() {
 		super();
 		
-		this.renderer = new THREE.WebGLRenderer({antialias:true});
+		this.renderer = new WebGLRenderer({antialias:true});
 		this.renderer.domElement.style.width  = '100%';
 		this.renderer.domElement.style.height = '100%';
 		this.renderer.setClearColor(0xffffff);
 		
-		let hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 3);
+		let hemiLight = new HemisphereLight(0xffffff, 0x444444, 3);
 		hemiLight.position.set(0, 0, 1);
 		this.add(hemiLight);
 		
-		this.cameraLight = new THREE.PointLight(0xffffff, 20, 0, 0.2);
+		this.cameraLight = new PointLight(0xffffff, 20, 0, 0.2);
 		this.setCamera();
 		
 		new ResizeObserver(()=>{
@@ -54,11 +64,11 @@ export default class Scene extends THREE.Scene {
 		}
 		
 		if (perspective) {
-			this.camera = (this.perspectiveCamera ??= setupCameraDefaults(new THREE.PerspectiveCamera(33, 0, 0.1, 100000), 1, (camera, w,h)=>{
+			this.camera = (this.perspectiveCamera ??= setupCameraDefaults(new PerspectiveCamera(33, 0, 0.1, 100000), 1, (camera, w,h)=>{
 				camera.aspect = w / h;
 			}));
 		} else {
-			this.camera = (this.orthographicCamera ??= setupCameraDefaults(new THREE.OrthographicCamera(0, 0, 0, 0, 0, 100000), 0.15, (camera, w,h)=>{
+			this.camera = (this.orthographicCamera ??= setupCameraDefaults(new OrthographicCamera(0, 0, 0, 0, 0, 100000), 0.15, (camera, w,h)=>{
 				camera.left		= w / -2;
 				camera.right	= w /  2;
 				camera.top		= h /  2;
@@ -76,4 +86,29 @@ export default class Scene extends THREE.Scene {
 	render() {
 		this.renderer.render(this, this.camera);
 	}
+}
+
+
+
+//material: Material or Material properties
+//bones: Bone or [Bone]
+export function loadStl(file, material, bones = new Bone())
+{
+	if (file)
+		new STLLoader().load(file, (geometry) => {
+
+			if (!material.isMaterial)
+				material = new MeshPhongMaterial(material);
+
+			if (geometry.hasColors) {
+				material.vertexColors = true;
+				material.opacity = geometry.alpha;
+			}
+
+			for (let bone of (Array.isArray(bones) ? bones : [bones]))
+				bone.add(new Mesh(geometry, material));
+
+		});
+
+	return bones;
 }
