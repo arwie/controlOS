@@ -134,12 +134,16 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 
 	def on_close(self):
 		self.all.discard(self)
-	
-	def write_message(self, msg: bytes | Any, **kwargs):
+
+	last_message = None
+
+	def write_message(self, msg: bytes | Any, *, send_unchanged:bool = False, **kwargs):
 		if not isinstance(msg, bytes):
 			msg = json.dumps(msg).encode()
-		with suppress(WebSocketClosedError):
-			super().write_message(msg, **kwargs).cancel()
+		if send_unchanged or msg != self.last_message:
+			self.last_message = msg
+			with suppress(WebSocketClosedError):
+				super().write_message(msg, **kwargs).cancel()
 
 	def write_update(self, *args):
 		self.write_message(self.update(*args))
