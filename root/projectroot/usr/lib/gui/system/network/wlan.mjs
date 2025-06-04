@@ -1,7 +1,7 @@
 import { ref, useTemplateRef } from 'vue'
 import { url, updateDeep } from 'web/utils'
 import { ButtonBar, feedback } from 'web/widgets'
-import networkIndex from 'system/network'
+import { networkIndex } from 'system/network'
 import { NetworkConf } from 'system/network/lan'
 
 
