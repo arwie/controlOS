@@ -1,80 +1,53 @@
-# Copyright (c) 2018 Artur Wiebe <artur@4wiebe.de>
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
-# associated documentation files (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
-# and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-# WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
+# SPDX-FileCopyrightText: 2025 Artur Wiebe <artur@4wiebe.de>
+# SPDX-License-Identifier: MIT
 
 from __future__ import annotations
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-	from shared.sqlite import Table
+	from shared.sqlite import SqliteTable
 
-import server, inspect
+import web
+from inspect import isawaitable
 
 
 
-class TableHandler(server.RequestHandler):
-	def initialize(self, table:Table, doGet={}, doPost={}):
-		self.table = table
-		self.db    = table.db
-		self.dbr   = table.dbr
-		self.doGet = {**{
-			'list':		self.doList,
-			'load':		self.doLoad,
-		}, **doGet}
-		self.doPost = {**{
-			'create':	self.doCreate,
-			'copy':		self.doCopy,
-			'remove':	self.doRemove,
-			'save':		self.doSave,
-			'swap':		self.doSwap,
-		}, **doPost}
-	
+class TableHandler[T:SqliteTable](web.RequestHandler):
+	table: T
+
 	async def get(self):
-		result = self.doGet[self.get_query_argument('do', 'list')]() #type:ignore
-		if inspect.isawaitable(result):
+		result = getattr(self, f'get_{self.get_query_argument("action", "list")}')()
+		if isawaitable(result):
 			result = await result
 		if result is not None:
-			self.writeJson(result)
+			self.write(result)
 	
 	async def post(self):
 		with self.table.db:
-			result = self.doPost[self.get_query_argument('do')]() #type:ignore
-			if inspect.isawaitable(result):
+			result = getattr(self, f'post_{self.get_query_argument("action")}')()
+			if isawaitable(result):
 				result = await result
 			if result is not None:
-				self.writeJson(result)
+				self.write(result)
 	
 	
-	def doList(self):
+	def get_list(self):
 		return self.table.list()
 	
-	def doLoad(self):
+	def get_load(self):
 		return self.table.load(self.get_query_argument('id'))
 	
 	
-	def doCreate(self):
+	def post_create(self):
 		return {'id': self.table.create()}
 	
-	def doCopy(self):
+	def post_copy(self):
 		return {'id': self.table.copy(self.get_query_argument('id'))}
 	
-	def doRemove(self):
+	def post_remove(self):
 		self.table.remove(self.get_query_argument('id'))
 	
-	def doSwap(self):
+	def post_swap(self):
 		self.table.swap(self.get_query_argument('id'), self.get_query_argument('swap'))
 	
-	def doSave(self):
-		self.table.save(self.get_query_argument('id'), self.readJson())
+	def post_save(self):
+		self.table.save(self.get_query_argument('id'), self.read_json())
