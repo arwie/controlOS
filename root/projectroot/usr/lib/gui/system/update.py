@@ -12,10 +12,10 @@ web.imports.add('system/update')
 
 
 @web.handler
-class file(web.RequestHandler):
+class release(web.RequestHandler):
 	def get(self):
-		with suppress(Exception):
-			self.write(Path('/version').read_bytes())
+		with open('/etc/os-release') as release:
+			self.write({ k: v.strip('"\n') for k,v in (l.split('=') for l in release if '=' in l) })
 	
 	async def put(self):
 		await to_thread(

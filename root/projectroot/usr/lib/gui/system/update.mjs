@@ -9,28 +9,27 @@ import { systemIndex } from 'system'
 
 
 systemIndex.addPage('update', {
-	setup() {
+	async setup() {
 
-		const version = ref();
+		const release = ref();
 		const revertDate = ref();
 
-		url('system.update.file').fetchJson().then((data)=>{
-			version.value = data
-		});
+		release.value = await url('system.update.release').fetchJson();
+
 		url('system.update.revert').fetch().then((mtime)=>{
 			if (mtime)
-				revertDate.value = new Date(mtime*1000).toLocaleString(navigator.language, {hour12:false});
+				revertDate.value = new Date(mtime*1000).toLocaleString(document.documentElement.lang, {hour12:false});
 		});
 
 		function upload(file, element) {
-			feedback(element, url('system.update.file').put(file));
+			feedback(element, url('system.update.release').put(file));
 		}
 
 		function revert(ev) {
 			feedback(ev.target, url('system.update.revert').post());
 		}
 
-		return { version, upload, revertDate, revert }
+		return { release, upload, revertDate, revert }
 	},
 	components: { ButtonBar, FileButton, ConfirmButton },
 	template: //html
@@ -44,11 +43,11 @@ systemIndex.addPage('update', {
 				<div class="accordion-body">
 					<div class="mb-3">
 						<label class="form-label" data-l10n-id="update_version"></label>
-						<dl v-if="version" class="form-control">
+						<dl class="form-control">
 							<dt data-l10n-id="update_versionName"></dt>
-							<dd v-text="version.name"></dd>
-							<dt data-l10n-id="update_versionId"></dt>
-							<dd v-text="version.id"></dd>
+							<dd>{{release.PTXDIST_BSP_VERSION}}</dd>
+							<dt data-l10n-id="update_buildDate"></dt>
+							<dd>{{release.PTXDIST_BUILD_DATE}}</dd>
 						</dl>
 					</div>
 					<ButtonBar>

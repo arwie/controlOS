@@ -32,6 +32,11 @@ PYTHON_SHARED_DIR		:= $(BUILDDIR)/$(PYTHON_SHARED)
 
 PYTHON_SHARED_CONF_TOOL	:= python3
 
+$(STATEDIR)/python-shared.prepare: $(wildcard $(PYTHON_SHARED_DIR)/shared/**/*)
+	@$(call targetinfo)
+	@$(call world/prepare, PYTHON_SHARED)
+	@$(call touch)
+
 # ----------------------------------------------------------------------------
 # Target-Install
 # ----------------------------------------------------------------------------
