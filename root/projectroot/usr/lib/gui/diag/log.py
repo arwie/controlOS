@@ -5,7 +5,7 @@ import asyncio
 import web
 
 
-web.imports.add('diag/log')
+web.document.imports.add('diag/log')
 
 
 
@@ -22,7 +22,7 @@ class feed(web.WebSocketHandler):
 		proc = await journalctl_subprocess(*args, lines=lines, output='json')
 		try:
 			while proc.stdout and (msg := await proc.stdout.readline()):
-				self.write_message(msg)
+				self.write_message(msg, send_unchanged=True)
 			await proc.wait()
 		finally:
 			self.close()
@@ -94,11 +94,12 @@ class cat(web.RequestHandler):
 
 @web.handler
 class config(web.ModuleHandler):
+	extlog = False
 	hosts = list()
 	async def export_default(self):
 		if not self.hosts:
 			self.hosts.extend(await get_field('_HOSTNAME'))
 		return {
 			'hosts': self.hosts,
-			'extlog': globals().get('extlog', False),
+			'extlog': self.extlog,
 		}

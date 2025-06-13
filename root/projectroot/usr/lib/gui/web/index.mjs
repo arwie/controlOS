@@ -4,11 +4,10 @@
 import { createApp, shallowRef } from 'vue'
 import { createRouter, createWebHashHistory } from 'vue/router'
 import { url, poll, isObject } from 'web/utils'
-import { PageView } from 'web/widgets'
 
 
 
-let rootView = PageView;
+let rootView;
 
 export function setRootView(component) {
 	rootView = component;
@@ -57,7 +56,7 @@ export default async function() {
 		if (watchdog !== null) {
 			watchdog = null;
 			console.log('GUI: disconnected!');
-			new bootstrap.Modal('#gui-disconnected').show();
+			document.getElementById('gui-disconnected')?.showModal();
 			poll(3000, ()=>{
 				url('web.targets').post(null, { signal: AbortSignal.timeout(3000) })
 					.then(()=>location.reload())

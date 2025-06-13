@@ -13,7 +13,6 @@ import { DiagDropdown } from 'diag'
 export const studioIndex = addPage('studio');
 
 
-
 setRootView({
 	setup() {
 		return {

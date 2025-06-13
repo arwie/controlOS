@@ -12,12 +12,11 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
 	<title data-l10n-id="title"></title>
-	<link rel="shortcut icon" href="{{static_url('favicon.ico')}}">
+	<link rel="icon" href="{{static_url(favicon) if favicon else 'data:,'}}">
 
-	<script src="{{static_url('bootstrap/index.js')}}"></script>
-	<link rel="stylesheet" href="{{static_url('bootstrap/bootstrap.css')}}">
-
-	<link rel="stylesheet" href="{{static_url('fontawesome/css/all.css')}}">
+	{% for href in stylesheets %}
+		<link rel="stylesheet" href="{{href if href.startswith('http') else static_url(href)}}"/>
+	{% end %}
 
 	<script defer src="{{static_url('locale/l20n.js')}}"></script>
 	<link rel="localization" href="web.locale?ftl={locale}">
@@ -33,20 +32,21 @@
 
 	<div id="gui-view" class="h-100"></div>
 
-	<div id="gui-disconnected" data-bs-backdrop="static" data-bs-keyboard="false" class="modal">
-		<div class="modal-dialog modal-lg">
-			<div class="alert alert-warning">
-				<h1 class="display-1 text-center">
-					<i class="fas fa-link-slash"></i>
-				</h1>
-			</div>
-		</div>
-	</div>
+	<dialog id="gui-disconnected"
+		closedby="none"
+		style="border:none; background-color:transparent; user-select:none;"
+		oncancel="event.preventDefault()"
+		onfocus="event.target.blur()"
+	>
+		<span style='font-size:200px;'>&#9940;</span>
+	</dialog>
 
 </body>
 
 <script type="module">
-	import '/web.imports'
+	//{% for mjs in imports %}
+		import '{{mjs}}';
+	//{% end %}
 	import('web').then(web => web.default());
 </script>
 

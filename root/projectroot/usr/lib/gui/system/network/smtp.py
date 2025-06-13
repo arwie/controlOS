@@ -6,7 +6,7 @@ from shared.conf import Conf
 from shared import network
 
 
-web.imports.add('system/network/smtp')
+web.document.imports.add('system/network/smtp')
 
 
 @web.handler

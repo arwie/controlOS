@@ -4,6 +4,7 @@
 import { ref, shallowReactive, watch } from 'vue'
 import { target } from 'web'
 import { url } from 'web/utils'
+import { FileButton, feedback } from 'web/widgets'
 import { diagIndex } from 'diag'
 
 
@@ -243,32 +244,29 @@ diagIndex.addPage('log', {
 			}, 50);
 		}
 
-		function extlogImport(file, element) {
-			let formData = new FormData();
-			formData.append('extlog', file);
-			gui.feedback(element, $.ajax({
-				url: ajaxUrl('extlog'),
-				type: "put",
-				data: formData,
-				processData: false,
-				contentType: false,
-			})).always(model.start);
+		async function fetchIdentifiers() {
+			const data = await url('diag.log.field').query({field:'SYSLOG_IDENTIFIER'}).fetchJson();
+			identifiers.push(...data.sort());
 		}
 
+		async function extlogImport(file, element) {
+			await feedback(element, url('extlog.journal').put(file));
+			update();
+			fetchIdentifiers();
+		}
 
 		const identifiers = shallowReactive([]);
 
 		await new Promise(resolve => {
-			setTimeout(async ()=>{
+			setTimeout(()=>{
 				resolve();
-				const data = await url('diag.log.field').query({field:'SYSLOG_IDENTIFIER'}).fetchJson();
-				identifiers.push(...data.sort());
+				fetchIdentifiers();
 			}, 50);
 		});
 
-		return { messages, follow, date, pinned, grep, filter, priority, identifier, identifiers, host, config, extendNewer, extendOlder, scroll }
+		return { messages, follow, date, pinned, grep, filter, priority, identifier, identifiers, host, config, extendNewer, extendOlder, scroll, extlogImport }
 	},
-	components: { Message },
+	components: { Message, FileButton },
 	template: //html
 	`
 	<div class="row h-100">
@@ -286,7 +284,7 @@ diagIndex.addPage('log', {
 				<label class="form-check-label" for="log_follow" data-l10n-id="log_follow"></label>
 			</div>
 		</div>
-		<UploadButton v-else params="upload:extlogImport, l10n:'log_extlogImport', css:'btn-primary w-100 mb-3'" />
+		<FileButton v-else @file="extlogImport" class="btn-primary w-100 mb-3" data-l10n-id="log_extlogImport" />
 		
 		<div class="row">
 			<div class="col col-xl-12">

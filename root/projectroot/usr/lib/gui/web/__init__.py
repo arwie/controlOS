@@ -2,37 +2,17 @@
 # SPDX-License-Identifier: MIT
 
 from __future__ import annotations
-from typing import Any, Self
 
 import json
-from contextlib import suppress
 from pathlib import Path
-import logging
 import asyncio
 from itertools import chain
 
-import tornado.web
-import tornado.httpserver
-import tornado.websocket
-from tornado.websocket import WebSocketClosedError
+from shared import tornado
+from shared.tornado import RequestHandler, WebSocketHandler
 
 
-gui_path = Path('/usr/lib/gui')
-
-
-
-class RequestHandler(tornado.web.RequestHandler):
-
-	def initialize(self):
-		self.set_header('Cache-Control', 'no-store, must-revalidate')
-
-	def read_json(self):
-		return json.loads(self.request.body.decode())
-	
-	def write(self, msg: bytes | Any):
-		if not isinstance(msg, bytes):
-			msg = json.dumps(msg).encode()
-		super().write(msg)
+cwd = Path.cwd()
 
 
 
@@ -51,22 +31,6 @@ class ModuleHandler(RequestHandler):
 
 
 
-class WebSocketHandler(tornado.websocket.WebSocketHandler):
-
-	def write_message(self, msg: bytes | Any, **kwargs):
-		if not isinstance(msg, bytes):
-			msg = json.dumps(msg).encode()
-		with suppress(WebSocketClosedError):
-			super().write_message(msg, **kwargs).cancel()
-
-	def on_message(self, msg):
-		self.on_message_json(json.loads(msg))
-
-	def on_message_json(self, msg:dict):
-		raise NotImplemented
-
-
-
 _handlers = []
 
 def handler[T:type[RequestHandler | WebSocketHandler]](handler:T) -> T:
@@ -75,20 +39,8 @@ def handler[T:type[RequestHandler | WebSocketHandler]](handler:T) -> T:
 
 
 def redirect(match, target):
-	_handlers.append((f'/{match}', tornado.web.RedirectHandler, {'url':target}))
+	_handlers.append((f'/{match}', tornado.RedirectHandler, {'url':target}))
 
-
-
-@handler
-class imports(ModuleHandler):
-	mjs = list[str]()
-
-	@classmethod
-	def add(cls, *mjs:str):
-		cls.mjs.extend(mjs)
-
-	def get(self):
-		self.write('\n'.join(f'import "{m}"' for m in self.mjs).encode())
 
 
 @handler
@@ -96,12 +48,12 @@ class files(ModuleHandler):
 	globs = list[str]()
 
 	@classmethod
-	def glob(cls, glob:str):
-		cls.globs.append(glob)
+	def glob(cls, *globs:str):
+		cls.globs.extend(globs)
 
 	async def export_default(self):
-		globs = (gui_path.glob(glob) for glob in self.globs)
-		files = (str(path.relative_to(gui_path)) for path in chain(*globs) if path.is_file() and path.exists())
+		globs = (cwd.glob(glob) for glob in self.globs)
+		files = set(str(path.relative_to(cwd)) for path in chain(*globs) if path.is_file() and path.exists())
 		return {
 			file: self.static_url(file) for file in files
 		}
@@ -120,7 +72,7 @@ class locale(RequestHandler):
 
 	@staticmethod
 	def get_template_path():
-		return Path(gui_path, 'locale')
+		return Path(cwd, 'locale')
 
 	available_languages = ','.join(f.stem for f in get_template_path().glob('*.ftl'))
 
@@ -131,21 +83,16 @@ class locale(RequestHandler):
 
 @handler
 class targets(WebSocketHandler):
-	all = set[Self]()
+	all = tornado.WebSocketConnections()
 	targets = list[str]()
 	
 	@classmethod
 	def start(cls):
 
-		def send_all(msg):
-			msg = json.dumps(msg).encode()
-			for client in cls.all:
-				client.write_message(msg)
-
 		async def watchdog():
 			while True:
 				await asyncio.sleep(1)
-				send_all(None)
+				cls.all.write_message(None, send_unchanged=True)
 
 		async def update():
 			journalctl = await asyncio.create_subprocess_exec('journalctl','--follow','--output=cat','--lines=0','_PID=1', stdout=asyncio.subprocess.PIPE)
@@ -165,7 +112,7 @@ class targets(WebSocketHandler):
 				targets,*_ = await systemctl.communicate()
 				cls.targets = list(t.partition('.target')[0] for t in targets.decode().splitlines())
 				
-				send_all(cls.targets)
+				cls.all.write_message(cls.targets)
 
 		cls.tasks = asyncio.create_task(watchdog()), asyncio.create_task(update())
 
@@ -181,42 +128,58 @@ class targets(WebSocketHandler):
 
 
 
-def server():
-	logging.getLogger('tornado.access').setLevel(logging.WARNING)
+class document(RequestHandler):
 
-	class DocumentHandler(RequestHandler):
-		importmap = {}
+	importmap = dict[str,str]()
+	imports = set[str]()
+	stylesheets = list[str]()
+	favicon: str | None = None
 
-		def get(self):
-			if not self.importmap:
-				for mjs in gui_path.rglob('*.*js'):
-					path = str(mjs.relative_to(gui_path))
-					surl = self.static_url(
-						str(mjs.resolve().relative_to(gui_path)) if mjs.is_symlink() else path
-					)
-					self.importmap[f'/~/{path}'] = surl
-					module = path.rpartition('.')[0].removesuffix('/index')
-					self.importmap[module] = surl
 
-			self.render(
-				'web.html',
-				importmap=json.dumps(self.importmap, indent=2),
-				available_languages=locale.available_languages
+	_html = None
+
+	def initialize(self):
+		if document._html: return
+
+		for mjs in cwd.rglob('*.*js', recurse_symlinks=True):
+			path = str(mjs.relative_to(cwd))
+			surl = self.static_url(
+				str(mjs.resolve().relative_to(cwd)) if mjs.is_symlink() else path
 			)
+			self.importmap[f'/~/{path}'] = surl
+			module = path.rpartition('.')[0].removesuffix('/index')
+			self.importmap[module] = surl
 
-	class StaticFileHandler(tornado.web.StaticFileHandler):
+		document._html = self.render_string('web.html',
+			importmap=json.dumps(self.importmap, indent=2),
+			imports=self.imports,
+			stylesheets=self.stylesheets,
+			favicon=self.favicon,
+			available_languages=locale.available_languages
+		)
+
+		del document.importmap, document.imports, document.stylesheets, document.favicon
+
+
+	def get(self):
+		self.write(document._html)
+
+
+
+def server() -> tornado.HTTPServer:
+
+	class StaticFileHandler(tornado.StaticFileHandler):
 		def validate_absolute_path(self, root, absolute_path):
 			if absolute_path.endswith('.py'):
-				raise tornado.web.HTTPError(404)
+				raise tornado.HTTPError(404)
 			return super().validate_absolute_path(root, absolute_path)
-
 
 	targets.start()
 
-	return tornado.httpserver.HTTPServer(
-		tornado.web.Application(
-			[*_handlers, ('/.*', DocumentHandler)],
-			static_path=gui_path,
+	return tornado.HTTPServer(
+		tornado.Application(
+			[*_handlers, ('/.*', document)],
+			static_path=cwd,
 			static_url_prefix='/~/',
 			static_handler_class=StaticFileHandler,
 			websocket_ping_interval=10,
