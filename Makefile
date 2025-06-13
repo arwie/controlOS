@@ -23,6 +23,7 @@ system_img: update
 
 update: .initramfs
 	@cd root \
+		&& ln -sf platform-$(PLATFORM) platform-any \
 		&& $(PTXDIST) images
 
 .initramfs:
