@@ -10,4 +10,5 @@ locale_se	= Svenska (se)
 locale_ru	= Русский (ru)
 locale_cz	= Český (cz)
 locale_jp	= 日本の (jp)
+locale_cn	= 中文 (cn)
 locale_he	= עִברִית

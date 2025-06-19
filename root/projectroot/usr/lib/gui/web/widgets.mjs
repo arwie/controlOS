@@ -27,7 +27,7 @@ export const PageLink = {
 		:to
 		v-show="!to.beforeEnter || to.beforeEnter()===true"
 		:class="cls"
-		:data-l10n-id="to.name"
+		:data-l10n-id="to.meta.l10n"
 		@click="navbarCollapse"
 		activeClass="active"
 	/>
@@ -210,18 +210,17 @@ export const PressButton = {
 
 
 export const FileButton = {
-	props: ['data-l10n-id'],
+	props: ['data-l10n-id','disabled'],
 	emits: ['file'],
 	setup(props) {
-		return { 
-			dataL10nId: props.dataL10nId,
-		}
+		return { props }
 	},
 	template: //html
 	`
-	<label class="btn">
-		<span :data-l10n-id></span>
-		<input type="file" @change="$emit('file', $event.target.files[0], $event.target.parentElement)" hidden>
+	<label class="btn" :class="{disabled:props.disabled}">
+		<span :data-l10n-id="props.dataL10nId"></span>
+		<slot></slot>
+		<input type="file" @change="$emit('file', $event.target.files[0], $event.target.parentElement)" :disabled="props.disabled" hidden>
 	</label>
 	`
 }

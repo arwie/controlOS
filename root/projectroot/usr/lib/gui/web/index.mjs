@@ -20,7 +20,10 @@ export let router;
 export function addPage(path, component, parent=null) {
 	const route = {
 		path: parent ? path : `/${path}`,
-		name: path,
+		name: parent ? `${parent.name}_${path}` : path,
+		meta: {
+			l10n: component?.l10n || path,
+		},
 		component,
 		children: [],
 		addPage(path, component) {
