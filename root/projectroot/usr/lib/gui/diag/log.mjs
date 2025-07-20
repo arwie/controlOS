@@ -32,12 +32,17 @@ const Message = {
 		msg.PRIORITY = parseInt(msg.PRIORITY);
 
 		function value(field) {
-			let value = msg[field];
+			const value = msg[field];
 			if (value===null || Array.isArray(value) || value.length>4096) {
-				const downloadUrl = url('diag.log.cat').query({field, cursor:msg.__CURSOR})
-				value = `<a download href="${downloadUrl}" data-l10n-id="download"></a>`;
+				const a = document.createElement('a');
+				a.href = url('diag.log.cat').query({field, cursor:msg.__CURSOR});
+				a.download = field;
+				a.setAttribute('data-l10n-id', 'download');
+				return a.outerHTML;
 			}
-			return value;
+			const div = document.createElement('div');
+			div.textContent = value;
+			return div.innerHTML;
 		}
 
 		const details = ref(0);
