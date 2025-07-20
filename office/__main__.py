@@ -12,12 +12,12 @@ web.document.importmap.update({
 })
 
 web.document.stylesheets.append('https://unpkg.com/bootstrap@5.3/dist/css/bootstrap.min.css')
-web.document.imports.add('https://unpkg.com/bootstrap@5.3/dist/js/bootstrap.bundle.min.js')
+web.document.imports.append('https://unpkg.com/bootstrap@5.3/dist/js/bootstrap.bundle.min.js')
 
 web.document.stylesheets.append('https://unpkg.com/@fortawesome/fontawesome-free@6.7/css/all.min.css')
 
 
-web.document.imports.add('office')
+web.document.imports.append('office')
 
 
 import extlog

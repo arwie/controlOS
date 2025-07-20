@@ -131,7 +131,7 @@ class targets(WebSocketHandler):
 class document(RequestHandler):
 
 	importmap = dict[str,str]()
-	imports = set[str]()
+	imports = list[str]()
 	stylesheets = list[str]()
 	favicon: str | None = None
 
