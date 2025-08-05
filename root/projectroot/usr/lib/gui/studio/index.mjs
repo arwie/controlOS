@@ -5,7 +5,7 @@ import { setRootView, addPage } from 'web'
 import { RootView, PageLink } from 'web/widgets'
 
 import { SystemDropdown, PoweroffDropdown } from 'system'
-import { LocaleDropdown } from 'locale'
+import { LocaleDropdown } from 'web/locale'
 import { DiagDropdown } from 'diag'
 
 
@@ -22,7 +22,7 @@ setRootView({
 	components: { RootView, PageLink, DiagDropdown, SystemDropdown, LocaleDropdown, PoweroffDropdown },
 	template: //html
 	`
-	<RootView>
+	<RootView :title="$t('studio.title', { site: $t('title') })">
 		<template #navbar>
 			<PageLink to="/diag/log" />
 			<PageLink v-for="to in links" :to />

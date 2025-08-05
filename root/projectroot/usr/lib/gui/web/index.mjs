@@ -4,6 +4,7 @@
 import { createApp, shallowRef } from 'vue'
 import { createRouter, createWebHashHistory } from 'vue/router'
 import { url, poll, isObject } from 'web/utils'
+import { i18n } from 'web/locale'
 
 
 
@@ -20,10 +21,7 @@ export let router;
 export function addPage(path, component, parent=null) {
 	const route = {
 		path: parent ? path : `/${path}`,
-		name: parent ? `${parent.name}_${path}` : path,
-		meta: {
-			l10n: component?.l10n || path,
-		},
+		name: parent ? `${parent.name}.${path}` : path,
 		component,
 		children: [],
 		addPage(path, component) {
@@ -88,5 +86,6 @@ export default async function() {
 	const app = createApp(rootView);
 	app.config.compilerOptions.whitespace = 'preserve';
 	app.use(router);
+	app.use(i18n);
 	app.mount('#gui-view');
 }

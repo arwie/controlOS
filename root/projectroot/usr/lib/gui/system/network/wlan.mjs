@@ -40,21 +40,21 @@ networkIndex.addPage('wlan', {
 	`
 	<div class="mb-3 form-check form-switch">
 		<input v-model="enabled" type="checkbox" id="network_wlanEnabled" class="form-check-input">
-		<label class="form-check-label" for="network_wlanEnabled" data-l10n-id="network_enabled"></label>
+		<label class="form-check-label" for="network_wlanEnabled">{{ $t('system.network.enabled') }}</label>
 	</div>
 	<div v-if="enabled">
 		<div class="mb-3">
-			<label class="form-label" data-l10n-id="network_ssid"></label>
+			<label class="form-label">{{ $t('system.network.ssid') }}</label>
 			<input v-model="conf.ssid" type="text" class="form-control">
 		</div>
 		<div class="mb-3">
-			<label class="form-label" data-l10n-id="network_password"></label>
+			<label class="form-label">{{ $t('system.network.password') }}</label>
 			<input v-model="conf.psk" type="password" class="form-control">
 		</div>
 		<NetworkConf ref="wlanConf" type="wlan"/>
 	</div>
 	<ButtonBar>
-		<button @click="save" class="btn btn-primary" data-l10n-id="network_save"></button>
+		<button @click="save" class="btn btn-primary">{{ $t('save') }}</button>
 	</ButtonBar>
 	`
 })
