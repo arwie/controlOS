@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: MIT
 
 import { addPage } from 'web'
-import { url } from 'web/utils'
 import { NavDropdown, PageLink } from 'web/widgets'
 
 
@@ -22,24 +21,6 @@ export const SystemDropdown = {
 	`
 	<NavDropdown icon="cog" :title="$t('system.title')" right>
 		<PageLink v-for="to in links" :to />
-	</NavDropdown>
-	`
-}
-
-
-export const PoweroffDropdown = {
-	setup() {
-		return {
-			poweroff() {
-				url('system.poweroff').post();
-			}
-		}
-	},
-	components: { NavDropdown },
-	template: //html
-	`
-	<NavDropdown icon="power-off" right>
-		<button @click="poweroff" class="dropdown-item">{{$t('system.poweroff')}}</button>
 	</NavDropdown>
 	`
 }

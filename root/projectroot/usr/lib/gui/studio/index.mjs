@@ -4,7 +4,8 @@
 import { setRootView, addPage } from 'web'
 import { RootView, PageLink } from 'web/widgets'
 
-import { SystemDropdown, PoweroffDropdown } from 'system'
+import { SystemDropdown } from 'system'
+import { PoweroffDropdown } from 'system/power'
 import { LocaleDropdown } from 'web/locale'
 import { DiagDropdown } from 'diag'
 
