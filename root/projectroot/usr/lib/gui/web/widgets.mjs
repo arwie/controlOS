@@ -115,24 +115,6 @@ export const NavDropdown = {
 }
 
 
-export const Tabs = {
-	setup() {
-		function tabs() {
-			return Object.keys(useSlots());
-		}
-		const tab = ref(tabs()[0]);
-		return { tabs, tab }
-	},
-	template: //html
-	`
-	<div class="nav nav-tabs nav-fill mb-4">
-		<a v-for="t in tabs()" @click.prevent="tab=t" :class="{active:tab==t}" class="nav-link" href="#">{{t}}</a>
-	</div>
-	<slot :name="tab"></slot>
-	`
-}
-
-
 export const ButtonBar = {
 	template: //html
 	`

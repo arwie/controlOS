@@ -110,7 +110,12 @@ export default {
 			value: "Value",
 			override: "Override",
 		},
+		setup: {
+			title: "Setup",
+		},
+		sim: {
+			title: "Simulation"
+		}
 	},
 
-	sim: "Simulation"
 };

@@ -5,11 +5,8 @@ import web
 from shared.utils import import_all_in_package
 
 
-web.document.imports.append('bootstrap')
-web.document.stylesheets.append('bootstrap/bootstrap.css')
-
-web.document.stylesheets.append('fontawesome/css/all.css')
-
+import web.use.bootstrap
+import web.use.fontawesome
 
 web.document.imports.append('studio')
 
