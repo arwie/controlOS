@@ -1,6 +1,7 @@
 import { ref, useTemplateRef } from 'vue'
 import { url, updateDeep } from 'web/utils'
 import { ButtonBar, feedback } from 'web/widgets'
+import { BFormCheckbox } from 'bootstrap/vue'
 import { networkIndex } from 'system/network'
 import { NetworkConf } from 'system/network/lan'
 
@@ -35,12 +36,11 @@ networkIndex.addPage('wlan', {
 
 		return { enabled, conf, save }
 	},
-	components: { NetworkConf, ButtonBar },
+	components: { NetworkConf, ButtonBar, BFormCheckbox },
 	template: //html
 	`
-	<div class="mb-3 form-check form-switch">
-		<input v-model="enabled" type="checkbox" id="network_wlanEnabled" class="form-check-input">
-		<label class="form-check-label" for="network_wlanEnabled">{{ $t('system.network.enabled') }}</label>
+	<div class="mb-3">
+		<BFormCheckbox v-model="enabled" switch>{{ $t('system.network.enabled') }}</BFormCheckbox>
 	</div>
 	<div v-if="enabled">
 		<div class="mb-3">

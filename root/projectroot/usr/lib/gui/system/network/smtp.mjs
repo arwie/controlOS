@@ -4,6 +4,7 @@
 import { ref } from 'vue'
 import { url, updateDeep } from 'web/utils'
 import { ButtonBar, feedback } from 'web/widgets'
+import { BFormCheckbox } from 'bootstrap/vue'
 import { networkIndex } from 'system/network'
 
 
@@ -36,12 +37,11 @@ networkIndex.addPage('smtp', {
 
 		return { enabled, conf, save }
 	},
-	components: { ButtonBar },
+	components: { ButtonBar, BFormCheckbox },
 	template: //html
 	`
-	<div class="mb-3 form-check form-switch">
-		<input v-model="enabled" type="checkbox" id="network_smtpEnabled" class="form-check-input">
-		<label class="form-check-label" for="network_smtpEnabled">{{ $t('system.network.enabled') }}</label>
+	<div class="mb-3">
+		<BFormCheckbox v-model="enabled" switch>{{ $t('system.network.enabled') }}</BFormCheckbox>
 	</div>
 	<div v-if="enabled">
 		<div class="mb-3">

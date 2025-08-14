@@ -5,6 +5,7 @@ import { ref, shallowReactive, watch } from 'vue'
 import { target } from 'web'
 import { url } from 'web/utils'
 import { FileButton, feedback } from 'web/widgets'
+import { BFormCheckbox } from 'bootstrap/vue'
 import { diagIndex } from 'diag'
 
 
@@ -269,7 +270,7 @@ diagIndex.addPage('log', {
 
 		return { messages, follow, date, pinned, grep, filter, priority, identifier, identifiers, host, config, extendNewer, extendOlder, scroll, extlogImport }
 	},
-	components: { Message, FileButton },
+	components: { Message, FileButton, BFormCheckbox },
 	template: //html
 	`
 	<div class="row h-100">
@@ -282,10 +283,7 @@ diagIndex.addPage('log', {
 		<button v-if="config.desktop" @click="extendNewer" :disabled="follow || !messages.length" class="btn btn-secondary w-100 mb-3">{{ $t('diag.log.extendNewer') }}</button>
 		
 		<div v-if="!config.extlog" :class="follow ? 'alert-success' : 'alert-warning'" class="alert">
-			<div class="form-check">
-				<input v-model="follow" type="checkbox" class="form-check-input" id="log_follow">
-				<label class="form-check-label" for="log_follow">{{ $t('diag.log.follow') }}</label>
-			</div>
+			<BFormCheckbox v-model="follow">{{ $t('diag.log.follow') }}</BFormCheckbox>
 		</div>
 		<FileButton v-else @file="extlogImport" class="btn-primary w-100 mb-3">{{ $t('diag.log.extlogImport') }}</FileButton>
 		
