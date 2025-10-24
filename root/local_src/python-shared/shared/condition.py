@@ -60,7 +60,7 @@ class Timer(AbstractCondition, AbstractContextManager):
 		return max(0, self.expire - monotonic())
 
 	async def wait(self):
-		if left := self.left():
+		while left := self.left():
 			await sleep(left)
 
 	def __call__(self):
