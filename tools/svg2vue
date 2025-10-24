@@ -11,9 +11,12 @@ import re
 
 
 args_parser = ArgumentParser()
-args_parser.add_argument('input')
-args_parser.add_argument('output')
+args_parser.add_argument('input', help='SVG source file')
+args_parser.add_argument('output', nargs='?', help='MJS Vue component output file (default: input with .svg replaced by .mjs)')
 args = args_parser.parse_args()
+
+if args.output is None:
+	args.output = Path(args.input).with_suffix('.mjs')
 
 
 svg_xml = Path(args.input).read_bytes()
@@ -86,7 +89,8 @@ with open(args.output, 'w') as file:
 		for el in element.iter():
 			for attr in el.attrib.keys():
 				if attr.startswith(':'):
-					el.attrib.pop(attr.lstrip(':'), None)
+					if not (del_attr := attr.lstrip(':')) in ('class','style'):
+						el.attrib.pop(del_attr, None)
 
 		etree.indent(element, space="\t", level=1)
 

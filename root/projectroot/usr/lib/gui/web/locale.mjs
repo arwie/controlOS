@@ -25,7 +25,7 @@ const langs = await (
 )();
 
 
-async function selectLocale(lang) {
+export async function selectLocale(lang) {
 	if (!i18n.global.availableLocales.includes(lang)) {
 		let localeModule;
 		try {
@@ -44,7 +44,8 @@ async function selectLocale(lang) {
 //import fallback locale
 await selectLocale('en');
 //select browser locale
-selectLocale(navigator.language.split('-')[0]);
+if (navigator.userAgent != 'WPE')
+	selectLocale(navigator.language.split('-')[0]);
 
 
 

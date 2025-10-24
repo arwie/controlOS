@@ -12,12 +12,13 @@ import { DiagDropdown } from 'diag'
 
 
 export const studioIndex = addPage('studio');
+export const studioLinks = [];
 
 
 setRootView({
 	setup() {
 		return {
-			links: studioIndex.children,
+			links: ["/diag/log", ...studioIndex.children, ...studioLinks],
 		}
 	},
 	components: { RootView, PageLink, DiagDropdown, SystemDropdown, LocaleDropdown, PoweroffDropdown },
@@ -25,7 +26,6 @@ setRootView({
 	`
 	<RootView :title="$t('studio.title', { site: $t('title') })">
 		<template #navbar>
-			<PageLink to="/diag/log" />
 			<PageLink v-for="to in links" :to />
 		</template>
 		<template #navbar-right>

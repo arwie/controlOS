@@ -38,14 +38,11 @@ export const PageLink = {
 
 export const PageView = {
 	props: ['key'],
-	setup(props) {
-		return { props }
-	},
 	template: //html
 	`
 	<RouterView v-slot="{ Component }">
 		<Suspense v-if="Component">
-			<component :is="Component" :key="props.key"/>
+			<component :is="Component" :key="key"/>
 		</Suspense>
 		<slot v-else></slot>
 	</RootView>
@@ -54,21 +51,19 @@ export const PageView = {
 
 
 export const RootView = {
-	props: ['title','image','style'],
+	props: ['title','style'],
 	setup(props) {
 		watchEffect(() => {
 			document.title = props.title;
 		});
-		return { props }
 	},
 	components: { PageView },
 	template: //html
 	`
-	<nav class="navbar navbar-expand-lg fixed-top bg-light" :style="props.style">
+	<nav class="navbar navbar-expand-lg fixed-top bg-light" :style>
 		<div class="container-fluid">
 			<a href="#" class="navbar-brand">
-				<img  v-if="props.image" :src="props.image" height="22" class="d-inline-block align-baseline"/>
-				<span v-else >{{props.title}}</span>
+				<slot name="navbar-brand">{{title}}</slot>
 			</a>
 			<button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-collapse">
 				<span class="navbar-toggler-icon"></span>
@@ -96,18 +91,17 @@ export const NavDropdown = {
 		title: String,
 		right: Boolean,
 	},
-	setup(props) {
+	setup() {
 		provide('class', 'dropdown-item');
-		return { props }
 	},
 	template: //html
 	`
 	<div class="nav-item dropdown">
 		<a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-			<i v-if="props.icon" :class="'fas fa-'+props.icon"></i>
-			<span v-if="props.title" :class="{'d-none d-xxl-inline':props.icon}">{{props.title}}</span>
+			<i v-if="icon" :class="'fas fa-'+icon"></i>
+			<span v-if="title" :class="{'d-none d-xxl-inline':icon}">{{title}}</span>
 		</a>
-		<div class="dropdown-menu" :class="{'dropdown-menu-end':props.right}">
+		<div class="dropdown-menu" :class="{'dropdown-menu-end':right}">
 			<slot></slot>
 		</div>
 	</div>
@@ -189,16 +183,15 @@ export const PressButton = {
 
 
 export const FileButton = {
-	props: ['disabled'],
-	emits: ['file'],
-	setup(props) {
-		return { props }
+	props: {
+		disabled: Boolean,
 	},
+	emits: ['file'],
 	template: //html
 	`
-	<label class="btn" :class="{disabled:props.disabled}">
+	<label class="btn" :class="{ disabled }">
 		<slot></slot>
-		<input type="file" @change="$emit('file', $event.target.files[0], $event.target.parentElement)" :disabled="props.disabled" hidden>
+		<input type="file" @change="$emit('file', $event.target.files[0], $event.target.parentElement)" :disabled hidden>
 	</label>
 	`
 }
