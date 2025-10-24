@@ -10,4 +10,4 @@ User=daemon
 Environment="XDG_RUNTIME_DIR=/run/xdg"
 Environment="WAYLAND_DISPLAY=wayland-1"
 
-ExecStart=cog --config=/etc/cog.conf  http://sys
+ExecStart=cog --config=/etc/cog.conf --doc-viewer  http://sys
