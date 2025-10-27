@@ -44,8 +44,7 @@ export async function selectLocale(lang) {
 //import fallback locale
 await selectLocale('en');
 //select browser locale
-if (navigator.userAgent != 'WPE')
-	selectLocale(navigator.language.split('-')[0]);
+selectLocale(localStorage.getItem("_locale_") || navigator.language.split('-')[0]);
 
 
 
@@ -55,6 +54,7 @@ export const LocaleDropdown = {
 			langs,
 			select(lang) {
 				selectLocale(lang);
+				localStorage.setItem("_locale_", lang);
 				document.getElementById('navbar-collapse')?.classList.remove('show');
 			},
 		}
