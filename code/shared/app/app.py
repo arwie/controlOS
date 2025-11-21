@@ -1,24 +1,10 @@
-# Copyright (c) 2023 Artur Wiebe <artur@4wiebe.de>
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
-# associated documentation files (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
-# and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-# WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
+# SPDX-FileCopyrightText: 2025 Artur Wiebe <artur@4wiebe.de>
+# SPDX-License-Identifier: MIT
 
 from __future__ import annotations
 from typing import overload, Any
 from collections.abc import Callable, Coroutine, AsyncGenerator
-from contextlib import AbstractAsyncContextManager
+from contextlib import AbstractAsyncContextManager, suppress
 import asyncio
 import inspect
 from functools import partial
@@ -57,40 +43,51 @@ class Trigger:
 async def poll(
 	condition: Callable[[], Any],
 	*,
-	timeout: float | Timeout | None = None,
+	timeout: float | None = None,
 	abort: Callable[[], Any] | None = None,
 	period: float | Trigger | Callable[[], Coroutine] = poll_period,
-	settle: float | Timeout = 0
+	settle: float = 0
 ):
+	"""
+	Periodically polls a condition until it becomes true, times out, or is aborted.
+
+	Args:
+		condition: Callable evaluated each iteration. Polling continues until it returns a truthy value.
+		timeout: Maximum time in seconds to poll. None means no timeout (poll indefinitely).
+		abort: Optional callable that when returns truthy, aborts the polling.
+		period: Time to wait between condition checks. Can be:
+			- float/int: Sleep interval in seconds
+			- Trigger: Event-driven trigger to wait for
+			- Callable[[], Coroutine]: Custom async wait function
+		settle: Duration in seconds the condition must remain continuously True before returning.
+			If condition becomes False during this period, the settle timer resets.
+
+	Returns:
+		- The truthy result from condition() when it has been True for the settle duration
+		- False when the abort condition becomes True
+		- None when the timeout expires
+	"""
 
 	if callable(abort):
 		abort = Condition(abort)
-
-	if isinstance(timeout, (float, int)):
-		timeout = Timeout(timeout)
 
 	if isinstance(period, (float, int)):
 		period = partial(asyncio.sleep, period)
 	elif isinstance(period, Trigger):
 		period = period.wait
 
-	if isinstance(settle, (float, int)):
-		settle = Timeout(settle)
+	settle_timeout = Timeout(settle)
 
-	while True:
-		if abort: #check abort before condition
+	with suppress(TimeoutError):
+		async with asyncio.timeout(timeout):
+			while not abort:
+				if result := condition():
+					if settle_timeout:
+						return result
+				else:
+					settle_timeout.reset()
+				await period()
 			return False
-
-		if result := condition():
-			if settle:
-				return result
-		else:
-			settle.reset()
-
-		if timeout:
-			return False
-		await period()
-
 
 
 @asynccontextmanager
@@ -138,7 +135,9 @@ class task_group(asyncio.TaskGroup):
 		return self
 
 	def __call__(self, coro: Coroutine[Any, Any, None] | Callable[[], Coroutine[Any, Any, None]], **kwargs):
-		return self.create_task(coro() if callable(coro) else coro, **kwargs)
+		if callable(coro):
+			coro = coro()
+		return self.create_task(coro, name=coro.__qualname__, **kwargs)
 
 	async def __aexit__(self, et, exc, tb):
 		if not self._aborting:	#type:ignore

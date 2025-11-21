@@ -103,7 +103,7 @@ export default {
 			title: "Datum / Uhrzeit",
 			status: "Status der Systemuhr auf der Steuerung",
 			timezone: "Zeitzone auf der Steuerung",
-			timeSync: "Die Systemuhr auf der Steuerung is nicht synchronisiert!\nSoll die Geräteuhrzeit {time} UTC an die Steuerung gesendet werden?",
+			timeSync: "Die Systemuhr auf der Steuerung ist nicht synchronisiert!\nSoll die Geräteuhrzeit {time} UTC an die Steuerung gesendet werden?",
 		},
 	},
 
