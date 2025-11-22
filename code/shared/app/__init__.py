@@ -17,24 +17,24 @@ from .simio import input, output, IoGroup
 
 
 
-def run(main: Coroutine[Any, Any, None] | Callable[[], Coroutine[Any, Any, None]]):
+def run(app_main: Coroutine[Any, Any, None] | Callable[[], Coroutine[Any, Any, None]]):
 
-	async def app_task():
-		async with (
-			web.server(),
-			simio.exec(),
-		):
-			await main() if callable(main) else main
-
-	async def app_main():
+	async def main():
 		exit_event = asyncio.Event()
 
 		for sig in (signal.SIGINT, signal.SIGTERM):
 			asyncio.get_running_loop().add_signal_handler(sig, exit_event.set)
 
-		async with app.task_group(app_task):
-			await exit_event.wait()
-			log.warning('Received INT/TERM signal -> app is going to exit...')
+		async with app.AuxTaskGroup() as task_group:
 
-	asyncio.run(app_main())
+			task_group(app_main)
+
+			async with (
+				web.server(),
+				simio.exec(),
+			):
+				await exit_event.wait()
+				log.warning('Received INT/TERM signal -> app is going to exit...')
+
+	asyncio.run(main())
 	exit(0)

@@ -56,6 +56,7 @@ class _IOBase[T:(bool, int, float, str)]:
 	async def sync(self):
 		pass
 
+	@app.aux_task
 	async def sync_loop(self, period:float):
 		while True:
 			await self.sync()
@@ -162,6 +163,7 @@ class IoGroup(AbstractContextManager):
 		for simio in self._simio:
 			await simio.sync()
 
+	@app.aux_task
 	async def sync_loop(self, period:float):
 		while True:
 			await self.sync()
