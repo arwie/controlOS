@@ -20,7 +20,7 @@ except FileNotFoundError:
 
 
 try:
-	import shared.setups
+	import shared.setups #type:ignore optional package
 except ModuleNotFoundError:
 	pass
 except Exception:
