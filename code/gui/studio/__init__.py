@@ -19,6 +19,7 @@ import system.timedate
 
 import diag.log
 import diag.issue
+web.document.imports.append('diag/watch')
 
 
 import_all_in_package(__file__, __name__)
