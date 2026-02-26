@@ -18,8 +18,8 @@ import system.network
 import system.timedate
 
 import diag.log
-import diag.issue
 web.document.imports.append('diag/watch')
+import diag.issue
 
 
 import_all_in_package(__file__, __name__)
