@@ -22,7 +22,7 @@ $(STATEDIR)/system.targetinstall:
 	@$(call install_init, system)
 	
 	# basics
-	@$(call install_alternative, system, 0, 0, 0644, /boot/boot.conf)
+	@$(call install_copy,        system, 0, 0, 0755, /mnt/root)
 	@$(call install_alternative, system, 0, 0, 0644, /usr/lib/systemd/system/var.mount.d/var.conf)
 	@$(call install_alternative, system, 0, 0, 0644, /usr/lib/systemd/system/etc.mount.d/etc.conf)
 	@$(call install_alternative, system, 0, 0, 0644, /etc/tmpfiles.d/system.conf)
@@ -40,8 +40,6 @@ $(STATEDIR)/system.targetinstall:
 	@$(call install_alternative, system, 0, 0, 0644, /usr/lib/systemd/system/sys-subsystem-net-devices-wlan.device)
 
 	# update
-	@$(call install_copy,        system, 0, 0, 0755, /mnt/init)
-	@$(call install_copy,        system, 0, 0, 0755, /mnt/root)
 	@$(call install_alternative, system, 0, 0, 0755, /usr/bin/update)
 	@$(call install_alternative, system, 0, 0, 0755, /usr/sbin/update-apply)
 	@$(call install_alternative, system, 0, 0, 0644, /usr/lib/systemd/system/update-apply.service)

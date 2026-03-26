@@ -47,8 +47,8 @@ vboxmanage modifyvm $UUID \
 
 
 # create and attach system disk
-xzcat ../boot/platform-x86/images/system.img.xz | \
-	vboxmanage convertfromraw stdin vm/system.vdi 4294967296
+xzcat ../boot/platform-x86/images/install.img.xz | \
+	vboxmanage convertfromraw stdin vm/system.vdi $((8 * 1024 * 1024 * 1024))
 
 vboxmanage storagectl $UUID \
 	--add sata \

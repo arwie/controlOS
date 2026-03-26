@@ -101,6 +101,7 @@ select-platform:
 
 
 keygen: \
+	keys/sb.key \
 	keys/projectroot/etc/gpg/update.pubkey \
 	keys/projectroot/etc/gpg/backup.pubkey \
 	keys/projectroot/etc/gpg/common.symkey \
@@ -130,3 +131,6 @@ keys/projectroot/root/.ssh/authorized_keys:
 keys/projectroot/root/.ssh/id_rsa:
 	@mkdir -p keys/projectroot/root/.ssh \
 	&& ssh-keygen -f keys/projectroot/root/.ssh/id_rsa -N ""
+
+keys/sb.key:
+	@openssl req -new -x509 -newkey rsa:2048 -sha256 -nodes -keyout keys/sb.key -out keys/sb.crt -days 365000 -subj "/CN=controlOS/"
