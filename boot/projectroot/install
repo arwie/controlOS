@@ -51,6 +51,7 @@ umount install
 
 
 echo "### install system to $SYSTEM_DEV"
+ignore blkdiscard $SYSTEM_DEV
 dd if=/tmp/system.img of=$SYSTEM_DEV bs=1M
 
 

@@ -21,7 +21,7 @@ update()
 
 	update_board
 
-	#fstrim -v root
+	ignore fstrim -v root
 	umount root
 }
 update_board() { :; }

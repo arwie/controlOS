@@ -15,6 +15,12 @@ CRYPTKEY_FILE=/tmp/crypt.key
 
 
 
+ignore()
+{
+	"$@" 2>/dev/null || true
+}
+
+
 waitfs()
 {
 	TIMEOUT=${2-100}
@@ -29,16 +35,17 @@ waitfs()
 
 dmcrypt_setup()
 (
+	echo "### setup crypt containers"
+	KEY=$(xxd -p -c128 $CRYPTKEY_FILE)
+	shred -u -n1 $CRYPTKEY_FILE
+
 	for name in root data
 	do
-		echo "### setup $name crypt container"
-
-		KEY=$(xxd -p -c128 $CRYPTKEY_FILE)
 		DEV=$(waitfs $name)
 		SIZE=$(blockdev --getsz $DEV)
 
 		dmsetup create $name <<- +++
-			0 $SIZE crypt aes-xts-plain64 $KEY 0 $DEV 0
+			0 $SIZE crypt aes-xts-plain64 $KEY 0 $DEV 0 1 allow_discards
 		+++
 	done
 )
