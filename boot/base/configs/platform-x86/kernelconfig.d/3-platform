@@ -1,3 +1,4 @@
+## CMDLINE_OVERRIDE: always keep enabled to prevent external cmdline injection (secure boot)
 CONFIG_CMDLINE_BOOL=y
 CONFIG_CMDLINE_OVERRIDE=y
 

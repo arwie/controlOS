@@ -29,7 +29,7 @@ IMAGE_SYSTEM_CONFIG		:= system
 IMAGE_INSTALL_CPIO_CONFIG	= $(IMAGE_ROOT_CPIO_CONFIG)
 IMAGE_INSTALL_CPIO_ENV		= $(IMAGE_ROOT_CPIO_ENV)
 
-IMAGE_INSTALL_ENV := \
+IMAGE_INSTALL_ENV = \
 	SIZE="$(shell echo $$(( $$(stat -L -c%s $(IMAGE_INSTALL_UPDATE)) + 32*1024*1024 )) )"
 
 $(IMAGE_INSTALL_IMAGE): $(IMAGE_INSTALL_UPDATE)
@@ -48,7 +48,7 @@ ifdef PTXCONF_IMAGE_KERNEL_INITRAMFS
 endif
 
 	@$(call image/genimage, IMAGE_INSTALL)
-	@xz -T0 -zf $(IMAGEDIR)/install.img
+	@xz -T0 -1 -zf $(IMAGEDIR)/install.img
 
 	@$(call finish)
 

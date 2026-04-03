@@ -39,12 +39,8 @@ $(STATEDIR)/system.targetinstall:
 	@$(call install_copy,        system, 0, 0, 0755, /etc/wpa_supplicant.conf.d)
 	@$(call install_alternative, system, 0, 0, 0644, /usr/lib/systemd/system/sys-subsystem-net-devices-wlan.device)
 
-	# update
+	# update and backup
 	@$(call install_alternative, system, 0, 0, 0755, /usr/bin/update)
-	@$(call install_alternative, system, 0, 0, 0755, /usr/sbin/update-apply)
-	@$(call install_alternative, system, 0, 0, 0644, /usr/lib/systemd/system/update-apply.service)
-	
-	# backup
 	@$(call install_alternative, system, 0, 0, 0755, /usr/bin/backup)
 	@$(call install_alternative, system, 0, 0, 0644, /usr/lib/systemd/system/backup@.service)
 	@$(call install_alternative, system, 0, 0, 0644, /usr/lib/systemd/system/backup.socket)

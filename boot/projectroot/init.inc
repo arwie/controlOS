@@ -49,3 +49,14 @@ dmcrypt_setup()
 		+++
 	done
 )
+
+
+check_archive()
+{
+	echo "### check $1 integrity"
+	if ! tar --extract --to-stdout --file=$1 > /dev/null
+	then
+		echo "!!! $1 is corrupt -> aborting"
+		return 1
+	fi
+}

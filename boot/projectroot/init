@@ -13,7 +13,7 @@ dmcrypt_setup
 
 
 echo "### check data file system"
-fsck.ext4 -pv /dev/mapper/data
+ignore fsck.ext4 -pv /dev/mapper/data
 
 
 echo "### mount file systems"
@@ -23,6 +23,26 @@ mount --ro /dev/mapper/root $root
 mount -o bind $root $root/mnt/root
 
 mount /dev/mapper/data $root/var
+
+
+if [ -f $root/var/backup ]
+then
+	echo "### restore backup"
+
+	if check_archive $root/var/backup
+	then
+		rm -rf $root/var/etc
+		tar --extract \
+			--xattrs \
+			--xattrs-include='*' \
+			--directory=$root/var \
+			--file=$root/var/backup
+		sync
+	fi
+
+	rm -f $root/var/backup
+fi
+
 
 mkdir -p $root/var/etc $root/var/.etc
 mount -t overlay -o lowerdir=$root/etc,upperdir=$root/var/etc,workdir=$root/var/.etc none $root/etc
