@@ -18,7 +18,6 @@ image install_boot.vfat {
 
 image install_payload.vfat {
 	vfat {
-		label = install
 		@PAYLOAD@
 	}
 	size = @SIZE@
@@ -30,12 +29,12 @@ image install.img {
 		partition-table-type = hybrid
 		align = 1M
 	}
-	partition install_boot {
+	partition efi {
 		image = install_boot.vfat
 		partition-type = 0xEF
 		bootable = true
 	}
-	partition install_payload {
+	partition install {
 		image = install_payload.vfat
 		partition-type = 0x0C
 	}
